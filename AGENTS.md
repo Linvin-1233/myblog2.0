@@ -58,8 +58,10 @@ style is the "blueprint/tech poster" look adapted from `example/App.vue`.
 - `app/components/Comments.tsx` (client) renders Gitalk (GitHub-Issues based).
   `gitalk` is dynamically imported inside `useEffect` (touches `window`; must not
   run during prerender); the CSS is a top-level side-effect import.
-- Enabled only when `config.yml` `gitalk.enable` + clientID/repo/owner are set.
-  Note: Gitalk's `clientSecret` is bundled client-side by design.
+- Enabled only when `config.yml` `gitalk.enable` + repo/owner are set.
+  `clientID`/`clientSecret` come from `NEXT_PUBLIC_GITALK_*` env vars (see
+  `.env.example`), falling back to `config.yml`. Note: Gitalk's `clientSecret` is
+  bundled client-side by design — env only keeps it out of git.
 
 ## Architecture
 - `lib/siteConfig.ts` — single source for title/description/author/URL, social

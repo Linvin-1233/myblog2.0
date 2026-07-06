@@ -30,12 +30,11 @@ about: |
 
 # Gitalk 评论(基于 GitHub Issues)。
 # 使用前需：1) 建一个用于存评论的 GitHub 仓库；2) 建一个 GitHub OAuth App
-# (Authorization callback URL 填站点域名)。把下列字段填好并将 enable 设为 true。
-# 注意：clientSecret 会打包进前端(Gitalk 的固有机制)，请使用仅授权该用途的 App。
+# (Authorization callback URL 填站点域名)。
+# clientID / clientSecret 放在环境变量里(见 .env.example)，不写进本文件、不进 git。
+# 注意：Gitalk 机制决定这两个值最终仍会出现在前端 JS 中，仅访问者可见级别的“公开”。
 gitalk:
   enable: false
-  clientID: ""
-  clientSecret: ""
   repo: ""
   owner: ""
   admin:

@@ -307,3 +307,84 @@ body {
 .hljs-tag,
 .hljs-symbol,
 .hljs-meta { color: var(--hljs-meta); }
+
+/*
+  Why: Gitalk 自带浅色皮肤，不随主题变化且圆角柔和，与海报风不搭。这里用
+  #gitalk-container 提升选择器优先级(id > class)覆盖其默认样式，套用 --poster-*
+  变量(随 data-theme 自动切换深浅)，并抹平圆角贴合硬朗风格。
+*/
+#gitalk-container .gt-container {
+  font-family: var(--font-mono);
+  color: var(--poster-text-bright);
+}
+
+#gitalk-container .gt-container .gt-meta {
+  border-bottom: 1px solid var(--poster-line);
+  color: var(--poster-text-muted);
+}
+
+#gitalk-container .gt-container .gt-header-textarea {
+  background: var(--poster-panel);
+  border: 1px solid var(--poster-line);
+  border-radius: 0;
+  color: var(--poster-text-bright);
+}
+
+#gitalk-container .gt-container .gt-header-textarea:focus {
+  border-color: var(--poster-ice);
+}
+
+#gitalk-container .gt-container .gt-btn {
+  background: var(--poster-ice);
+  border-color: var(--poster-ice);
+  border-radius: 0;
+  color: var(--poster-bg);
+}
+
+#gitalk-container .gt-container .gt-btn-preview {
+  background: transparent;
+  color: var(--poster-ice);
+}
+
+#gitalk-container .gt-container a,
+#gitalk-container .gt-container .gt-link {
+  color: var(--poster-ice);
+}
+
+#gitalk-container .gt-container .gt-svg svg {
+  fill: currentColor;
+}
+
+#gitalk-container .gt-container .gt-comment-content {
+  background: var(--poster-panel);
+  border: 1px solid var(--poster-line);
+  border-radius: 0;
+}
+
+#gitalk-container .gt-container .gt-comment-content:hover {
+  box-shadow: 0 0 0 1px var(--poster-ice);
+}
+
+#gitalk-container .gt-container .gt-comment-body {
+  color: var(--poster-text-bright);
+}
+
+#gitalk-container .gt-container .gt-comment-admin .gt-comment-content {
+  box-shadow: 0 0 0 1px var(--poster-line);
+}
+
+#gitalk-container .gt-container .gt-header-controls-tip,
+#gitalk-container .gt-container .gt-counts {
+  color: var(--poster-text-muted);
+}
+
+#gitalk-container .gt-container .gt-popup {
+  background: var(--poster-panel);
+  border: 1px solid var(--poster-line);
+  border-radius: 0;
+  color: var(--poster-text-bright);
+}
+
+#gitalk-container .gt-container .gt-avatar img {
+  border-radius: 0;
+}

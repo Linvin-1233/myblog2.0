@@ -1,36 +1,164 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# myblog2.0
 
-## Getting Started
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-First, run the development server:
+A markdown-driven static blog with a "blueprint / tech-poster" visual style.
+Built with **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4**,
+statically exported (`output: 'export'`) to a plain `out/` folder that any static
+host can serve.
+
+## Features
+
+- **Markdown posts** — drop a `.md` file in `posts/`, rebuild, done.
+- **Poster/blueprint UI** — animated grid + satellite-orbit background, dark/light
+  theme with no flash, JetBrains Mono for latin + system sans-serif for CJK.
+- **Full pages** — home, post list (client pagination), post detail, tags, tag
+  filter, yearly archive, about, and a fuzzy **search** page (Fuse.js).
+- **SEO** — per-page metadata, Open Graph / Twitter cards, `BlogPosting` JSON-LD,
+  `sitemap.xml`, `robots.txt`, and an RSS `feed.xml`.
+- **Comments** — optional Gitalk (GitHub-Issues based), toggled from config.
+- **Image optimization** — images in `posts/images/` are compressed with `sharp`
+  at build time.
+- **Single config file** — `config.yml` holds site info, social links, about text,
+  copyright, and Gitalk settings.
+
+## Requirements
+
+- Node.js 20+
+- npm
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Preview the static export:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build    # emits out/
+npx serve out    # serve over HTTP (do NOT open out/index.html via file://)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> The export uses absolute asset paths and `trailingSlash: true`, so it must be
+> served by an HTTP server, not opened directly from the filesystem.
 
-## Learn More
+## Commands
 
-To learn more about Next.js, take a look at the following resources:
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Optimize images, then start the dev server. |
+| `npm run build` | Optimize images, then static-export to `out/`. |
+| `npm run lint` | Run ESLint (flat config). |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+There is no typecheck script (`tsc` runs with `noEmit`) and no test setup.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Writing a post
 
-## Deploy on Vercel
+Create `posts/my-post.md`. The filename is the URL slug
+(`my-post.md` -> `/posts/my-post/`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```markdown
+---
+title: 文章标题
+description: 用于列表与 SEO 的一句话摘要
+date: 2026-03-01
+updated: 2026-03-05      # optional
+tags: [标签一, 标签二]    # array or "a, b" string
+cover: /post-images/x.png # optional
+draft: false             # true hides it in production builds
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+正文用 markdown 书写……
+```
+
+## Images
+
+Put images in `posts/images/` (subfolders are fine) and reference them with the
+`images/` prefix:
+
+```markdown
+![alt](images/photo.png)
+```
+
+At build time `scripts/optimize-images.mjs` compresses each image (keeping its
+original format/extension) into `public/post-images/`, and the renderer rewrites
+`images/...` to `/post-images/...`. The `public/post-images/` folder is generated
+and gitignored.
+
+## Configuration (`config.yml`)
+
+All site-wide content lives in `config.yml` at the repo root — no code changes
+needed:
+
+```yaml
+site:
+  name: "LINVIN_1233"
+  title: "LINVIN_1233 // 蓝图档案馆"
+  description: "..."
+  author: "Linvin"
+  locale: "zh-CN"
+  url: "https://blog.linvin.net"   # overridden by NEXT_PUBLIC_SITE_URL
+  postsPerPage: 6
+  latestCountOnHome: 4
+copyright: "© {year} Linvin"
+social:
+  - label: "GITHUB_PROFILE"
+    url: "https://github.com/Linvin-1233"
+about: |
+  你好！我是 Linvin……
+gitalk:
+  enable: false
+  repo: ""
+  owner: ""
+  admin: [""]
+```
+
+`clientID` / `clientSecret` come from environment variables (see `.env.example`),
+not `config.yml`, so they stay out of git.
+
+### Comments (Gitalk)
+
+To enable comments:
+
+1. Create a GitHub repository to store the comment issues.
+2. Create a GitHub OAuth App (callback URL = your site domain).
+3. Copy `.env.example` to `.env.local` and set
+   `NEXT_PUBLIC_GITALK_CLIENT_ID` / `NEXT_PUBLIC_GITALK_CLIENT_SECRET`.
+   On Vercel, add the same variables in Project Settings.
+4. In `config.yml` set `repo` / `owner` / `admin` and `enable: true`.
+
+> Gitalk still ships `clientSecret` to the browser by design — env vars only keep
+> it out of your git history, not out of the served site. Use an OAuth App scoped
+> only to this purpose.
+
+## Deployment
+
+Hosted on **Vercel** via native Git integration (no GitHub Action):
+
+1. Import the repo on Vercel — the Next.js preset is auto-detected.
+2. Add an environment variable `NEXT_PUBLIC_SITE_URL` = your production domain
+   (drives canonical / OG / sitemap absolute URLs). Add the two
+   `NEXT_PUBLIC_GITALK_*` variables here too if you use comments.
+3. Push to the main branch; Vercel builds and serves the static `out/`.
+
+`vercel.json` only pins `framework: nextjs`. Do **not** set `outputDirectory: out`
+— that bypasses the Next.js builder and breaks routing.
+
+## Project structure
+
+```
+app/            Routes + components (App Router)
+  components/   Poster UI, theme, sidebar, search, comments
+  posts/[slug]/ Post detail (generateStaticParams + metadata + JSON-LD)
+lib/            siteConfig (config.yml loader), posts, markdown, format
+posts/          Markdown posts (+ posts/images/ for assets)
+scripts/        optimize-images.mjs (build-time image compression)
+config.yml      Site-wide configuration
+```
+
+## Tech stack
+
+Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · marked + highlight.js ·
+gray-matter · js-yaml · Fuse.js · sharp · Gitalk

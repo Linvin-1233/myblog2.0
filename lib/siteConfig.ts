@@ -74,8 +74,11 @@ export function renderCopyright(year: number): string {
 const gitalk = raw.gitalk ?? {};
 export const gitalkConfig = {
   enable: gitalk.enable === true,
-  clientID: gitalk.clientID ?? "",
-  clientSecret: gitalk.clientSecret ?? "",
+  // Why: OAuth 凭据从环境变量读取(不进 git)，config.yml 仅作本地回退。
+  // 必须用 NEXT_PUBLIC_ 前缀，因为 Gitalk 在浏览器端使用这两个值。
+  clientID: process.env.NEXT_PUBLIC_GITALK_CLIENT_ID ?? gitalk.clientID ?? "",
+  clientSecret:
+    process.env.NEXT_PUBLIC_GITALK_CLIENT_SECRET ?? gitalk.clientSecret ?? "",
   repo: gitalk.repo ?? "",
   owner: gitalk.owner ?? "",
   admin: (gitalk.admin ?? []).filter(Boolean),
