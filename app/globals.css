@@ -1,26 +1,309 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+  Why: 复刻 example/App.vue 的“蓝图/技术海报”风格。原示例把主题色写成内联
+  CSS 变量，多页站点里不便复用；这里改为在 :root / [data-theme] 上集中定义，
+  并通过 @theme inline 暴露成 Tailwind 工具类(bg-poster-bg 等)，颜色随
+  data-theme 属性整体切换，无需给每个元素单独传变量。
+*/
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-poster-bg: var(--poster-bg);
+  --color-poster-line: var(--poster-line);
+  --color-poster-panel: var(--poster-panel);
+  --color-poster-ice: var(--poster-ice);
+  --color-poster-text: var(--poster-text);
+  --color-poster-text-bright: var(--poster-text-bright);
+  --color-poster-text-muted: var(--poster-text-muted);
+  --color-poster-title: var(--poster-title);
+  /* How: 英文命中 JetBrains Mono，中文因该字体无中文字形而回退到 sans-serif。 */
+  --font-mono: var(--font-jetbrains), sans-serif;
+  --font-sans: var(--font-jetbrains), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* How: 深色为默认基调(海报风主视觉)，浅色通过显式 data-theme 覆盖。 */
+:root {
+  --poster-bg: #03050a;
+  --poster-line: #1e293b;
+  --poster-panel: #0f172a;
+  --poster-ice: #bfecff;
+  --poster-text: #94a3b8;
+  --poster-text-bright: #cbd5e1;
+  --poster-text-muted: #576f8a;
+  --poster-title: #ffffff;
+  --poster-shadow: rgba(0, 0, 0, 0.5);
+
+  /* Why: 语法高亮 token 抽成变量，深色为默认(亮色系配深底)，浅色另行覆盖，
+     避免浅蓝/浅粉/浅黄在白底代码块上对比过低看不清。 */
+  --hljs-comment: var(--poster-text-muted);
+  --hljs-keyword: var(--poster-ice);
+  --hljs-string: #7dd3fc;
+  --hljs-number: #f0abfc;
+  --hljs-title: #fde68a;
+  --hljs-meta: var(--poster-text-muted);
+}
+
+[data-theme="light"] {
+  --poster-bg: #f4f6f9;
+  --poster-line: #cbd5e1;
+  --poster-panel: #ffffff;
+  --poster-ice: #00838f;
+  /* Why: 浅色下字体仅有 Bold 一档，显得过重；正文用中性灰 #555 降低厚重感。
+     正文(卡片描述/文章正文)走 text-bright，故这里也设为 #555。 */
+  /* Why: 浅色下字体仅有 Bold 一档，显得过重；正文用 #778899(LightSlateGray)
+     的中性偏蓝灰降低厚重感。正文(卡片描述/文章正文)走 text-bright。 */
+  --poster-text: #778899;
+  --poster-text-bright: #778899;
+  --poster-text-muted: #a3aec0;
+  --poster-title: #778899;
+  --poster-shadow: rgba(148, 163, 184, 0.3);
+
+  /* How: 白底代码块需要更深、饱和度更高的高亮色才够清晰(参考 GitHub 浅色)。 */
+  --hljs-comment: #6e7781;
+  --hljs-keyword: #cf222e;
+  --hljs-string: #0a7d33;
+  --hljs-number: #0550ae;
+  --hljs-title: #6f42c1;
+  --hljs-meta: #6e7781;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--poster-bg);
+  color: var(--poster-text);
 }
+
+/*
+  Why: 海报背景的网格底纹与漂浮装饰是该风格的核心识别元素。
+  blueprint-grid 提供等距坐标网格的线条底图；两个尺寸变体叠加成视差纵深。
+*/
+.blueprint-grid {
+  background-image:
+    linear-gradient(var(--poster-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--poster-line) 1px, transparent 1px);
+}
+
+/* How: 大网格间距大、上移慢；小网格间距小、上移快。用 background-position 按
+   一个格子高度循环滚动，实现无缝的持续上移视差。 */
+.blueprint-grid-large {
+  background-size: 420px 420px;
+  animation: gridUpLarge 26s linear infinite;
+}
+
+.blueprint-grid-small {
+  background-size: 370px 370px;
+  animation: gridUpSmall 9s linear infinite;
+}
+
+@keyframes gridUpLarge {
+  from { background-position: 0 0; }
+  to { background-position: 0 -420px; }
+}
+
+/* How: 小网格加一个水平偏移，使其线条不与大网格重合，形成“稍微错开”的层次。 */
+@keyframes gridUpSmall {
+  from { background-position: 24px 0; }
+  to { background-position: 24px -370px; }
+}
+
+/* How: 进度条的斜纹填充，营造“数据加载”终端质感。 */
+.striped-loader {
+  background-image: linear-gradient(
+    45deg,
+    rgba(3, 5, 10, 0.25) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(3, 5, 10, 0.25) 50%,
+    rgba(3, 5, 10, 0.25) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 20px 20px;
+  animation: slideStripes 1.5s linear infinite;
+}
+
+@keyframes slideStripes {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 0; }
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translate(-15px, 15px); }
+  50% { transform: translate(10px, -25px); }
+}
+
+@keyframes floatFast {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-15px) scale(1.05); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translate(20px, -10px); }
+  50% { transform: translate(-15px, 15px); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(350%); }
+}
+
+.animate-float-slow { animation: floatSlow 20s infinite ease-in-out; }
+.animate-float-fast { animation: floatFast 15s infinite ease-in-out; }
+.animate-float-reverse { animation: floatReverse 25s infinite ease-in-out; }
+.animate-blink { animation: blink 1.5s steps(2) infinite; }
+.animate-scan { animation: scan 2s infinite linear; }
+
+/*
+  Why: 文章正文由 markdown 渲染为原始 HTML，Tailwind 的工具类无法作用其上；
+  这里用 .post-content 后代选择器统一排版，使其融入海报风(等宽标题、冰蓝强调、
+  面板化代码块)。
+*/
+.post-content {
+  color: var(--poster-text-bright);
+  line-height: 1.8;
+  font-size: 0.9rem;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4 {
+  color: var(--poster-title);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 2rem 0 1rem;
+  scroll-margin-top: 6rem;
+}
+
+.post-content h2 {
+  border-bottom: 1px solid var(--poster-line);
+  padding-bottom: 0.5rem;
+}
+
+.post-content h2::before {
+  content: "// ";
+  color: var(--poster-ice);
+}
+
+.post-content p { margin: 1rem 0; }
+
+.post-content a {
+  color: var(--poster-ice);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.post-content ul,
+.post-content ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.post-content ul { list-style: none; }
+
+.post-content ul > li::before {
+  content: "▸ ";
+  color: var(--poster-ice);
+}
+
+.post-content ol { list-style: decimal; }
+.post-content li { margin: 0.35rem 0; }
+
+.post-content blockquote {
+  border-left: 2px solid var(--poster-ice);
+  background: color-mix(in srgb, var(--poster-panel) 40%, transparent);
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  color: var(--poster-text-muted);
+}
+
+.post-content code {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.85em;
+  background: var(--poster-panel);
+  border: 1px solid var(--poster-line);
+  padding: 0.1rem 0.35rem;
+  color: var(--poster-ice);
+}
+
+.post-content pre {
+  background: var(--poster-panel);
+  border: 1px solid var(--poster-line);
+  box-shadow: 4px 4px 0 var(--poster-shadow);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+/* How: 代码块内的行内 code 已在 <pre> 中，去掉边框/背景避免双重包裹。 */
+.post-content pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.82rem;
+}
+
+.post-content img {
+  border: 1px solid var(--poster-line);
+  max-width: 100%;
+  height: auto;
+}
+
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.82rem;
+}
+
+.post-content th,
+.post-content td {
+  border: 1px solid var(--poster-line);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.post-content th {
+  background: var(--poster-panel);
+  color: var(--poster-title);
+  text-transform: uppercase;
+}
+
+.post-content hr {
+  border: none;
+  border-top: 1px dashed var(--poster-line);
+  margin: 2rem 0;
+}
+
+/*
+  Why: highlight.js 需要一套配色 token 才能着色；这里给出与海报冷色调
+  一致的极简主题，而非引入体积较大的官方 css 主题文件。
+*/
+.hljs-comment,
+.hljs-quote { color: var(--hljs-comment); font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name { color: var(--hljs-keyword); }
+
+.hljs-string,
+.hljs-attr,
+.hljs-template-variable { color: var(--hljs-string); }
+
+.hljs-number,
+.hljs-literal { color: var(--hljs-number); }
+
+.hljs-title,
+.hljs-section,
+.hljs-function .hljs-title { color: var(--hljs-title); }
+
+.hljs-tag,
+.hljs-symbol,
+.hljs-meta { color: var(--hljs-meta); }

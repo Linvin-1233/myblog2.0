@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# generated: optimized copies of posts/images (rebuilt by scripts/optimize-images.mjs)
+/public/post-images/
+
 # production
 /build
 
@@ -39,3 +42,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/.idea/

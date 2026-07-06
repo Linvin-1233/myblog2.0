@@ -1,0 +1,42 @@
+# 站点全局配置。改这里即可，无需动代码。
+
+# 站点基础信息(用于 SEO / 页脚 / RSS / 结构化数据)
+site:
+  name: "LINVIN_1233"
+  title: "LINVIN_1233 // 蓝图档案馆"
+  description: "一位 MC 玩家的技术博客：储电红石、全栈与 Web 开发的思考笔记。"
+  author: "Linvin"
+  locale: "zh-CN"
+  # 正式域名(会被环境变量 NEXT_PUBLIC_SITE_URL 覆盖)
+  url: "https://blog.linvin.net"
+  postsPerPage: 6
+  latestCountOnHome: 4
+
+# 页脚版权。{year} 会被替换为当前年份
+copyright: "© {year} Linvin"
+
+# 首页 INTRO 区与关于页的社交外链
+social:
+  - label: "GITHUB_PROFILE"
+    url: "https://github.com/Linvin-1233"
+  - label: "MY_BILIBILI"
+    url: "https://space.bilibili.com/3546703521122448"
+
+# 关于页内容(markdown 语法)
+about: |
+  你好！我是 Linvin，一位 MC 玩家，对**储电**稍有研究。
+
+  对全栈、Web 开发也稍有钻研。
+
+# Gitalk 评论(基于 GitHub Issues)。
+# 使用前需：1) 建一个用于存评论的 GitHub 仓库；2) 建一个 GitHub OAuth App
+# (Authorization callback URL 填站点域名)。把下列字段填好并将 enable 设为 true。
+# 注意：clientSecret 会打包进前端(Gitalk 的固有机制)，请使用仅授权该用途的 App。
+gitalk:
+  enable: false
+  clientID: ""
+  clientSecret: ""
+  repo: ""
+  owner: ""
+  admin:
+    - ""
