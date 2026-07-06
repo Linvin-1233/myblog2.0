@@ -34,8 +34,8 @@ about: |
 # clientID / clientSecret 放在环境变量里(见 .env.example)，不写进本文件、不进 git。
 # 注意：Gitalk 机制决定这两个值最终仍会出现在前端 JS 中，仅访问者可见级别的“公开”。
 gitalk:
-  enable: false
-  repo: ""
-  owner: ""
+  enable: true
+  repo: "Blog-talk"
+  owner: "Linvin-1233"
   admin:
-    - ""
+    - "Linvin-1233"
