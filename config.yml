@@ -22,6 +22,14 @@ social:
   - label: "MY_BILIBILI"
     url: "https://space.bilibili.com/3546703521122448"
 
+# 作者所在地(用于"你我相距多远"功能)。lat/lng 为十进制经纬度，timezone 用 IANA 名。
+location:
+  city: "柳州"
+  country: "中华人民共和国"
+  lat: 24.326
+  lng: 109.428
+  timezone: "Asia/Shanghai"
+
 # 关于页内容(markdown 语法)
 about: |
   你好！我是 Linvin，一位 MC 玩家，对**储电**稍有研究。

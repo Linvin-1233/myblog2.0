@@ -91,6 +91,10 @@ html {
   right: 0;
   top: -100%;
   height: 200%;
+  /* Why: 直接给网格层做静态 blur，而非用 backdrop-filter 模糊“背后动态内容”。
+     网格纹理是静态的，仅 transform 在动 → 模糊只栅格化一次，之后 GPU 平移贴图，
+     不会每帧重算(backdrop-filter 叠加动画背景会导致每帧全屏重模糊，是卡顿主因)。 */
+  filter: blur(1.2px);
 }
 
 /* How: 大网格间距大、上移慢；小网格间距小、上移快。用 background-position 按
@@ -176,8 +180,7 @@ html {
 
 .animate-float-slow { animation: floatSlow 20s infinite ease-in-out; }
 
-/* How: 卫星用 CSS transform + transform-origin 绕轨道圆心旋转。
-   替代 SMIL animateMotion，变为 GPU 合成纯 transform 动画。 */
+/* How: 卫星用 CSS transform + transform-origin 绕轨道圆心旋转(GPU 合成)。 */
 @keyframes orbit105 {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
@@ -196,12 +199,7 @@ html {
   animation: orbit150 26s linear infinite;
 }
 
-/* How: 滚动时通过 data-scrolling 属性关闭 blur；同时暂停所有动画
-   (网格/卫星/漂浮)，让合成线程无负担，彻底消除卡顿。 */
-[data-scrolling="true"] .blur-reveal-layer {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
+/* How: 滚动时暂停所有动画(网格/卫星/漂浮)，让合成线程无负担，减少滚动卡顿。 */
 [data-scrolling="true"] .blueprint-grid-large,
 [data-scrolling="true"] .blueprint-grid-small,
 [data-scrolling="true"] .orbit-satellite-105,

@@ -22,6 +22,13 @@ type RawConfig = {
   copyright?: string;
   social?: SocialLink[];
   about?: string;
+  location?: {
+    city?: string;
+    country?: string;
+    lat?: number;
+    lng?: number;
+    timezone?: string;
+  };
   gitalk?: {
     enable?: boolean;
     proxy?: boolean;
@@ -61,6 +68,18 @@ export const siteConfig = {
 };
 
 export type SiteConfig = typeof siteConfig;
+
+// Why: 作者坐标供"你我相距多远"功能使用；客户端组件以 props 接收(此模块 server-only)。
+const location = raw.location ?? {};
+export const authorLocation = {
+  city: location.city ?? "",
+  country: location.country ?? "",
+  lat: typeof location.lat === "number" ? location.lat : null,
+  lng: typeof location.lng === "number" ? location.lng : null,
+  timezone: location.timezone ?? "UTC",
+};
+
+export type AuthorLocation = typeof authorLocation;
 
 // Why: 关于页文案来自 config，缺省时用作者+简介兜底，保证页面始终有内容。
 export const aboutContent =

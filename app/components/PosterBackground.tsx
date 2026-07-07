@@ -2,55 +2,35 @@
 
 import { useEffect, useRef } from "react";
 
-// Why: 海报风的"环境层"——网格 + 卫星轨道 + 鼠标模糊遮罩。
-// 卫星动画从 SVG SMIL(CPU) 改为 CSS transform + transform-origin(GPU 合成)，
-// 彻底消除滚动卡顿主因。
+// Why: 海报风的"环境层"——网格 + 卫星轨道 + 固定轻模糊。
+// 模糊改为整层固定(不跟随鼠标、无 mask)，backdrop-filter 只在初次合成时算一次；
+// 滚动时因固定层背后内容变化仍需重采样，故滚动期间临时关闭，停下再恢复。
 export function PosterBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 装饰 SVG 开关(排查确认非卡顿来源，已恢复)。
+  const showDecorSvg = true;
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     let rafId = 0;
-    let px = 0;
-    let py = 0;
     let scrollPct = 0;
     let scrollTimer = 0;
-    // Why: 每 2 帧才真正更新一次 CSS 变量(~30fps 跟随)，把 blur 采样 + mask
-    // 重算的频率减半；指针跟随的视觉延迟肉眼几乎不可察。
-    let frameParity = 0;
 
     const flush = () => {
-      // How: 奇数帧直接跳过并重排下一帧，仅偶数帧写入样式。
-      frameParity ^= 1;
-      if (frameParity === 1) {
-        rafId = requestAnimationFrame(flush);
-        return;
-      }
       rafId = 0;
-      el.style.setProperty("--bg-px", `${px}px`);
-      el.style.setProperty("--bg-py", `${py}px`);
       el.style.setProperty("--bg-scroll", String(scrollPct));
     };
 
-    const schedule = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(flush);
-    };
-
-    const onPointer = (event: PointerEvent) => {
-      px = event.clientX;
-      py = event.clientY;
-      schedule();
-    };
-
-    // Why: 滚动时关闭模糊 + 暂停动画，停止满 180ms 后恢复。
+    // Why: 滚动时关闭 blur + 暂停动画(见 globals.css 的 [data-scrolling])，
+    // 停止满 180ms 后恢复；同时用 rAF 节流更新视差缩放变量。
     const onScroll = () => {
       const maxY =
         document.documentElement.scrollHeight - window.innerHeight;
       scrollPct = maxY > 0 ? (window.scrollY / maxY) * 100 : 0;
-      schedule();
+      if (!rafId) rafId = requestAnimationFrame(flush);
 
       el.setAttribute("data-scrolling", "true");
       if (scrollTimer) window.clearTimeout(scrollTimer);
@@ -59,11 +39,9 @@ export function PosterBackground() {
       }, 180);
     };
 
-    window.addEventListener("pointermove", onPointer, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       if (scrollTimer) window.clearTimeout(scrollTimer);
-      window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("scroll", onScroll);
       if (rafId) cancelAnimationFrame(rafId);
     };
@@ -84,11 +62,12 @@ export function PosterBackground() {
 
       {/* 左下角卫星轨道系统。卫星运动改为 CSS transform + transform-origin
           (圆心 0,200)，pure GPU，不再用 SMIL animateMotion。 */}
+      {showDecorSvg && (
       <svg
         viewBox="0 0 200 200"
         className="absolute -bottom-16 -left-16 h-[50vw] w-[50vw]
           text-poster-line opacity-50"
-        style={{ transform: "scale(calc(1 + var(--bg-scroll, 0) * 0.003))" }}
+        style={{ filter: "blur(1.2px)" }}
       >
         <defs>
           {/* Why: 卫星形状只定义一次，复用两次。 */}
@@ -131,12 +110,15 @@ export function PosterBackground() {
           </g>
         </g>
       </svg>
+      )}
 
-      {/* 右上小卫星(纯 CSS 浮动动画，不碰 SMIL) */}
+      {/* 右上小卫星(浮动动画，与整体一致带 blur) */}
+      {showDecorSvg && (
       <svg
         viewBox="0 0 100 100"
         className="animate-float-fast absolute right-10 top-1/4 h-36 w-36
           text-poster-ice opacity-30"
+        style={{ filter: "blur(1.2px)" }}
       >
         <path d="M6 66 A 48 48 0 0 1 94 34" fill="none" stroke="currentColor"
           strokeWidth="0.6" strokeDasharray="3 4" />
@@ -152,25 +134,7 @@ export function PosterBackground() {
         </g>
         <circle cx="94" cy="34" r="1.6" fill="currentColor" />
       </svg>
-
-      {/* 模糊遮罩层。滚动时 [data-scrolling] 关掉；非滚动时
-          translate3d 强制 GPU 独立合成层；blur 降至 1.5px 大幅减少采样开销。
-          contain 隔离本层绘制/布局，使其变化不影响外层回流。 */}
-      <div
-        className="blur-reveal-layer absolute inset-0"
-        style={{
-          backdropFilter: "blur(1.5px)",
-          WebkitBackdropFilter: "blur(1.5px)",
-          transform: "translate3d(0, 0, 0)",
-          maskImage:
-            "radial-gradient(circle 150px at var(--bg-px, 50%) " +
-            "var(--bg-py, 50%), transparent, transparent 32%, black 72%)",
-          WebkitMaskImage:
-            "radial-gradient(circle 150px at var(--bg-px, 50%) " +
-            "var(--bg-py, 50%), transparent, transparent 32%, black 72%)",
-          contain: "layout paint style",
-        }}
-      />
+      )}
     </div>
   );
 }

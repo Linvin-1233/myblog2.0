@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: toUrl("/search"), changeFrequency: "monthly", priority: 0.4 },
     { url: toUrl("/tags"), changeFrequency: "monthly", priority: 0.5 },
     { url: toUrl("/archive"), changeFrequency: "monthly", priority: 0.5 },
+    { url: toUrl("/geo"), changeFrequency: "yearly", priority: 0.3 },
     { url: toUrl("/about"), changeFrequency: "yearly", priority: 0.3 },
   ];
 
