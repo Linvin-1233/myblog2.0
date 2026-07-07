@@ -28,7 +28,7 @@ location:
   country: "Unknown"
   lat: 0
   lng: 0
-  timezone: "Asia/Shanghai"
+  timezone: "GMT+0"
 
 # 关于页内容(markdown 语法)
 about: |

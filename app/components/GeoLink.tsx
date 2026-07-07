@@ -70,9 +70,9 @@ function tzLabel(now: number, timeZone: string): string {
   return offset ? `${long} · ${offset}` : long;
 }
 
-// How: 免密钥的客户端反向地理编码(BigDataCloud)，把经纬度转成城市/国家名；
-// 失败则回退显示经纬度，不阻塞主功能。
-async function reverseGeocode(c: Coords): Promise<string> {
+// How: 免密钥的客户端反向地理编码(BigDataCloud)，把经纬度转成城市·国家名；
+// 拿不到具名地点或失败则返回 null(调用方自行决定回退，避免显示裸坐标)。
+async function reverseGeocode(c: Coords): Promise<string | null> {
   try {
     const url =
       "https://api.bigdatacloud.net/data/reverse-geocode-client" +
@@ -82,9 +82,9 @@ async function reverseGeocode(c: Coords): Promise<string> {
     const place = [data.city || data.locality, data.countryName]
       .filter(Boolean)
       .join(" · ");
-    return place || `${c.lat.toFixed(3)}, ${c.lng.toFixed(3)}`;
+    return place || null;
   } catch {
-    return `${c.lat.toFixed(3)}, ${c.lng.toFixed(3)}`;
+    return null;
   }
 }
 
@@ -111,6 +111,9 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     timezone: string;
   } | null>(null);
   const sourceRef = useRef<"gps" | "ip" | null>(null);
+  // Why: 超过 10s 仍未换算出实时地名就放弃，改用 config.yml，且此后不再切换，
+  // 避免作者卡出现中途的裸坐标或迟到的跳变。
+  const gaveUpRef = useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -127,6 +130,11 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         setLiveAuthor(data);
       })
       .catch(() => {});
+
+    // How: 10s 兜底计时器——到点后标记放弃，之后即便换算成功也不再切到实时。
+    const giveUpTimer = window.setTimeout(() => {
+      gaveUpRef.current = true;
+    }, 10000);
 
     // Why: 先用 IP(Vercel 头)做基线定位，页面即刻有数据；用户再点按钮升级到 GPS。
     fetch("/api/geo")
@@ -148,11 +156,12 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     return () => {
       cancelled = true;
       window.clearInterval(timer);
+      window.clearTimeout(giveUpTimer);
     };
   }, []);
 
-  // Why: 拿到作者实时坐标后，异步换算城市·国家(反向地理编码)与时区(tz-lookup，
-  // 离线库，动态 import 仅在本页加载)。
+  // Why: 拿到作者实时坐标后，异步换算城市·国家(反向地理编码)与时区(tz-lookup)。
+  // 只有在 10s 兜底期内、且成功拿到"具名地点"时才提交为实时值；否则保持 config。
   useEffect(() => {
     if (!liveAuthor) return;
     let cancelled = false;
@@ -161,6 +170,7 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         lat: liveAuthor.lat,
         lng: liveAuthor.lng,
       });
+      if (cancelled || gaveUpRef.current || !place) return;
       let timezone = "";
       try {
         const tzlookup = (await import("tz-lookup")).default;
@@ -168,7 +178,9 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
       } catch {
         /* 时区换算失败则回退 config 时区 */
       }
-      if (!cancelled) setAuthorResolved({ place, timezone });
+      if (!cancelled && !gaveUpRef.current) {
+        setAuthorResolved({ place, timezone });
+      }
     })();
     return () => {
       cancelled = true;
@@ -188,7 +200,9 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         setSource("gps");
         sourceRef.current = "gps";
         setStatus("idle");
-        reverseGeocode(c).then(setPlace);
+        reverseGeocode(c).then((p) =>
+          setPlace(p ?? `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}`),
+        );
       },
       () => setStatus("denied"),
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
@@ -196,20 +210,19 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
   };
 
   const visitorTz = tz || "UTC";
-  // Why: 作者坐标优先用实时上报值，缺失时回退 config.yml。
-  const authorCoords = liveAuthor
-    ? { lat: liveAuthor.lat, lng: liveAuthor.lng }
+  // Why: 只有成功提交了实时地名(authorResolved)才用实时，否则一律 config.yml，
+  // 不显示中途的裸坐标。
+  const useLive = authorResolved !== null;
+  const authorCoords = useLive
+    ? { lat: liveAuthor!.lat, lng: liveAuthor!.lng }
     : author.lat !== null && author.lng !== null
       ? { lat: author.lat, lng: author.lng }
       : null;
-  const authorPlace = liveAuthor
-    ? authorResolved?.place ||
-      liveAuthor.city ||
-      `${liveAuthor.lat.toFixed(3)}, ${liveAuthor.lng.toFixed(3)}`
+  const authorPlace = useLive
+    ? authorResolved!.place
     : [author.city, author.country].filter(Boolean).join(" · ") || "—";
-  // Why: 实时坐标换算出的时区优先，否则回退 config.yml 的时区。
   const authorTimezone =
-    (liveAuthor && authorResolved?.timezone) || author.timezone;
+    (useLive && authorResolved!.timezone) || author.timezone;
   const distanceKm =
     authorCoords && coords ? haversineKm(authorCoords, coords) : null;
 
@@ -217,7 +230,7 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <LocationCard
-          label={`AUTHOR // 作者${liveAuthor ? " (LIVE)" : ""}`}
+          label={`AUTHOR // 作者${useLive ? " (LIVE)" : ""}`}
           place={authorPlace}
           timezone={tzLabel(now, authorTimezone)}
           clock={timeInZone(now, authorTimezone)}
