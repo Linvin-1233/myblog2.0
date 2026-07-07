@@ -24,6 +24,7 @@ type RawConfig = {
   about?: string;
   gitalk?: {
     enable?: boolean;
+    proxy?: boolean;
     clientID?: string;
     clientSecret?: string;
     repo?: string;
@@ -74,6 +75,8 @@ export function renderCopyright(year: number): string {
 const gitalk = raw.gitalk ?? {};
 export const gitalkConfig = {
   enable: gitalk.enable === true,
+  // Why: proxy=true 时评论走本站 /api/gitalk 转发 OAuth/GitHub 请求，改善国内访问。
+  proxy: gitalk.proxy === true,
   // Why: OAuth 凭据从环境变量读取(不进 git)，config.yml 仅作本地回退。
   // 必须用 NEXT_PUBLIC_ 前缀，因为 Gitalk 在浏览器端使用这两个值。
   clientID: process.env.NEXT_PUBLIC_GITALK_CLIENT_ID ?? gitalk.clientID ?? "",

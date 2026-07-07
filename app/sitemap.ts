@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getAllPostMeta, getAllTags } from "@/lib/posts";
 import { siteConfig } from "@/lib/siteConfig";
 
-// How: output:'export' 下，元数据路由必须显式声明为静态才能预生成文件。
+// How: sitemap 无请求时数据，显式声明为静态，让其在构建期一次性生成。
 export const dynamic = "force-static";
 
 // Why: sitemap 帮助爬虫发现全部可索引页面。静态导出会在构建期把此文件渲染成

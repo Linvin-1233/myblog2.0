@@ -71,6 +71,11 @@ body {
   color: var(--poster-text);
 }
 
+/* Why: 锚点跳转/翻页回顶等程序化滚动使用平滑过渡，提升观感。 */
+html {
+  scroll-behavior: smooth;
+}
+
 /*
   Why: 海报背景的网格底纹与漂浮装饰是该风格的核心识别元素。
   blueprint-grid 提供等距坐标网格的线条底图；两个尺寸变体叠加成视差纵深。
@@ -79,29 +84,48 @@ body {
   background-image:
     linear-gradient(var(--poster-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--poster-line) 1px, transparent 1px);
+  /* How: 绝对定位、高度设为两倍视口、top 偏移一个视口高度，确保 translateY
+     -1 tile 时图案始终无缝覆盖整个 viewport。 */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -100%;
+  height: 200%;
 }
 
 /* How: 大网格间距大、上移慢；小网格间距小、上移快。用 background-position 按
    一个格子高度循环滚动，实现无缝的持续上移视差。 */
 .blueprint-grid-large {
   background-size: 420px 420px;
-  animation: gridUpLarge 26s linear infinite;
+  --grid-tile-size: 420px;
+}
+/* How: 用 transform 而非 background-position 作网格滚动——前者是合成动画，
+   不触发 paint；--bg-grid-large-y 在组件 mount 时写为内联样式。 */
+@keyframes gridUpLarge {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-420px); }
 }
 
 .blueprint-grid-small {
   background-size: 370px 370px;
-  animation: gridUpSmall 9s linear infinite;
+  --grid-tile-size: 370px;
 }
 
-@keyframes gridUpLarge {
-  from { background-position: 0 0; }
-  to { background-position: 0 -420px; }
-}
-
-/* How: 小网格加一个水平偏移，使其线条不与大网格重合，形成“稍微错开”的层次。 */
 @keyframes gridUpSmall {
-  from { background-position: 24px 0; }
-  to { background-position: 24px -370px; }
+  from { transform: translateY(0); }
+  to   { transform: translateY(-370px); }
+}
+
+/* Why: 停用全部 background-position 循环动画，改由 keyframes 驱动 inline
+   transform 动画，以最大程度利用 GPU 合成(background-position 改值 = 全屏
+   逐帧强制 repaint)。此外，prefers-reduced-motion 下禁用动画以降低能耗。 */
+@media (prefers-reduced-motion: no-preference) {
+  .blueprint-grid-large {
+    animation: gridUpLarge 26s linear infinite;
+  }
+  .blueprint-grid-small {
+    animation: gridUpSmall 9s linear infinite;
+  }
 }
 
 /* How: 进度条的斜纹填充，营造“数据加载”终端质感。 */
@@ -151,10 +175,61 @@ body {
 }
 
 .animate-float-slow { animation: floatSlow 20s infinite ease-in-out; }
+
+/* How: 卫星用 CSS transform + transform-origin 绕轨道圆心旋转。
+   替代 SMIL animateMotion，变为 GPU 合成纯 transform 动画。 */
+@keyframes orbit105 {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes orbit150 {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.orbit-satellite-105 {
+  transform-origin: 0px 200px;
+  animation: orbit105 16s linear infinite;
+}
+.orbit-satellite-150 {
+  transform-origin: 0px 200px;
+  animation: orbit150 26s linear infinite;
+}
+
+/* How: 滚动时通过 data-scrolling 属性关闭 blur；同时暂停所有动画
+   (网格/卫星/漂浮)，让合成线程无负担，彻底消除卡顿。 */
+[data-scrolling="true"] .blur-reveal-layer {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+[data-scrolling="true"] .blueprint-grid-large,
+[data-scrolling="true"] .blueprint-grid-small,
+[data-scrolling="true"] .orbit-satellite-105,
+[data-scrolling="true"] .orbit-satellite-150,
+[data-scrolling="true"] .animate-float-fast,
+[data-scrolling="true"] .animate-float-slow,
+[data-scrolling="true"] .animate-blink,
+[data-scrolling="true"] .animate-scan {
+  animation-play-state: paused;
+}
 .animate-float-fast { animation: floatFast 15s infinite ease-in-out; }
 .animate-float-reverse { animation: floatReverse 25s infinite ease-in-out; }
 .animate-blink { animation: blink 1.5s steps(2) infinite; }
 .animate-scan { animation: scan 2s infinite linear; }
+
+/* Why: “减弱动效”偏好下停掉所有装饰动画，节省能耗并避免对前庭敏感用户的不适。 */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-float-slow,
+  .animate-float-fast,
+  .animate-float-reverse,
+  .animate-blink,
+  .animate-scan,
+  .blueprint-grid-large,
+  .blueprint-grid-small {
+    animation: none;
+  }
+}
 
 /*
   Why: 文章正文由 markdown 渲染为原始 HTML，Tailwind 的工具类无法作用其上；

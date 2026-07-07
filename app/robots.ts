@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/siteConfig";
 
-// How: output:'export' 下，元数据路由必须显式声明为静态才能预生成文件。
+// How: robots 无请求时数据，显式声明为静态，让其在构建期一次性生成。
 export const dynamic = "force-static";
 
 // Why: 明确允许全站抓取并指向 sitemap，是搜索引擎收录的基础配置。

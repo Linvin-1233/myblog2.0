@@ -1,18 +1,16 @@
 import type { NextConfig } from "next";
 
-// Why: 博客要交付到任意静态服务器(用户的自定义服务器)，而非 Node 运行时，
-// 因此用 output:'export' 让 `next build` 产出纯 HTML/CSS/JS 的 `out/` 目录。
+// Why: Vercel 原生 Git 集成下，去掉 output:'export' 让 Vercel 使用 Next.js
+// 构建器：有 generateStaticParams 的页面自动静态预渲染，API 路由作为
+// Serverless Function 运行(Gitalk 代理需要活端点)。部署到纯静态服务器时
+// 再加回 output:'export'。
 const nextConfig: NextConfig = {
-  output: "export",
-
-  // How: 静态导出下默认的图片优化器需要服务器，无法使用；
-  // unoptimized 让 <Image> 直接输出原图，保持零后端依赖。
+  // Why: 不用 Vercel 默认的图片优化，保持零后端依赖的静态兼容性。
   images: {
     unoptimized: true,
   },
 
-  // Why: 目标服务器多按目录寻址(/posts/ -> /posts/index.html)，
-  // 尾斜杠能避免部署后链接 404，并让 sitemap/规范链接保持一致。
+  // Why: 服务器多按目录寻址(/posts/ -> /posts/index.html)，保证 SEO 链接一致。
   trailingSlash: true,
 };
 

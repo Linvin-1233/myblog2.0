@@ -7,12 +7,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 # myblog2.0
 
 Markdown-driven static blog. Next.js 16 (App Router) + React 19 + TypeScript +
-Tailwind v4, built with `output: 'export'` to a static `out/` folder. Visual
-style is the "blueprint/tech poster" look adapted from `example/App.vue`.
+Tailwind v4. Deployed on Vercel via native Git integration — blog pages are
+statically prerendered, `/api/gitalk` OAuth proxy runs as a Serverless Function.
 
 ## Commands
 - `npm run dev` — dev server (localhost:3000)
-- `npm run build` — static export; emits `out/` (HTML/CSS/JS + sitemap/robots/feed)
+- `npm run build` — build; emits static pages + bundles
 - `npm run lint` — ESLint (flat config, runs `eslint` with no args)
 - No typecheck script (`tsc` is `noEmit`). No test setup exists.
 
@@ -22,13 +22,13 @@ style is the "blueprint/tech poster" look adapted from `example/App.vue`.
 - Comments explain WHY/HOW, never WHAT. Existing files follow this — match it.
 
 ## Static-export constraints (easy to break)
-- `output: 'export'` means NO server runtime: no dynamic route handlers, cookies,
-  headers, rewrites, redirects, ISR, or default `next/image` loader.
+- **No `output: 'export'`** on Vercel. The Next.js builder auto-generates static
+  HTML for pages with `generateStaticParams` and runs Route Handlers
+  (`app/api/gitalk`) as Serverless Functions on demand. To deploy to a plain
+  static server, add `output: 'export'` back in `next.config.ts`.
 - `next/image` is set to `unoptimized`; keep it that way.
 - `trailingSlash: true` — real output is `/posts/slug/index.html`. Keep sitemap
   URLs and links consistent with trailing slashes.
-- Any `route.ts`, `sitemap.ts`, `robots.ts` MUST export
-  `export const dynamic = "force-static"` or the export build fails.
 - Dynamic segments (`[slug]`, `[tag]`) require `generateStaticParams`. In Next 16
   `params` is a Promise — `await` it.
 
@@ -62,6 +62,8 @@ style is the "blueprint/tech poster" look adapted from `example/App.vue`.
   `clientID`/`clientSecret` come from `NEXT_PUBLIC_GITALK_*` env vars (see
   `.env.example`), falling back to `config.yml`. Note: Gitalk's `clientSecret` is
   bundled client-side by design — env only keeps it out of git.
+- Set `gitalk.proxy: true` to route OAuth token exchange through
+  `/api/gitalk` (helps mainland China accessibility).
 
 ## Architecture
 - `lib/siteConfig.ts` — single source for title/description/author/URL, social
@@ -93,7 +95,8 @@ style is the "blueprint/tech poster" look adapted from `example/App.vue`.
 
 ## Deploy
 - Hosted on Vercel via native Git integration (NO GitHub Action). Vercel runs
-  `next build`, detects `output: 'export'`, and serves the static `out/`.
+  `next build` — pages are statically prerendered, `/api/gitalk` runs as a
+  Serverless Function on demand.
 - `vercel.json` only pins `framework: nextjs`. Do NOT add `outputDirectory: out`
   — that bypasses the Next.js builder and breaks routing.
 - Set `NEXT_PUBLIC_SITE_URL` in Vercel Project Settings > Environment Variables

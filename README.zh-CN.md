@@ -3,8 +3,9 @@
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
 一个由 markdown 驱动、采用「蓝图 / 技术海报」视觉风格的静态博客。基于
-**Next.js 16（App Router）+ React 19 + TypeScript + Tailwind v4**，以静态导出
-（`output: 'export'`）方式产出纯 `out/` 目录，可托管在任意静态服务器上。
+**Next.js 16（App Router）+ React 19 + TypeScript + Tailwind v4**，部署于
+Vercel。博客页面在构建期静态预渲染；Gitalk OAuth 代理以轻量 Serverless
+Function 运行。
 
 ## 功能特性
 
@@ -122,6 +123,8 @@ gitalk:
    `NEXT_PUBLIC_GITALK_CLIENT_ID` / `NEXT_PUBLIC_GITALK_CLIENT_SECRET`；
    Vercel 上则在 Project Settings 里添加同名变量。
 4. 在 `config.yml` 设置 `repo` / `owner` / `admin` 并将 `enable` 设为 `true`。
+   设置 `proxy: true` 可将 OAuth token 交换通过本站 `/api/gitalk` 端点中转，
+   改善国内网络访问。
 
 > Gitalk 仍会把 `clientSecret` 发到浏览器（其固有机制）——环境变量只是让它不进
 > git 历史，并不能让它不出现在已上线的站点里。请使用仅用于该用途的 OAuth App。
@@ -131,10 +134,10 @@ gitalk:
 通过 **Vercel** 原生 Git 集成托管（无需 GitHub Action）：
 
 1. 在 Vercel 导入本仓库——会自动识别为 Next.js 预设。
-2. 添加环境变量 `NEXT_PUBLIC_SITE_URL` = 你的正式域名
-   （决定 canonical / OG / sitemap 的绝对链接）。若用评论，把两个
+2. 添加环境变量 `NEXT_PUBLIC_SITE_URL`。若用评论，把两个
    `NEXT_PUBLIC_GITALK_*` 变量也加在这里。
-3. 推送到主分支，Vercel 自动构建并托管静态 `out/`。
+3. 推送到主分支，Vercel 自动构建部署。博客页面静态预渲染，`/api/gitalk` 在
+   评论组件需换取 OAuth token 时作为 Serverless Function 运行。
 
 `vercel.json` 只固定了 `framework: nextjs`。**不要**设置 `outputDirectory: out`，
 否则会绕过 Next.js 构建器、破坏路由。

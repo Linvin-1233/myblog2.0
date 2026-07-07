@@ -150,6 +150,7 @@ export default async function PostPage({ params }: PageProps) {
               }}
               id={post.slug}
               title={post.title}
+              proxy={gitalkConfig.proxy}
             />
           </section>
         )}

@@ -4,8 +4,8 @@
 
 A markdown-driven static blog with a "blueprint / tech-poster" visual style.
 Built with **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4**,
-statically exported (`output: 'export'`) to a plain `out/` folder that any static
-host can serve.
+deployed on Vercel. Blog pages are statically prerendered at build time; the
+Gitalk OAuth proxy lives as a lightweight Serverless Function.
 
 ## Features
 
@@ -128,6 +128,8 @@ To enable comments:
    `NEXT_PUBLIC_GITALK_CLIENT_ID` / `NEXT_PUBLIC_GITALK_CLIENT_SECRET`.
    On Vercel, add the same variables in Project Settings.
 4. In `config.yml` set `repo` / `owner` / `admin` and `enable: true`.
+   Set `proxy: true` to route the OAuth token exchange through the site's own
+   `/api/gitalk` endpoint (better reachability from mainland China).
 
 > Gitalk still ships `clientSecret` to the browser by design — env vars only keep
 > it out of your git history, not out of the served site. Use an OAuth App scoped
@@ -138,13 +140,13 @@ To enable comments:
 Hosted on **Vercel** via native Git integration (no GitHub Action):
 
 1. Import the repo on Vercel — the Next.js preset is auto-detected.
-2. Add an environment variable `NEXT_PUBLIC_SITE_URL` = your production domain
-   (drives canonical / OG / sitemap absolute URLs). Add the two
-   `NEXT_PUBLIC_GITALK_*` variables here too if you use comments.
-3. Push to the main branch; Vercel builds and serves the static `out/`.
+2. Add environment variables `NEXT_PUBLIC_SITE_URL`, and if using Gitalk the two
+   `NEXT_PUBLIC_GITALK_*` variables.
+3. Push to the main branch; Vercel builds and deploys automatically.
+   Blog pages are statically prerendered; `/api/gitalk` runs as a Serverless
+   Function when the comment widget needs to exchange an OAuth token.
 
-`vercel.json` only pins `framework: nextjs`. Do **not** set `outputDirectory: out`
-— that bypasses the Next.js builder and breaks routing.
+`vercel.json` only pins `framework: nextjs`.
 
 ## Project structure
 
