@@ -53,6 +53,23 @@ function timeInZone(now: number, timeZone: string): string {
   }
 }
 
+// How: 把 IANA 时区(如 Asia/Shanghai)显示为友好英文长名 + 偏移，
+// 如 "China Standard Time · GMT+8"。取不到则回退原始名。
+function tzLabel(now: number, timeZone: string): string {
+  const part = (option: "long" | "shortOffset") => {
+    try {
+      return new Intl.DateTimeFormat("en-US", { timeZone, timeZoneName: option })
+        .formatToParts(new Date(now))
+        .find((p) => p.type === "timeZoneName")?.value;
+    } catch {
+      return undefined;
+    }
+  };
+  const long = part("long") ?? timeZone;
+  const offset = part("shortOffset");
+  return offset ? `${long} · ${offset}` : long;
+}
+
 // How: 免密钥的客户端反向地理编码(BigDataCloud)，把经纬度转成城市/国家名；
 // 失败则回退显示经纬度，不阻塞主功能。
 async function reverseGeocode(c: Coords): Promise<string> {
@@ -87,6 +104,11 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     lng: number;
     city: string | null;
     updatedAt: number;
+  } | null>(null);
+  // Why: 实时上报只含经纬度，这里把作者坐标换算成 城市·国家 + IANA 时区。
+  const [authorResolved, setAuthorResolved] = useState<{
+    place: string;
+    timezone: string;
   } | null>(null);
   const sourceRef = useRef<"gps" | "ip" | null>(null);
 
@@ -129,6 +151,30 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     };
   }, []);
 
+  // Why: 拿到作者实时坐标后，异步换算城市·国家(反向地理编码)与时区(tz-lookup，
+  // 离线库，动态 import 仅在本页加载)。
+  useEffect(() => {
+    if (!liveAuthor) return;
+    let cancelled = false;
+    (async () => {
+      const place = await reverseGeocode({
+        lat: liveAuthor.lat,
+        lng: liveAuthor.lng,
+      });
+      let timezone = "";
+      try {
+        const tzlookup = (await import("tz-lookup")).default;
+        timezone = tzlookup(liveAuthor.lat, liveAuthor.lng);
+      } catch {
+        /* 时区换算失败则回退 config 时区 */
+      }
+      if (!cancelled) setAuthorResolved({ place, timezone });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [liveAuthor]);
+
   const requestGps = () => {
     if (!navigator.geolocation) {
       setStatus("unsupported");
@@ -157,9 +203,13 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
       ? { lat: author.lat, lng: author.lng }
       : null;
   const authorPlace = liveAuthor
-    ? liveAuthor.city ||
+    ? authorResolved?.place ||
+      liveAuthor.city ||
       `${liveAuthor.lat.toFixed(3)}, ${liveAuthor.lng.toFixed(3)}`
     : [author.city, author.country].filter(Boolean).join(" · ") || "—";
+  // Why: 实时坐标换算出的时区优先，否则回退 config.yml 的时区。
+  const authorTimezone =
+    (liveAuthor && authorResolved?.timezone) || author.timezone;
   const distanceKm =
     authorCoords && coords ? haversineKm(authorCoords, coords) : null;
 
@@ -169,13 +219,13 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         <LocationCard
           label={`AUTHOR // 作者${liveAuthor ? " (LIVE)" : ""}`}
           place={authorPlace}
-          timezone={author.timezone}
-          clock={timeInZone(now, author.timezone)}
+          timezone={tzLabel(now, authorTimezone)}
+          clock={timeInZone(now, authorTimezone)}
         />
         <LocationCard
           label={`VISITOR // 你${source ? ` (${source.toUpperCase()})` : ""}`}
           place={place || (status === "locating" ? "定位中…" : "待定位")}
-          timezone={visitorTz}
+          timezone={tzLabel(now, visitorTz)}
           clock={timeInZone(now, visitorTz)}
         />
       </div>
@@ -192,7 +242,7 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
               : "—"
           }
         />
-        <Stat label="时差" value={tzOffsetLabel(now, author.timezone, visitorTz)} />
+        <Stat label="时差" value={tzOffsetLabel(now, authorTimezone, visitorTz)} />
         <Stat label="你的设备" value={device || "检测中…"} />
       </div>
 

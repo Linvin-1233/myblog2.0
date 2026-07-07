@@ -11,12 +11,21 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
 
-  // How: 挂载后再读取真实 data-theme，避免用服务端默认值覆盖脚本已设的偏好。
-  // 这是“同步到仅客户端可知的值”的正当场景，故显式豁免 set-state-in-effect。
+  // How: 挂载后从 localStorage 解析真实主题，并重新写回 <html data-theme>。
+  // Why: 某些路由在 hydration 期间 data-theme 会被 React 抹掉，若只读不写就会
+  // 读到空、回退默认深色(bug)。这里主动写回，保证各页刷新后主题一致。
   useEffect(() => {
-    const current = document.documentElement.getAttribute("data-theme");
+    const stored = localStorage.getItem("theme-preference");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const resolved: Theme =
+      stored === "light" || stored === "dark"
+        ? stored
+        : prefersDark
+          ? "dark"
+          : "light";
+    document.documentElement.setAttribute("data-theme", resolved);
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(current === "light" ? "light" : "dark");
+    setTheme(resolved);
     setMounted(true);
   }, []);
 

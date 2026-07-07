@@ -24,10 +24,10 @@ social:
 
 # 作者所在地(用于"你我相距多远"功能)。lat/lng 为十进制经纬度，timezone 用 IANA 名。
 location:
-  city: "柳州"
-  country: "中华人民共和国"
-  lat: 24.326
-  lng: 109.428
+  city: "Unknown"
+  country: "Unknown"
+  lat: 0
+  lng: 0
   timezone: "Asia/Shanghai"
 
 # 关于页内容(markdown 语法)

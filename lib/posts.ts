@@ -23,6 +23,18 @@ export type Post = PostMeta & {
   contentHtml: string;
 };
 
+// How: YAML 里不加引号的 `date: 2026-01-15` 会被 js-yaml 解析成 Date 对象，
+// 加引号才是字符串。这里统一兼容两种情况，避免误判为空而回退到 1970。
+function toDateString(value: unknown): string | undefined {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString().slice(0, 10);
+  }
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+  return undefined;
+}
+
 // How: frontmatter 字段类型不可信(手写 md 易漏或写错)，逐字段做防御式归一，
 // 缺失时给出合理默认，避免构建期因个别文章格式问题整体崩溃。
 function normalizeMeta(
@@ -41,8 +53,8 @@ function normalizeMeta(
     slug,
     title: typeof data.title === "string" ? data.title : slug,
     description: typeof data.description === "string" ? data.description : "",
-    date: typeof data.date === "string" ? data.date : "1970-01-01",
-    updated: typeof data.updated === "string" ? data.updated : undefined,
+    date: toDateString(data.date) ?? "1970-01-01",
+    updated: toDateString(data.updated),
     tags,
     cover: typeof data.cover === "string" ? data.cover : undefined,
     draft: data.draft === true,
