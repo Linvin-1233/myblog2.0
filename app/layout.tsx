@@ -63,13 +63,11 @@ export default function RootLayout({
       suppressHydrationWarning
       className={jetbrainsMono.variable}
     >
-      <head>
-        <ThemeScript />
-      </head>
       <body
         className="min-h-screen bg-poster-bg font-mono text-poster-text
           antialiased selection:bg-poster-ice selection:text-black"
       >
+        <ThemeScript />
         <PosterBackground />
         <div className="relative z-10 flex min-h-screen flex-col">
           <SiteHeader />

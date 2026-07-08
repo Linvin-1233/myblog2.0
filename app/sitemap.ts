@@ -33,8 +33,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  const tagEntries: MetadataRoute.Sitemap = tags.map(({ tag }) => ({
-    url: toUrl(`/tags/${encodeURIComponent(tag)}`),
+  const tagEntries: MetadataRoute.Sitemap = tags.map(({ slug }) => ({
+    url: toUrl(`/tags/${encodeURIComponent(slug)}`),
     changeFrequency: "monthly",
     priority: 0.4,
   }));

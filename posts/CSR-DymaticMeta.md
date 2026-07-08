@@ -2,7 +2,7 @@
 title: 如何在CSR下做到动态meta
 description: 这几天忙着维护OpenST官网，把档案馆稿件动态meta给搞上了，个人觉得这是一个很好的解决方案遂记录
 date: 2026-04-10
-tags: [笔记, web开发]
+tags: [笔记, Web开发]
 ---
 
 [](#1-什么是CSR，SPA？ "1. 什么是CSR，SPA？")1\. 什么是CSR，SPA？

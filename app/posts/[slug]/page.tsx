@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllSlugs, getPostBySlug, getAdjacentPosts } from "@/lib/posts";
+import { getAllSlugs, getPostBySlug, getAdjacentPosts, tagToSlug } from "@/lib/posts";
 import { siteConfig, gitalkConfig, postLicense } from "@/lib/siteConfig";
 import { formatDate } from "@/lib/format";
 import { SectionLabel } from "../../components/SectionLabel";
@@ -112,7 +112,7 @@ export default async function PostPage({ params }: PageProps) {
             {post.tags.map((tag) => (
               <Link
                 key={tag}
-                href={`/tags/${encodeURIComponent(tag)}`}
+                href={`/tags/${encodeURIComponent(tagToSlug(tag))}`}
                 className="border border-poster-line bg-poster-panel/40 px-2
                   py-0.5 text-[10px] uppercase text-poster-text-bright
                   transition-colors hover:border-poster-ice hover:text-poster-ice"

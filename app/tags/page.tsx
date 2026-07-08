@@ -29,10 +29,10 @@ export default function TagsPage() {
         <p className="text-xs text-poster-text-muted">&gt; 暂无标签</p>
       ) : (
         <div className="flex flex-wrap gap-3">
-          {tags.map(({ tag, count }) => (
+          {tags.map(({ tag, slug, count }) => (
             <Link
-              key={tag}
-              href={`/tags/${encodeURIComponent(tag)}`}
+              key={slug}
+              href={`/tags/${encodeURIComponent(slug)}`}
               className="flex items-center gap-2 border-2 border-poster-line
                 bg-poster-panel/40 px-3 py-1.5 text-xs font-bold uppercase
                 tracking-wider text-poster-text-bright transition-all

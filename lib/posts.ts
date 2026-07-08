@@ -137,22 +137,38 @@ export function getAdjacentPosts(slug: string): {
   };
 }
 
-// Why: 标签页需要“全部标签 + 各自数量”，用 Map 聚合一次遍历得出，
-// 再按出现频次降序，让热门标签靠前展示。
-export function getAllTags(): { tag: string; count: number }[] {
-  const counter = new Map<string, number>();
+// Why: 标签 URL 用小写 slug，大小写不敏感聚合，避免 "Web开发/web开发" 被当成
+// 两个标签(重复)；也让链接、静态参数、匹配三处保持一致。
+export function tagToSlug(tag: string): string {
+  return tag.trim().toLowerCase();
+}
+
+// Why: 标签页需要“全部标签 + 各自数量”，按 slug 聚合(大小写不敏感)，展示用
+// 首次出现的原始写法，slug 用于链接。按频次降序，热门靠前。
+export function getAllTags(): { tag: string; slug: string; count: number }[] {
+  const counter = new Map<string, { tag: string; count: number }>();
   for (const post of getAllPostMeta()) {
     for (const tag of post.tags) {
-      counter.set(tag, (counter.get(tag) ?? 0) + 1);
+      const slug = tagToSlug(tag);
+      const existing = counter.get(slug);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        counter.set(slug, { tag, count: 1 });
+      }
     }
   }
   return Array.from(counter.entries())
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+    .map(([slug, { tag, count }]) => ({ tag, slug, count }))
+    .sort((a, b) => b.count - a.count || a.slug.localeCompare(b.slug));
 }
 
-export function getPostsByTag(tag: string): PostMeta[] {
-  return getAllPostMeta().filter((post) => post.tags.includes(tag));
+// How: 按 slug(小写)匹配，命中所有大小写变体的同名标签。
+export function getPostsByTag(slug: string): PostMeta[] {
+  const target = tagToSlug(slug);
+  return getAllPostMeta().filter((post) =>
+    post.tags.some((tag) => tagToSlug(tag) === target),
+  );
 }
 
 export type SearchDocument = {
