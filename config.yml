@@ -15,6 +15,14 @@ site:
 # 页脚版权。{year} 会被替换为当前年份
 copyright: "© {year} Linvin"
 
+# 文章结尾的版权卡片（全局）。license.name 会取首字母作为左侧装饰。
+postLicense:
+  enable: true
+  name: "CC BY-NC-SA 4.0"
+  url: "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+  # 说明文案，{author} 会被替换为 site.author
+  note: "本文由 {author} 创作，采用 CC BY-NC-SA 4.0 协议，转载请注明出处。"
+
 # 首页 INTRO 区与关于页的社交外链
 social:
   - label: "GITHUB_PROFILE"
@@ -24,10 +32,10 @@ social:
 
 # 作者所在地(用于"你我相距多远"功能)。lat/lng 为十进制经纬度，timezone 用 IANA 名。
 location:
-  city: "Unknown"
-  country: "Unknown"
-  lat: 0
-  lng: 0
+  city: "Greenwich"
+  country: "UK"
+  lat: -0.00139
+  lng: 51.47783
   timezone: "GMT+0"
 
 # 关于页内容(markdown 语法)
@@ -42,7 +50,6 @@ about: |
 # clientID / clientSecret 放在环境变量里(见 .env.example)，不写进本文件、不进 git。
 # proxy 设为 true 时，Gitalk 会通过本站 /api/gitalk 代理 OAuth 和 GitHub API
 # 请求，改善国内访问成功率。
-# 注意：Gitalk 机制决定这两个值最终仍会出现在前端 JS 中，仅访问者可见级别的"公开"。
 gitalk:
   enable: true
   proxy: true

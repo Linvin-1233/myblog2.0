@@ -20,6 +20,12 @@ type RawConfig = {
     latestCountOnHome?: number;
   };
   copyright?: string;
+  postLicense?: {
+    enable?: boolean;
+    name?: string;
+    url?: string;
+    note?: string;
+  };
   social?: SocialLink[];
   about?: string;
   location?: {
@@ -90,6 +96,17 @@ const copyrightTemplate = raw.copyright ?? `© {year} ${siteConfig.author}`;
 export function renderCopyright(year: number): string {
   return copyrightTemplate.replace("{year}", String(year));
 }
+
+// Why: 文章结尾的版权卡片配置全局化；note 里的 {author} 用站点作者替换。
+const rawLicense = raw.postLicense ?? {};
+export const postLicense = {
+  enable: rawLicense.enable === true,
+  name: rawLicense.name ?? "",
+  url: rawLicense.url ?? "",
+  note: (rawLicense.note ?? "").replace("{author}", siteConfig.author),
+};
+
+export type PostLicense = typeof postLicense;
 
 const gitalk = raw.gitalk ?? {};
 export const gitalkConfig = {

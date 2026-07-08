@@ -570,8 +570,15 @@ html {
   box-shadow: 0 0 0 1px var(--poster-ice);
 }
 
-#gitalk-container .gt-container .gt-comment-body {
-  color: var(--poster-text-bright);
+/* How: Gitalk 把评论正文渲染进 .markdown-body，其自带 GitHub 配色会把文字
+   固定成深色、覆盖我们的设置；用 !important 强制文字跟随主题，链接保持冰蓝。 */
+#gitalk-container .gt-container .gt-comment-body,
+#gitalk-container .gt-container .gt-comment-body
+  :where(p, li, span, strong, em, blockquote, td, th, h1, h2, h3, h4, h5, h6) {
+  color: var(--poster-text-bright) !important;
+}
+#gitalk-container .gt-container .gt-comment-body a {
+  color: var(--poster-ice) !important;
 }
 
 #gitalk-container .gt-container .gt-comment-admin .gt-comment-content {

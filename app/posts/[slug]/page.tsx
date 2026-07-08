@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllSlugs, getPostBySlug, getAdjacentPosts } from "@/lib/posts";
-import { siteConfig, gitalkConfig } from "@/lib/siteConfig";
+import { siteConfig, gitalkConfig, postLicense } from "@/lib/siteConfig";
 import { formatDate } from "@/lib/format";
 import { SectionLabel } from "../../components/SectionLabel";
 import { JsonLd } from "../../components/JsonLd";
 import { Comments } from "../../components/Comments";
 import { ImageLightbox } from "../../components/ImageLightbox";
 import { HeadingAnchors } from "../../components/HeadingAnchors";
+import { LicenseCard } from "../../components/LicenseCard";
 // Why: KaTeX 数学公式需要其样式表；只在会渲染正文的文章页引入，不拖累其它路由。
 import "katex/dist/katex.min.css";
 
@@ -133,6 +134,16 @@ export default async function PostPage({ params }: PageProps) {
         />
       </ImageLightbox>
       <HeadingAnchors />
+
+      {/* Why: 文章结尾版权卡片，内容全局配置(config.yml)；更新时间取 updated，
+          缺失则回退发布日期。 */}
+      {postLicense.enable && (
+        <LicenseCard
+          license={postLicense}
+          author={siteConfig.author}
+          updated={post.updated ?? post.date}
+        />
+      )}
 
       <footer className="mt-12 border-t border-poster-line pt-6">
         <Link
