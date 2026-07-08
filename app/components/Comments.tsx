@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import "gitalk/dist/gitalk.css";
 
 export type GitalkOptions = {
   clientID: string;
@@ -33,8 +32,12 @@ export function Comments({
     rendered.current = true;
 
     let cancelled = false;
-    // How: 动态 import 让 gitalk 只在浏览器加载，规避构建期预渲染触碰 window。
-    import("gitalk").then(({ default: Gitalk }) => {
+    // How: 动态 import 让 gitalk JS 与 CSS 都只在浏览器、评论初始化时才加载，
+    // 移出文章页首屏的关键渲染路径(否则 gitalk.css 会阻塞首屏渲染)。
+    Promise.all([
+      import("gitalk"),
+      import("gitalk/dist/gitalk.css"),
+    ]).then(([{ default: Gitalk }]) => {
       if (cancelled) return;
       const gitalk = new Gitalk({
         clientID: options.clientID,

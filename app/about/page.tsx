@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { renderMarkdown } from "@/lib/markdown";
 import { aboutContent, siteConfig } from "@/lib/siteConfig";
 import { SectionLabel } from "../components/SectionLabel";
+import { ImageLightbox } from "../components/ImageLightbox";
+import { HeadingAnchors } from "../components/HeadingAnchors";
+import "katex/dist/katex.min.css";
 
 export const metadata: Metadata = {
   title: "关于",
@@ -25,10 +28,13 @@ export default function AboutPage() {
         </h1>
       </div>
 
-      <div
-        className="post-content"
-        dangerouslySetInnerHTML={{ __html: aboutHtml }}
-      />
+      <ImageLightbox>
+        <div
+          className="post-content"
+          dangerouslySetInnerHTML={{ __html: aboutHtml }}
+        />
+      </ImageLightbox>
+      <HeadingAnchors />
 
       <div className="mt-8 flex flex-wrap gap-3">
         {siteConfig.socialLinks.map((link) => (

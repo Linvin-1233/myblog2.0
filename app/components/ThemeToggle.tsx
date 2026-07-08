@@ -50,7 +50,7 @@ export function ThemeToggle() {
         shadow-[3px_3px_0px_var(--poster-shadow)] active:translate-x-0.5
         active:translate-y-0.5 active:shadow-none group"
     >
-      {/* Why: 复刻 example/App.vue 的组合切换图标——旋转虚线环(深色转快/浅色
+      {/* Why: 组合式切换图标——旋转虚线环(深色转快/浅色
           转慢) + 四向刻度 + 中心形状(深色方块并旋转、浅色菱形)。 */}
       <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
         <svg

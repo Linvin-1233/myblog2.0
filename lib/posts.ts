@@ -122,6 +122,21 @@ export function getAllSlugs(): string[] {
   return getAllPostMeta().map((post) => post.slug);
 }
 
+// Why: 文章底部的上/下篇导航。列表按日期倒序(新→旧)，故"上一篇"=更新的那篇
+// (数组中前一个)，"下一篇"=更旧的那篇(数组中后一个)。
+export function getAdjacentPosts(slug: string): {
+  prev: PostMeta | null;
+  next: PostMeta | null;
+} {
+  const posts = getAllPostMeta();
+  const index = posts.findIndex((post) => post.slug === slug);
+  if (index === -1) return { prev: null, next: null };
+  return {
+    prev: index > 0 ? posts[index - 1] : null,
+    next: index < posts.length - 1 ? posts[index + 1] : null,
+  };
+}
+
 // Why: 标签页需要“全部标签 + 各自数量”，用 Map 聚合一次遍历得出，
 // 再按出现频次降序，让热门标签靠前展示。
 export function getAllTags(): { tag: string; count: number }[] {

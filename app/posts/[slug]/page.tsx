@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAllSlugs, getPostBySlug } from "@/lib/posts";
+import { getAllSlugs, getPostBySlug, getAdjacentPosts } from "@/lib/posts";
 import { siteConfig, gitalkConfig } from "@/lib/siteConfig";
 import { formatDate } from "@/lib/format";
 import { SectionLabel } from "../../components/SectionLabel";
 import { JsonLd } from "../../components/JsonLd";
 import { Comments } from "../../components/Comments";
+import { ImageLightbox } from "../../components/ImageLightbox";
+import { HeadingAnchors } from "../../components/HeadingAnchors";
+// Why: KaTeX 数学公式需要其样式表；只在会渲染正文的文章页引入，不拖累其它路由。
+import "katex/dist/katex.min.css";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -73,6 +77,9 @@ export default async function PostPage({ params }: PageProps) {
     mainEntityOfPage: `${siteConfig.url}/posts/${post.slug}`,
   };
 
+  // How: 连同上/下篇文章的轻导航，用 getAdjacentPosts 按日期序获取。
+  const adjacentPosts = getAdjacentPosts(post.slug);
+
   return (
     <article className="relative pt-8">
       <JsonLd data={articleSchema} />
@@ -117,11 +124,15 @@ export default async function PostPage({ params }: PageProps) {
       </header>
 
       {/* How: 正文由 markdown 在构建期渲染为可信 HTML，注入后由 .post-content
-          统一套用海报风排版。 */}
-      <div
-        className="post-content"
-        dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-      />
+          统一套用海报风排版。ImageLightbox 用事件委派捕获所有 <img> 点击
+          并弹出灯箱。 */}
+      <ImageLightbox>
+        <div
+          className="post-content"
+          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+        />
+      </ImageLightbox>
+      <HeadingAnchors />
 
       <footer className="mt-12 border-t border-poster-line pt-6">
         <Link
@@ -131,6 +142,49 @@ export default async function PostPage({ params }: PageProps) {
         >
           [◄ BACK_TO_MANIFEST]
         </Link>
+
+        {/* Why: 上/下篇导航——按日期序，方便连续阅读。 */}
+        {(adjacentPosts.prev || adjacentPosts.next) && (
+          <nav className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {adjacentPosts.prev ? (
+              <Link
+                href={`/posts/${adjacentPosts.prev.slug}`}
+                className="group border border-poster-line bg-poster-panel/40
+                  p-4 transition-all hover:border-poster-ice"
+              >
+                <div className="text-[10px] tracking-widest text-poster-text-muted">
+                  {"◄ PREV // 上一篇"}
+                </div>
+                <div
+                  className="mt-1 text-sm font-bold text-poster-text-bright
+                    transition-colors group-hover:text-poster-ice"
+                >
+                  {adjacentPosts.prev.title}
+                </div>
+              </Link>
+            ) : (
+              <span />
+            )}
+
+            {adjacentPosts.next && (
+              <Link
+                href={`/posts/${adjacentPosts.next.slug}`}
+                className="group border border-poster-line bg-poster-panel/40
+                  p-4 text-right transition-all hover:border-poster-ice"
+              >
+                <div className="text-[10px] tracking-widest text-poster-text-muted">
+                  {"下一篇 // NEXT ►"}
+                </div>
+                <div
+                  className="mt-1 text-sm font-bold text-poster-text-bright
+                    transition-colors group-hover:text-poster-ice"
+                >
+                  {adjacentPosts.next.title}
+                </div>
+              </Link>
+            )}
+          </nav>
+        )}
       </footer>
 
       {/* Why: 仅在 config.yml 配好 Gitalk(启用且必填项齐全)时渲染评论区。 */}
