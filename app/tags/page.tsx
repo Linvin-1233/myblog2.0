@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllTags } from "@/lib/posts";
-import { SectionLabel } from "../components/SectionLabel";
 
 export const metadata: Metadata = {
   title: "标签",
@@ -9,44 +8,45 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tags" },
 };
 
-// Why: 标签总览页，展示全部标签及各自文章数，作为主题导航入口。
+// Why: 标签总览页(v7 编辑流)——标题 + 纯文本标签链接(带计数)，无面板。
 export default function TagsPage() {
   const tags = getAllTags();
 
   return (
-    <section className="relative pt-8">
-      <SectionLabel>[SEC // TAG_INDEX]</SectionLabel>
-      <div className="mb-8 border-b border-poster-line pb-4">
-        <span className="block text-[10px] tracking-widest text-poster-text-muted">
-          {"// TOPIC_CLUSTERS"}
-        </span>
-        <h1 className="text-xl font-extrabold uppercase text-poster-title">
-          标签
-        </h1>
+    <div className="system-page system-subpage mx-auto w-full max-w-4xl px-4">
+      <h1
+        className="pt-10 text-3xl font-extrabold uppercase text-poster-title
+          md:text-4xl"
+      >
+        标签
+      </h1>
+      <div className="mt-2 text-[10px] uppercase tracking-widest
+        text-poster-text-muted">
+        {"// "}
+        {tags.length.toString().padStart(2, "0")} TOPICS
       </div>
 
       {tags.length === 0 ? (
-        <p className="text-xs text-poster-text-muted">&gt; 暂无标签</p>
+        <p className="mt-8 text-xs text-poster-text-muted">暂无标签</p>
       ) : (
-        <div className="flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap gap-2 border border-poster-line
+          bg-poster-panel/50 p-3">
           {tags.map(({ tag, slug, count }) => (
             <Link
               key={slug}
               href={`/tags/${encodeURIComponent(slug)}`}
-              className="flex items-center gap-2 border-2 border-poster-line
-                bg-poster-panel/40 px-3 py-1.5 text-xs font-bold uppercase
-                tracking-wider text-poster-text-bright transition-all
-                shadow-[3px_3px_0px_var(--poster-shadow)]
-                hover:border-poster-ice hover:text-poster-ice"
+              className="border border-poster-line px-3 py-2 text-xs font-bold
+                uppercase tracking-wider text-poster-text-bright transition-colors
+                hover:border-poster-ice hover:bg-poster-ice hover:text-poster-bg"
             >
               #{tag}
-              <span className="text-[10px] text-poster-ice">
+              <span className="ml-1.5 text-[10px] text-poster-text-muted">
                 {count.toString().padStart(2, "0")}
               </span>
             </Link>
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }

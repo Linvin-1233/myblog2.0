@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 
 type Theme = "dark" | "light";
 
-// Why: 复刻 example 的主题切换按钮(旋转刻度盘 + 状态标签)，但适配多页站点：
+// Why: 主题切换按钮(v3 系统风)——"MODE" 旋钮：像素切角 + 旋转刻度盘，
+// 中心是手绘太阳/月亮图标，标签 MODE: DARK_& / LIGHT_&(系统口吻)。
 // 状态源自 <html data-theme>(由 ThemeScript 首帧写入)，切换时同步 DOM 与
 // localStorage，保证跨页面持久一致。
 export function ThemeToggle() {
@@ -43,23 +44,18 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label="切换深浅色主题"
-      className="flex items-center gap-2 border-2 border-poster-line
-        bg-poster-panel/90 px-3 py-1.5 text-[10px] font-extrabold
-        tracking-widest text-poster-ice transition-all duration-300
-        hover:border-poster-ice hover:bg-poster-ice hover:text-poster-bg
-        shadow-[3px_3px_0px_var(--poster-shadow)] active:translate-x-0.5
-        active:translate-y-0.5 active:shadow-none group"
+      className="flex items-center gap-2 border border-poster-line bg-poster-panel
+        px-3 py-1.5 text-[10px] font-extrabold tracking-widest text-poster-ice
+        transition-colors hover:border-poster-ice hover:bg-poster-ice hover:text-poster-bg"
     >
-      {/* Why: 组合式切换图标——旋转虚线环(深色转快/浅色
-          转慢) + 四向刻度 + 中心形状(深色方块并旋转、浅色菱形)。 */}
+      {/* 刻度盘：虚线环缓慢旋转 + 中心日/月 */}
       <span className="relative flex h-5 w-5 shrink-0 items-center justify-center">
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          className="absolute inset-0 h-full w-full text-poster-line
-            group-hover:text-poster-bg transition-colors duration-300"
+          className="absolute inset-0 h-full w-full text-current"
           style={{
-            animation: `spin ${isDark ? "4s" : "10s"} linear infinite`,
+            animation: `spin ${isDark ? "6s" : "14s"} linear infinite`,
           }}
         >
           <circle
@@ -67,53 +63,41 @@ export function ThemeToggle() {
             cy="12"
             r="10"
             stroke="currentColor"
-            strokeWidth="1.2"
+            strokeWidth="1.1"
             strokeDasharray="4 3"
           />
         </svg>
 
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          className="absolute inset-0 h-full w-full opacity-60
-            group-hover:opacity-100 transition-opacity"
-        >
-          <path
-            d="M12 2v3M12 19v3M2 12h3M19 12h3"
-            stroke="currentColor"
-            strokeWidth="0.8"
-          />
-        </svg>
-
-        <svg
-          viewBox="0 0 10 10"
-          fill="none"
-          className={`h-2.5 w-2.5 transition-transform duration-500 ${
-            isDark ? "rotate-90" : ""
-          }`}
-        >
-          {isDark ? (
-            <rect
-              x="1.5"
-              y="1.5"
-              width="7"
-              height="7"
-              fill="none"
+        {isDark ? (
+          /* 月亮 + 星 */
+          <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
+            <path
+              d="M15 4a8 8 0 1 0 5 14A9 9 0 0 1 15 4z"
               stroke="currentColor"
-              strokeWidth="1.5"
-              className="animate-pulse"
+              strokeWidth="1.3"
             />
-          ) : (
-            <polygon
-              points="5,0 10,5 5,10 0,5"
-              fill="currentColor"
-              className="origin-center scale-75 animate-ping"
-            />
-          )}
-        </svg>
+            <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" />
+            <circle cx="6" cy="7" r="0.7" fill="currentColor" />
+          </svg>
+        ) : (
+          /* 太阳：圆 + 光线 */
+          <svg viewBox="0 0 24 24" fill="none" className="h-3 w-3">
+            <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.3" />
+            <g stroke="currentColor" strokeWidth="1.1" strokeLinecap="round">
+              <line x1="12" y1="2.5" x2="12" y2="5" />
+              <line x1="12" y1="19" x2="12" y2="21.5" />
+              <line x1="2.5" y1="12" x2="5" y2="12" />
+              <line x1="19" y1="12" x2="21.5" y2="12" />
+              <line x1="5.3" y1="5.3" x2="7" y2="7" />
+              <line x1="17" y1="17" x2="18.7" y2="18.7" />
+              <line x1="18.7" y1="5.3" x2="17" y2="7" />
+              <line x1="7" y1="17" x2="5.3" y2="18.7" />
+            </g>
+          </svg>
+        )}
       </span>
-      <span className="border-l border-poster-line/40 pl-2">
-        {mounted ? (isDark ? "DARK_&" : "LIGHT_&") : "····"}
+      <span className="hidden border-l border-poster-line pl-2 xl:inline">
+        {mounted ? `MODE: ${isDark ? "DARK_&" : "LIGHT_&"}` : "····"}
       </span>
     </button>
   );

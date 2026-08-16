@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 // Why: 点击文章正文中的图片时全屏展示原图 + alt 文案；适合静态导出的博客
 // (无后端图片服务)，直接在客户端拦截点击即可。
+// v3 系统风：预览图套故障青描边 + 扫描线蒙层，图注 "FIG // alt"。
 export function ImageLightbox({ children }: { children: React.ReactNode }) {
   const [target, setTarget] = useState<{ src: string; alt: string } | null>(
     null,
@@ -80,20 +81,20 @@ export function ImageLightbox({ children }: { children: React.ReactNode }) {
                   : "animate-[lightboxIn_0.25s_cubic-bezier(0.22,1,0.36,1)]"
               }`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={target.src}
-              alt={target.alt}
-              className="max-h-[82vh] max-w-full border border-poster-line
-                object-contain shadow-[0_0_40px_rgba(0,0,0,0.5)]"
-            />
+            {/* 预览图片(冰蓝描边，无蒙层装饰) */}
+            <div className="relative">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={target.src}
+                alt={target.alt}
+                className="max-h-[82vh] max-w-full border border-poster-ice
+                  bg-poster-panel object-contain p-1
+                  shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+              />
+            </div>
             {target.alt && (
-              <p
-                className="text-center text-[11px] uppercase tracking-widest
-                  text-poster-text-muted"
-              >
-                {"// "}
-                {target.alt}
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-poster-ice">
+                {`FIG // ${target.alt}`}
               </p>
             )}
           </div>
@@ -101,11 +102,13 @@ export function ImageLightbox({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={close}
+            aria-label="关闭预览"
             className="absolute right-4 top-4 border border-poster-line
-              bg-poster-panel/80 px-3 py-1.5 text-[11px] font-extrabold
-              text-poster-ice transition-colors hover:border-poster-ice"
+              bg-poster-panel px-3 py-1.5 text-[11px] font-extrabold
+              text-poster-ice transition-colors hover:border-poster-ice
+              hover:bg-poster-ice hover:text-poster-bg"
           >
-            [ X ]
+            [X]
           </button>
         </div>
       )}

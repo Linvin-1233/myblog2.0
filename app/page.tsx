@@ -1,119 +1,144 @@
 import Link from "next/link";
 import { getAllPostMeta } from "@/lib/posts";
 import { siteConfig } from "@/lib/siteConfig";
-import { SectionLabel } from "./components/SectionLabel";
-import { PostCard } from "./components/PostCard";
+import { EarthGlobe } from "./components/EarthGlobe";
+import { PostRow } from "./components/PostRow";
+import { DataWarp } from "./components/DataWarp";
 
-// Why: 首页复刻 example 的海报视觉：全屏 hero + 分区数据面板。作为服务端组件，
-// 构建期读取最新文章并直接渲染进静态 HTML。
+// Why: 首页是失序的轨道控制台：地球仍是主视觉，但标题、遥测和诊断块故意
+// 跨网格错位，形成 system-art 混乱感；文章流保持稳定，提供阅读锚点。
 export default function HomePage() {
   const latestPosts = getAllPostMeta().slice(0, siteConfig.latestCountOnHome);
+  const nameParts = siteConfig.name.split("_");
 
   return (
-    <div className="space-y-24">
-      <section className="flex min-h-[60vh] flex-col items-center justify-center
-        text-center">
-        <div
-          className="mb-4 text-[9px] uppercase tracking-[0.4em] text-poster-ice
-            opacity-60 animate-pulse"
-        >
-          [ GRID_NODE_ONLINE ]
+    <div className="system-page mx-auto w-full max-w-6xl px-4 md:px-6">
+      <section className="relative grid min-h-[760px] items-center gap-14 py-24
+        lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:gap-20">
+        <DataWarp />
+        <div className="relative z-10 min-w-0">
+          <EarthGlobe className="earth-system h-auto w-full" />
         </div>
-        <h1
-          className="text-4xl font-extrabold uppercase leading-none tracking-[0.2em]
-            text-poster-title sm:text-6xl md:text-7xl"
-        >
-          {siteConfig.name.split("_")[0]}_
-          <span className="text-poster-ice">
-            {siteConfig.name.split("_")[1] ?? ""}
-          </span>
-        </h1>
-        <p
-          className="mt-4 max-w-xl text-[11px] uppercase tracking-[0.3em]
-            text-poster-text-muted"
-        >
-          {"// "}
-          {siteConfig.description}
-        </p>
-      </section>
 
-      <section
-        className="relative border-2 border-poster-line bg-poster-panel/20 px-6
-          py-16 shadow-[5px_5px_0px_var(--poster-shadow)]"
-      >
-        <SectionLabel>[SEC_01 // INTRO_DATA]</SectionLabel>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
-          <div className="md:col-span-4">
-            <span className="block text-[10px] tracking-wider text-poster-text-muted">
-              ID: 0x7F4A_CORE
-            </span>
-            <h2
-              className="text-2xl font-extrabold uppercase tracking-tight
-                text-poster-title md:text-3xl"
-            >
-              INTRO
-              <br />
-              DUCTION
-            </h2>
+        <div className="relative z-10 min-w-0 bg-poster-bg/55 py-6 backdrop-blur-[2px]
+          lg:pr-8">
+          <div className="mb-7 w-fit border border-poster-line px-3 py-1.5
+            text-[8px] tracking-[0.2em] text-poster-ice">
+            SYS.ART / SATELLITE ARCHIVE / CHANNEL 09
           </div>
-          <div
-            className="space-y-3 border-l border-poster-line pl-6 text-xs
-              leading-relaxed text-poster-text-bright md:col-span-8 md:text-sm"
+          <h1
+            className="text-5xl font-extrabold uppercase leading-[0.82]
+              tracking-[-0.08em] text-poster-title sm:text-7xl md:text-8xl"
           >
-            <p>{siteConfig.description}</p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              {siteConfig.socialLinks.map((link) => (
-                <a
-                  key={link.url}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border border-poster-line bg-poster-panel/40 px-2.5
-                    py-1 text-[10px] font-bold tracking-widest
-                    text-poster-text-bright transition-all
-                    hover:border-poster-ice hover:bg-poster-ice
-                    hover:text-poster-bg"
-                >
-                  [ {link.label} ]
-                </a>
-              ))}
-            </div>
+            <span className="glitch" data-text={nameParts[0]}>
+              {nameParts[0]}
+            </span>
+            <span className="rgb-split block translate-x-[0.18em]">
+              _{nameParts[1] ?? ""}
+            </span>
+          </h1>
+          <p
+            className="mt-8 max-w-lg border-l border-poster-ice pl-5 text-[11px]
+              uppercase leading-6 tracking-[0.2em] text-poster-text-muted"
+          >
+            {siteConfig.description}
+          </p>
+          <div className="mt-10 flex w-fit items-center gap-2 border-t
+            border-poster-line pr-12 pt-3 text-[10px] tracking-[0.18em]
+            text-poster-text-muted">
+            <span className="text-poster-ice">&gt;</span>
+            <span>ORBIT_LOCKED_</span>
+            <span className="blink inline-block h-3 w-2 bg-poster-ice" />
           </div>
+        </div>
+
+        <div className="consciousness-stream" aria-hidden="true">
+          {Array.from({ length: 16 }, (_, index) => (
+            <i
+              key={index}
+              className={`block bg-poster-ice ${
+                index % 4 === 0
+                  ? "h-3 w-3 opacity-30 [animation-delay:-1.6s]"
+                  : index % 3 === 0
+                    ? "h-1 w-1 opacity-60 [animation-delay:-.8s]"
+                    : "h-[7px] w-[7px] opacity-15"
+              }`}
+            />
+          ))}
         </div>
       </section>
 
-      <section className="relative pt-8">
-        <SectionLabel>[SEC_02 // LATEST_PAYLOAD]</SectionLabel>
-        <div
-          className="mb-8 flex items-end justify-between border-b
-            border-poster-line pb-4"
-        >
-          <h2 className="text-xl font-extrabold uppercase text-poster-title">
-            最新文章
+      <section className="relative mt-16 md:mt-24 md:pl-12">
+        <div className="flex items-baseline justify-between border-l border-poster-ice/40 pl-4">
+          <h2
+            className="text-xs font-extrabold uppercase tracking-widest
+              text-poster-ice"
+          >
+            {"// 01 · LATEST_TRANSMISSION"}
           </h2>
           <Link
             href="/posts"
             className="text-[11px] font-extrabold text-poster-ice
-              transition-all hover:tracking-wider"
+              transition-colors hover:text-poster-title"
           >
-            ALL_POSTS ↗
+            ALL →
           </Link>
         </div>
 
-        {latestPosts.length === 0 ? (
-          <div
-            className="border border-poster-line bg-poster-panel py-16
-              text-center text-xs tracking-widest text-poster-ice"
+        <div className="mt-4 border-y border-poster-line bg-poster-bg/75">
+          {latestPosts.length === 0 ? (
+            <div className="py-16 text-center">
+              <span className="text-xs tracking-widest text-poster-title">
+                &gt; NO_SIGNAL
+              </span>
+              <span className="ml-2 text-xs text-poster-text-muted">
+                暂无文章
+              </span>
+            </div>
+          ) : (
+            latestPosts.map((post) => (
+              <PostRow key={post.slug} post={post} />
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="ml-auto mt-24 grid gap-10 border-l border-poster-line
+        pb-4 pl-5 md:w-4/5 md:grid-cols-[minmax(0,1fr)_auto] md:pl-10">
+        <div>
+          <h2
+            className="text-xs font-extrabold uppercase tracking-widest
+              text-poster-ice"
           >
-            &gt; NO_PAYLOAD_FOUND // 暂无文章
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {latestPosts.map((post, index) => (
-              <PostCard key={post.slug} post={post} index={index + 1} />
+            {"// 02 · STATION"}
+          </h2>
+          <p
+            className="mt-4 max-w-2xl text-sm leading-relaxed
+              text-poster-text-bright"
+          >
+            {siteConfig.description}
+          </p>
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+            {siteConfig.socialLinks.map((link) => (
+              <a
+                key={link.url}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-bold tracking-widest
+                  text-poster-ice transition-colors hover:text-poster-title"
+              >
+                {link.label} ↗
+              </a>
             ))}
           </div>
-        )}
+        </div>
+        <div className="grid w-fit self-start whitespace-pre text-[9px]
+          leading-[1.45] text-poster-text-muted opacity-65" aria-hidden="true">
+          <span>┌─[ RX SIGNAL ]────────┐</span>
+          <span>│ ▓▓░▓ ░▓▓▓ ▓░░▓ 87% │</span>
+          <span>└────── SAT/07 ───────┘</span>
+        </div>
       </section>
     </div>
   );

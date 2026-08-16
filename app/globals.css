@@ -1,10 +1,13 @@
 @import "tailwindcss";
 
 /*
-  Why: “蓝图/技术海报”风格主题。早期把主题色写成内联
-  CSS 变量，多页站点里不便复用；这里改为在 :root / [data-theme] 上集中定义，
-  并通过 @theme inline 暴露成 Tailwind 工具类(bg-poster-bg 等)，颜色随
-  data-theme 属性整体切换，无需给每个元素单独传变量。
+  Why: 「SAT // 卫星观测站」主题(彻底重打 v6)。
+  只保留两项既定要素：卫星(点阵地球/轨道/卫星本体)与 v1 配色
+  (深黑蓝 #03050a + 冰蓝 #bfecff；浅色灰白 #f4f6f9 + 蓝绿 #00838f)。
+  设计语言：受干扰的轨道控制系统——像素故障、数据流、系统字符画和不对称
+  遥测层制造可控混乱；冰蓝仍是唯一强调色，不引入霓虹渐变。颜色集中在
+  :root / [data-theme] 定义，
+  经 @theme inline 暴露成 Tailwind 工具类，随 data-theme 整体切换。
 */
 @theme inline {
   --color-poster-bg: var(--poster-bg);
@@ -15,12 +18,11 @@
   --color-poster-text-bright: var(--poster-text-bright);
   --color-poster-text-muted: var(--poster-text-muted);
   --color-poster-title: var(--poster-title);
-  /* How: 英文命中 JetBrains Mono，中文因该字体无中文字形而回退到 sans-serif。 */
+  /* How: 英文命中 JetBrains Mono，中文因该字体无中文字形而回退 sans-serif。 */
   --font-mono: var(--font-jetbrains), sans-serif;
   --font-sans: var(--font-jetbrains), sans-serif;
 }
 
-/* How: 深色为默认基调(海报风主视觉)，浅色通过显式 data-theme 覆盖。 */
 :root {
   --poster-bg: #03050a;
   --poster-line: #1e293b;
@@ -32,8 +34,6 @@
   --poster-title: #ffffff;
   --poster-shadow: rgba(0, 0, 0, 0.5);
 
-  /* Why: 语法高亮 token 抽成变量，深色为默认(亮色系配深底)，浅色另行覆盖，
-     避免浅蓝/浅粉/浅黄在白底代码块上对比过低看不清。 */
   --hljs-comment: var(--poster-text-muted);
   --hljs-keyword: var(--poster-ice);
   --hljs-string: #7dd3fc;
@@ -47,17 +47,13 @@
   --poster-line: #cbd5e1;
   --poster-panel: #ffffff;
   --poster-ice: #00838f;
-  /* Why: 浅色下字体仅有 Bold 一档，显得过重；正文用中性灰 #555 降低厚重感。
-     正文(卡片描述/文章正文)走 text-bright，故这里也设为 #555。 */
-  /* Why: 浅色下字体仅有 Bold 一档，显得过重；正文用 #778899(LightSlateGray)
-     的中性偏蓝灰降低厚重感。正文(卡片描述/文章正文)走 text-bright。 */
+  /* Why: 浅色下字体仅 Bold 一档，正文用中性偏蓝灰 #778899 降低厚重感。 */
   --poster-text: #778899;
   --poster-text-bright: #778899;
   --poster-text-muted: #a3aec0;
   --poster-title: #778899;
   --poster-shadow: rgba(148, 163, 184, 0.3);
 
-  /* How: 白底代码块需要更深、饱和度更高的高亮色才够清晰(参考 GitHub 浅色)。 */
   --hljs-comment: #6e7781;
   --hljs-keyword: #cf222e;
   --hljs-string: #0a7d33;
@@ -69,60 +65,374 @@
 body {
   background: var(--poster-bg);
   color: var(--poster-text);
+  overflow-x: hidden;
 }
 
-/* Why: 锚点跳转/翻页回顶等程序化滚动使用平滑过渡，提升观感。 */
 html {
   scroll-behavior: smooth;
+  background: var(--poster-bg);
 }
 
-/*
-  Why: 海报背景的网格底纹与漂浮装饰是该风格的核心识别元素。
-  blueprint-grid 提供等距坐标网格的线条底图；两个尺寸变体叠加成视差纵深。
-*/
+/* ============ 受干扰的卫星系统外壳 ============ */
+.system-main {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(8.333% - 1px),
+      color-mix(in srgb, var(--poster-line) 24%, transparent) calc(8.333% - 1px) 8.333%
+    ),
+    color-mix(in srgb, var(--poster-bg) 72%, transparent);
+}
+.system-main::before,
+.system-main::after {
+  position: fixed;
+  z-index: -1;
+  top: 112px;
+  bottom: 42px;
+  width: 1px;
+  content: "";
+  background: linear-gradient(transparent, var(--poster-line) 12% 88%, transparent);
+  opacity: 0.8;
+}
+.system-main::before { left: max(18px, calc(50vw - 590px)); }
+.system-main::after { right: max(18px, calc(50vw - 590px)); }
+.system-scanlines {
+  opacity: 0.18;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, var(--poster-title) 9%, transparent) 3px 4px);
+  animation: scanDrift 9s linear infinite;
+}
+.signal-tear {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 2px;
+  opacity: 0;
+  background: var(--poster-ice);
+  box-shadow: 18vw 3px 0 var(--poster-text-muted), -27vw -2px 0 var(--poster-title);
+  animation: signalTear 7s steps(1) infinite;
+}
+.signal-tear-a { top: 23%; }
+.signal-tear-b { top: 57%; animation-delay: -2.7s; }
+.signal-tear-c { top: 81%; animation-delay: -5.1s; }
+.void-field {
+  position: absolute;
+  top: 42%;
+  left: 58%;
+  width: min(58vw, 720px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  opacity: 0.42;
+}
+.black-hole-core {
+  position: absolute;
+  inset: 36%;
+  border-radius: 50%;
+  background: #000;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--poster-ice) 28%, transparent),
+    0 0 42px 9px color-mix(in srgb, var(--poster-ice) 12%, transparent),
+    inset 12px 0 18px color-mix(in srgb, var(--poster-ice) 8%, transparent);
+}
+.black-hole-ring {
+  position: absolute;
+  inset: 25%;
+  border: 1px solid color-mix(in srgb, var(--poster-ice) 46%, transparent);
+  border-radius: 50%;
+  transform: rotate(-17deg) scaleY(0.32);
+}
+.black-hole-ring::before,
+.black-hole-ring::after {
+  position: absolute;
+  border-radius: 50%;
+  content: "";
+}
+.black-hole-ring::before {
+  inset: -14%;
+  border: 8px solid transparent;
+  border-top-color: color-mix(in srgb, var(--poster-ice) 24%, transparent);
+  border-right-color: color-mix(in srgb, var(--poster-title) 8%, transparent);
+}
+.black-hole-ring::after {
+  inset: 12%;
+  border: 2px dashed color-mix(in srgb, var(--poster-text-muted) 50%, transparent);
+}
+.black-hole-ring-a { animation: voidOrbit 18s linear infinite; }
+.black-hole-ring-b {
+  inset: 18%;
+  opacity: 0.45;
+  transform: rotate(21deg) scaleY(0.24);
+  animation: voidOrbitReverse 26s linear infinite;
+}
+.black-hole-slice {
+  position: absolute;
+  left: 16%;
+  width: 68%;
+  height: 4%;
+  background: var(--poster-bg);
+  border-block: 1px solid color-mix(in srgb, var(--poster-ice) 42%, transparent);
+  animation: voidSlice 4.7s steps(1) infinite;
+}
+.black-hole-slice-a { top: 43%; }
+.black-hole-slice-b { top: 56%; animation-delay: -2.1s; }
+.data-current {
+  position: absolute;
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  perspective: 500px;
+  transform-origin: right center;
+}
+.data-current i {
+  display: block;
+  width: var(--block-size, 12px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--poster-ice) 58%, transparent);
+  background: color-mix(in srgb, var(--poster-ice) var(--fill, 14%), transparent);
+  opacity: var(--alpha, 0.45);
+  animation: thoughtPacket 2.8s steps(8) infinite;
+}
+.data-current i:nth-child(3n) { --block-size: 6px; --fill: 34%; --alpha: 0.72; animation-delay: -0.7s; }
+.data-current i:nth-child(4n) { --block-size: 18px; --fill: 7%; --alpha: 0.26; animation-delay: -1.4s; }
+.data-current i:nth-child(5n) { --block-size: 9px; --fill: 62%; --alpha: 0.56; animation-delay: -2.1s; }
+.data-current-a {
+  top: 29%;
+  right: 46%;
+  width: 47%;
+  justify-content: space-between;
+  transform: rotate(8deg);
+}
+.data-current-b {
+  top: 57%;
+  right: 39%;
+  width: 58%;
+  justify-content: space-between;
+  transform: rotate(-11deg) scale(0.82);
+}
+.data-current-c {
+  top: 76%;
+  right: 45%;
+  width: 38%;
+  justify-content: space-between;
+  transform: rotate(4deg) scale(0.65);
+}
+@keyframes thoughtPacket {
+  0% { translate: -34px 0; scale: 1.25; opacity: 0.2; }
+  50% { opacity: 0.7; }
+  100% { translate: 46px 0; scale: 0.25; opacity: 0; }
+}
+@keyframes voidOrbit {
+  to { rotate: 360deg; }
+}
+@keyframes voidOrbitReverse {
+  to { rotate: -360deg; }
+}
+@keyframes voidSlice {
+  0%, 78%, 100% { transform: translateX(0); opacity: 0.25; }
+  79% { transform: translateX(-9%); opacity: 0.72; }
+  83% { transform: translateX(13%); opacity: 0.4; }
+  87% { transform: translateX(-2%); opacity: 0.6; }
+}
+
+/* Next 16 React ViewTransition：旧快照被扫描线撕开，新快照分段解码落位。 */
+::view-transition-group(.data-route) {
+  animation-duration: 680ms;
+  animation-timing-function: steps(9, jump-none);
+}
+::view-transition-image-pair(.data-route) {
+  isolation: isolate;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 7px, color-mix(in srgb, var(--poster-ice) 16%, transparent) 7px 8px),
+    var(--poster-bg);
+}
+::view-transition-old(.data-route) {
+  animation: routeSignalOut 340ms steps(7, jump-none) both;
+  filter: drop-shadow(9px 0 var(--poster-ice)) drop-shadow(-7px 0 var(--poster-text-muted));
+}
+::view-transition-new(.data-route) {
+  animation: routeSignalIn 650ms steps(11, jump-none) both;
+  filter: drop-shadow(-8px 0 var(--poster-ice)) drop-shadow(6px 0 var(--poster-text-muted));
+}
+
+@keyframes routeSignalOut {
+  0% { opacity: 1; filter: none; clip-path: inset(0); transform: translateX(0); }
+  13% { clip-path: polygon(0 0,100% 0,100% 12%,0 12%,0 32%,100% 32%,100% 42%,0 42%,0 71%,100% 71%,100% 82%,0 82%); transform: translateX(-9px); }
+  29% { clip-path: polygon(0 14%,100% 14%,100% 27%,0 27%,0 49%,100% 49%,100% 61%,0 61%,0 88%,100% 88%,100% 96%,0 96%); transform: translateX(17px) skewX(-1deg); filter: contrast(1.8); }
+  46% { clip-path: polygon(0 4%,100% 4%,100% 19%,0 19%,0 44%,100% 44%,100% 53%,0 53%,0 67%,100% 67%,100% 79%,0 79%); transform: translateX(-22px); }
+  68% { opacity: 0.72; clip-path: inset(44% 0 38% 0); transform: translateX(31px) scaleX(1.03); }
+  84% { opacity: 0.3; clip-path: inset(72% 0 17% 0); transform: translateX(-38px); }
+  100% { opacity: 0; clip-path: inset(49% 0 49% 0); transform: translateX(48px); }
+}
+@keyframes routeSignalIn {
+  0% { opacity: 0; clip-path: inset(48% 0 48% 0); transform: translateX(-24px); filter: contrast(2); }
+  12% { opacity: 0.48; clip-path: polygon(0 6%,100% 6%,100% 16%,0 16%,0 38%,100% 38%,100% 49%,0 49%,0 75%,100% 75%,100% 86%,0 86%); transform: translateX(31px); }
+  26% { opacity: 0.68; clip-path: polygon(0 0,100% 0,100% 22%,0 22%,0 31%,100% 31%,100% 57%,0 57%,0 68%,100% 68%,100% 94%,0 94%); transform: translateX(-19px) skewX(1deg); }
+  42% { opacity: 0.82; clip-path: polygon(0 0,100% 0,100% 36%,0 36%,0 44%,100% 44%,100% 73%,0 73%,0 81%,100% 81%,100% 100%,0 100%); transform: translateX(11px); }
+  58% { clip-path: inset(0 0 18% 0); transform: translateX(-7px); filter: contrast(1.65); }
+  59% { clip-path: inset(9% 0 0 0); transform: translateX(8px); filter: contrast(1.25); }
+  77% { clip-path: inset(0 0 5% 0); transform: translateX(-2px); filter: contrast(1.12); }
+  100% { opacity: 1; clip-path: inset(0); transform: translateX(0); filter: none; }
+}
+@keyframes scanDrift { to { transform: translateY(16px); } }
+@keyframes signalTear {
+  0%, 91%, 100% { opacity: 0; transform: translateX(0) scaleX(0.2); }
+  92% { opacity: 0.35; transform: translateX(-13%) scaleX(0.34); }
+  94% { opacity: 0.15; transform: translateX(22%) scaleX(0.18); }
+  96% { opacity: 0.3; transform: translateX(-4%) scaleX(0.62); }
+}
+
+/* ============ 内容系统：不对称排版 + 像素数据包 ============ */
+.system-page { position: relative; }
+.system-page {
+  background-image:
+    linear-gradient(90deg, transparent 0 24.8%, color-mix(in srgb, var(--poster-ice) 12%, transparent) 24.8% 25%, transparent 25%),
+    linear-gradient(90deg, transparent 0 74.9%, color-mix(in srgb, var(--poster-line) 32%, transparent) 74.9% 75%, transparent 75%);
+}
+.system-page::before {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  width: 48px;
+  height: 9px;
+  content: "";
+  background: linear-gradient(90deg, var(--poster-ice) 0 5px, transparent 5px 8px) 0 0 / 8px 3px repeat-x;
+  opacity: 0.55;
+}
+.system-page::after {
+  position: absolute;
+  z-index: -1;
+  top: 96px;
+  right: -38px;
+  content: "SAT.07 / RX";
+  color: var(--poster-text-muted);
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  opacity: 0.55;
+  transform: rotate(90deg);
+  transform-origin: left top;
+}
+.system-subpage { min-height: 66vh; padding-bottom: 4rem; }
+.system-subpage::before {
+  width: 86px;
+  height: 11px;
+  background:
+    linear-gradient(90deg, var(--poster-ice) 0 32%, transparent 32% 38%, var(--poster-text-muted) 38% 44%, transparent 44% 68%, var(--poster-ice) 68% 100%);
+  box-shadow:
+    -29vw 13px 0 -3px color-mix(in srgb, var(--poster-ice) 42%, transparent),
+    -11vw 31px 0 -4px var(--poster-text-muted);
+}
+.system-subpage > h1,
+.system-document > header h1 {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  text-shadow: 2px 0 var(--poster-bg), 4px 0 color-mix(in srgb, var(--poster-ice) 55%, transparent);
+}
+.system-subpage > h1::before,
+.system-document > header h1::before {
+  position: absolute;
+  top: 0.12em;
+  right: -18px;
+  width: 8px;
+  height: 55%;
+  content: "";
+  background: var(--poster-ice);
+  box-shadow: 5px 7px 0 var(--poster-text-muted);
+  opacity: 0.7;
+}
+.system-subpage > h1 + div {
+  position: relative;
+  display: inline-block;
+  padding: 4px 9px 4px 0;
+  background: color-mix(in srgb, var(--poster-panel) 70%, transparent);
+}
+.system-subpage > h1 + div::after {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 8px);
+  width: min(22vw, 180px);
+  height: 1px;
+  content: "";
+  background: repeating-linear-gradient(90deg, var(--poster-line) 0 7px, transparent 7px 11px);
+}
+.system-subpage > h1 + div::before {
+  position: absolute;
+  top: -38px;
+  left: min(48vw, 420px);
+  content: "[ FRAME / 08 ]";
+  color: var(--poster-text-muted);
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+}
+.earth-system { filter: drop-shadow(8px 10px 0 color-mix(in srgb, var(--poster-line) 38%, transparent)); }
+.radar-sweep {
+  animation: radarSweep 12s ease-in-out infinite;
+  filter: drop-shadow(0 0 1px var(--poster-ice));
+  transform-box: view-box;
+  transform-origin: 120px 120px;
+}
+.consciousness-stream {
+  position: absolute;
+  z-index: 3;
+  right: 23%;
+  bottom: 22%;
+  display: flex;
+  width: 31%;
+  align-items: center;
+  justify-content: space-between;
+  transform: rotate(-7deg);
+}
+.consciousness-stream i {
+  animation: consciousFlow 2.4s steps(8) infinite;
+}
+@keyframes radarSweep {
+  0%, 12% { transform: rotate(0deg); opacity: 0; }
+  18% { opacity: 0.62; }
+  72% { transform: rotate(360deg); opacity: 0.62; }
+  78%, 100% { transform: rotate(360deg); opacity: 0; }
+}
+@keyframes consciousFlow {
+  0% { translate: -22px 8px; scale: 1.4; opacity: 0; }
+  24% { opacity: 0.5; }
+  100% { translate: 46px -4px; scale: 0.2; opacity: 0; }
+}
+@media (max-width: 767px) {
+  .consciousness-stream { right: 7%; bottom: 38%; width: 42%; opacity: 0.72; }
+  .data-current-b,
+  .data-current-c { display: none; }
+  .void-field { top: 36%; left: 68%; width: 104vw; opacity: 0.25; }
+  .data-current-a { top: 31%; right: 27%; width: 68%; opacity: 0.55; }
+}
+
+/* ============ 背景网格 ============ */
 .blueprint-grid {
   background-image:
     linear-gradient(var(--poster-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--poster-line) 1px, transparent 1px);
-  /* How: 绝对定位、高度设为两倍视口、top 偏移一个视口高度，确保 translateY
-     -1 tile 时图案始终无缝覆盖整个 viewport。 */
   position: absolute;
   left: 0;
   right: 0;
   top: -100%;
   height: 200%;
-  /* Why: 直接给网格层做静态 blur，而非用 backdrop-filter 模糊“背后动态内容”。
-     网格纹理是静态的，仅 transform 在动 → 模糊只栅格化一次，之后 GPU 平移贴图，
-     不会每帧重算(backdrop-filter 叠加动画背景会导致每帧全屏重模糊，是卡顿主因)。 */
-  filter: blur(1.2px);
 }
-
-/* How: 大网格间距大、上移慢；小网格间距小、上移快。用 background-position 按
-   一个格子高度循环滚动，实现无缝的持续上移视差。 */
 .blueprint-grid-large {
   background-size: 420px 420px;
-  --grid-tile-size: 420px;
 }
-/* How: 用 transform 而非 background-position 作网格滚动——前者是合成动画，
-   不触发 paint；--bg-grid-large-y 在组件 mount 时写为内联样式。 */
+.blueprint-grid-small {
+  background-size: 370px 370px;
+}
+
 @keyframes gridUpLarge {
   from { transform: translateY(0); }
   to   { transform: translateY(-420px); }
 }
-
-.blueprint-grid-small {
-  background-size: 370px 370px;
-  --grid-tile-size: 370px;
-}
-
 @keyframes gridUpSmall {
   from { transform: translateY(0); }
   to   { transform: translateY(-370px); }
 }
-
-/* Why: 停用全部 background-position 循环动画，改由 keyframes 驱动 inline
-   transform 动画，以最大程度利用 GPU 合成(background-position 改值 = 全屏
-   逐帧强制 repaint)。此外，prefers-reduced-motion 下禁用动画以降低能耗。 */
 @media (prefers-reduced-motion: no-preference) {
   .blueprint-grid-large {
     animation: gridUpLarge 26s linear infinite;
@@ -132,129 +442,129 @@ html {
   }
 }
 
-/* How: 进度条的斜纹填充，营造“数据加载”终端质感。 */
-.striped-loader {
-  background-image: linear-gradient(
-    45deg,
-    rgba(3, 5, 10, 0.25) 25%,
-    transparent 25%,
-    transparent 50%,
-    rgba(3, 5, 10, 0.25) 50%,
-    rgba(3, 5, 10, 0.25) 75%,
-    transparent 75%,
-    transparent
-  );
-  background-size: 20px 20px;
-  animation: slideStripes 1.5s linear infinite;
-}
-
-@keyframes slideStripes {
-  0% { background-position: 0 0; }
-  100% { background-position: 40px 0; }
-}
-
-@keyframes floatSlow {
-  0%, 100% { transform: translate(-15px, 15px); }
-  50% { transform: translate(10px, -25px); }
-}
-
-@keyframes floatFast {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-15px) scale(1.05); }
-}
-
-@keyframes floatReverse {
-  0%, 100% { transform: translate(20px, -10px); }
-  50% { transform: translate(-15px, 15px); }
-}
-
+/* ============ 关键帧 ============ */
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
-
-@keyframes scan {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(350%); }
-}
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-/* How: 灯箱进出动画——蒙层淡入淡出，图片轻微缩放+上浮，营造弹出感。 */
 @keyframes fadeOut {
   from { opacity: 1; }
   to   { opacity: 0; }
 }
-
 @keyframes lightboxIn {
   from { opacity: 0; transform: scale(0.92) translateY(12px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
-
 @keyframes lightboxOut {
   from { opacity: 1; transform: scale(1) translateY(0); }
   to   { opacity: 0; transform: scale(0.94) translateY(8px); }
 }
 
-.animate-float-slow { animation: floatSlow 20s infinite ease-in-out; }
-
-/* How: 卫星用 CSS transform + transform-origin 绕轨道圆心旋转(GPU 合成)。 */
-@keyframes orbit105 {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-@keyframes orbit150 {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-.orbit-satellite-105 {
-  transform-origin: 0px 200px;
-  animation: orbit105 16s linear infinite;
-}
-.orbit-satellite-150 {
-  transform-origin: 0px 200px;
-  animation: orbit150 26s linear infinite;
-}
-
-/* How: 滚动时暂停所有动画(网格/卫星/漂浮)，让合成线程无负担，减少滚动卡顿。 */
+/* How: 滚动时暂停网格/地球动画，减少滚动卡顿。 */
 [data-scrolling="true"] .blueprint-grid-large,
 [data-scrolling="true"] .blueprint-grid-small,
-[data-scrolling="true"] .orbit-satellite-105,
-[data-scrolling="true"] .orbit-satellite-150,
-[data-scrolling="true"] .animate-float-fast,
-[data-scrolling="true"] .animate-float-slow,
-[data-scrolling="true"] .animate-blink,
-[data-scrolling="true"] .animate-scan {
+[data-scrolling="true"] .system-scanlines,
+[data-scrolling="true"] .signal-tear,
+[data-scrolling="true"] .black-hole-ring,
+[data-scrolling="true"] .black-hole-slice,
+[data-scrolling="true"] .data-current i {
   animation-play-state: paused;
 }
-.animate-float-fast { animation: floatFast 15s infinite ease-in-out; }
-.animate-float-reverse { animation: floatReverse 25s infinite ease-in-out; }
-.animate-blink { animation: blink 1.5s steps(2) infinite; }
-.animate-scan { animation: scan 2s infinite linear; }
 
-/* Why: “减弱动效”偏好下停掉所有装饰动画，节省能耗并避免对前庭敏感用户的不适。 */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .animate-float-slow,
-  .animate-float-fast,
-  .animate-float-reverse,
-  .animate-blink,
-  .animate-scan,
   .blueprint-grid-large,
-  .blueprint-grid-small {
+  .blueprint-grid-small,
+  .blink {
     animation: none;
+  }
+  .glitch { text-shadow: none; }
+  .glitch::before,
+  .glitch::after {
+    animation: none;
+    opacity: 0;
+  }
+  .system-scanlines,
+  .signal-tear,
+  .black-hole-ring,
+  .black-hole-slice,
+  .data-current i,
+  .radar-sweep,
+  .consciousness-stream i,
+  .rgb-split {
+    animation: none;
+  }
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }
 
-/*
-  Why: 文章正文由 markdown 渲染为原始 HTML，Tailwind 的工具类无法作用其上；
-  这里用 .post-content 后代选择器统一排版，使其融入海报风(等宽标题、冰蓝强调、
-  面板化代码块)。
-*/
+/* ============ 编辑流工具类 ============ */
+/* Why: 放进 @layer components，让 Tailwind 工具类仍可覆盖(如 annot+text-poster-ice)。 */
+@layer components {
+
+
+/* RGB 分裂文字：冰蓝 + 灰蓝双通道(无霓虹)。 */
+.rgb-split {
+  text-shadow:
+    1.5px 0 var(--poster-ice),
+    -1.5px 0 var(--poster-text-muted);
+}
+
+/* 故障标题：仅一个叙事点——5s 周期内固定时间点短暂错位(规律可预期)，
+   其余时间完全静止。需 data-text 属性。 */
+.glitch {
+  position: relative;
+  text-shadow:
+    1.5px 0 var(--poster-ice),
+    -1.5px 0 var(--poster-text-muted);
+}
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.glitch::before {
+  color: var(--poster-ice);
+  animation: glitchCycleA 5s linear infinite;
+}
+.glitch::after {
+  color: var(--poster-title);
+  animation: glitchCycleB 7s linear infinite;
+}
+@keyframes glitchCycleA {
+  0%, 86%, 100% { transform: translate(0); opacity: 0; }
+  88% { transform: translate(-3px, 1px); opacity: 0.75; }
+  92% { transform: translate(2px, -1px); opacity: 0.55; }
+  94% { transform: translate(-1px, 0); opacity: 0.75; }
+}
+@keyframes glitchCycleB {
+  0%, 88%, 100% { transform: translate(0); opacity: 0; }
+  90% { transform: translate(3px, -1px); opacity: 0.7; }
+  93% { transform: translate(-2px, 1px); opacity: 0.5; }
+  96% { transform: translate(1px, 0); opacity: 0.7; }
+}
+
+/* 闪烁光标/状态灯。 */
+.blink {
+  animation: blink 1.2s steps(2) infinite;
+}
+
+} /* @layer components */
+
+/* ============ 文章正文排版 ============ */
+/* Why: markdown 渲染为原始 HTML，Tailwind 类无法作用；用 .post-content
+   后代选择器统一排版——控制台文档风：等宽标题 + 冰蓝强调 + 面板代码块。 */
 .post-content {
   color: var(--poster-text-bright);
   line-height: 1.8;
@@ -274,22 +584,18 @@ html {
   letter-spacing: 0.05em;
   line-height: 1.25;
   scroll-margin-top: 6rem;
-  /* How: 标题盒子收缩到文字宽度(fit-content)，底部灰色细线便自然等于文字长度，
-     实现"随字符长度动态"的下划线；max-width 防超长标题溢出。 */
   width: fit-content;
   max-width: 100%;
   padding-bottom: 0.4rem;
   border-bottom: 1px solid var(--poster-line);
 }
 
-/* How: 明确各级字号+上下间距，建立视觉层级(否则六级标题都继承 0.9rem
-   正文字号，看起来只是加粗)。上层标题更大、间距更宽。 */
 .post-content h1 {
-  font-size: 2rem;
+  font-size: 2.3rem;
   margin: 2.5rem 0 1.2rem;
 }
 .post-content h2 {
-  font-size: 1.55rem;
+  font-size: 1.7rem;
   margin: 2.2rem 0 1rem;
 }
 .post-content h3 {
@@ -317,8 +623,6 @@ html {
   color: var(--poster-ice);
 }
 
-/* How: 标题锚点——绝对定位到标题右侧(紧贴文字末尾)，不占标题宽度(否则会撑长
-   下划线)，也避免移动端左侧溢出；hover 标题时淡出显示，点击复制链接并跳转。 */
 .post-content .heading-anchor {
   position: absolute;
   left: 100%;
@@ -342,7 +646,6 @@ html {
 .post-content .heading-anchor:hover {
   opacity: 1;
 }
-/* How: 触屏设备没有 hover，让锚点常驻淡显以便点按。 */
 @media (hover: none) {
   .post-content .heading-anchor {
     opacity: 0.5;
@@ -361,6 +664,10 @@ html {
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+.post-content a:hover {
+  color: var(--poster-title);
 }
 
 .post-content ul,
@@ -368,15 +675,12 @@ html {
   margin: 1rem 0;
   padding-left: 1.5rem;
 }
-
 .post-content ul { list-style: none; }
-
 .post-content ul > li::before {
   content: "▸ ";
   color: var(--poster-ice);
+  font-weight: 700;
 }
-
-/* How: GFM 任务列表项自带复选框，去掉多余的 ▸ 项目符号，并给复选框上冰蓝配色。 */
 .post-content ul > li:has(> input[type="checkbox"]) {
   list-style: none;
 }
@@ -387,13 +691,12 @@ html {
   margin-right: 0.45rem;
   accent-color: var(--poster-ice);
 }
-
 .post-content ol { list-style: decimal; }
 .post-content li { margin: 0.35rem 0; }
 
 .post-content blockquote {
   border-left: 2px solid var(--poster-ice);
-  background: color-mix(in srgb, var(--poster-panel) 40%, transparent);
+  background: color-mix(in srgb, var(--poster-panel) 45%, transparent);
   padding: 0.75rem 1rem;
   margin: 1.25rem 0;
   color: var(--poster-text-muted);
@@ -411,13 +714,10 @@ html {
 .post-content pre {
   background: var(--poster-panel);
   border: 1px solid var(--poster-line);
-  box-shadow: 4px 4px 0 var(--poster-shadow);
   padding: 1rem 1.25rem;
   margin: 1.5rem 0;
   overflow-x: auto;
 }
-
-/* How: 代码块内的行内 code 已在 <pre> 中，去掉边框/背景避免双重包裹。 */
 .post-content pre code {
   background: transparent;
   border: none;
@@ -438,14 +738,12 @@ html {
   margin: 1.5rem 0;
   font-size: 0.82rem;
 }
-
 .post-content th,
 .post-content td {
   border: 1px solid var(--poster-line);
   padding: 0.5rem 0.75rem;
   text-align: left;
 }
-
 .post-content th {
   background: var(--poster-panel);
   color: var(--poster-title);
@@ -454,15 +752,13 @@ html {
 
 .post-content hr {
   border: none;
-  border-top: 1px dashed var(--poster-line);
+  border-top: 1px solid var(--poster-line);
   margin: 2rem 0;
 }
 
-/* How: 脚注区(marked-footnote)——分隔线 + 次要色小字；隐藏其无障碍标题
-   (否则会被 .post-content h2 样式渲染成大标题)。 */
 .post-content .footnotes {
   margin-top: 2.5rem;
-  border-top: 1px dashed var(--poster-line);
+  border-top: 1px solid var(--poster-line);
   padding-top: 1rem;
   font-size: 0.8rem;
   color: var(--poster-text-muted);
@@ -478,100 +774,75 @@ html {
   white-space: nowrap;
   border: 0;
 }
-
-/* How: 块级公式可能超宽，允许横向滚动而不撑破版面。 */
 .post-content .katex-display {
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0.5rem 0;
 }
 
-/*
-  Why: highlight.js 需要一套配色 token 才能着色；这里给出与海报冷色调
-  一致的极简主题，而非引入体积较大的官方 css 主题文件。
-*/
+/* ============ 语法高亮 ============ */
 .hljs-comment,
 .hljs-quote { color: var(--hljs-comment); font-style: italic; }
-
 .hljs-keyword,
 .hljs-selector-tag,
 .hljs-built_in,
 .hljs-name { color: var(--hljs-keyword); }
-
 .hljs-string,
 .hljs-attr,
 .hljs-template-variable { color: var(--hljs-string); }
-
 .hljs-number,
 .hljs-literal { color: var(--hljs-number); }
-
 .hljs-title,
 .hljs-section,
 .hljs-function .hljs-title { color: var(--hljs-title); }
-
 .hljs-tag,
 .hljs-symbol,
 .hljs-meta { color: var(--hljs-meta); }
 
-/*
-  Why: Gitalk 自带浅色皮肤，不随主题变化且圆角柔和，与海报风不搭。这里用
-  #gitalk-container 提升选择器优先级(id > class)覆盖其默认样式，套用 --poster-*
-  变量(随 data-theme 自动切换深浅)，并抹平圆角贴合硬朗风格。
-*/
+/* ============ Gitalk 覆盖 ============ */
+/* Why: 用 #gitalk-container(id 提升优先级)覆盖默认皮肤，套 --poster-* 变量。 */
 #gitalk-container .gt-container {
   font-family: var(--font-mono);
   color: var(--poster-text-bright);
 }
-
 #gitalk-container .gt-container .gt-meta {
   border-bottom: 1px solid var(--poster-line);
   color: var(--poster-text-muted);
 }
-
 #gitalk-container .gt-container .gt-header-textarea {
   background: var(--poster-panel);
   border: 1px solid var(--poster-line);
   border-radius: 0;
   color: var(--poster-text-bright);
 }
-
 #gitalk-container .gt-container .gt-header-textarea:focus {
   border-color: var(--poster-ice);
 }
-
 #gitalk-container .gt-container .gt-btn {
   background: var(--poster-ice);
   border-color: var(--poster-ice);
   border-radius: 0;
   color: var(--poster-bg);
 }
-
 #gitalk-container .gt-container .gt-btn-preview {
   background: transparent;
   color: var(--poster-ice);
 }
-
 #gitalk-container .gt-container a,
 #gitalk-container .gt-container .gt-link {
   color: var(--poster-ice);
 }
-
 #gitalk-container .gt-container .gt-svg svg {
   fill: currentColor;
 }
-
 #gitalk-container .gt-container .gt-comment-content {
   background: var(--poster-panel);
   border: 1px solid var(--poster-line);
   border-radius: 0;
 }
-
 #gitalk-container .gt-container .gt-comment-content:hover {
   box-shadow: 0 0 0 1px var(--poster-ice);
 }
-
-/* How: Gitalk 把评论正文渲染进 .markdown-body，其自带 GitHub 配色会把文字
-   固定成深色、覆盖我们的设置；用 !important 强制文字跟随主题，链接保持冰蓝。 */
 #gitalk-container .gt-container .gt-comment-body,
 #gitalk-container .gt-container .gt-comment-body
   :where(p, li, span, strong, em, blockquote, td, th, h1, h2, h3, h4, h5, h6) {
@@ -580,23 +851,16 @@ html {
 #gitalk-container .gt-container .gt-comment-body a {
   color: var(--poster-ice) !important;
 }
-
 #gitalk-container .gt-container .gt-comment-admin .gt-comment-content {
   box-shadow: 0 0 0 1px var(--poster-line);
 }
-
 #gitalk-container .gt-container .gt-header-controls-tip,
 #gitalk-container .gt-container .gt-counts {
   color: var(--poster-text-muted);
 }
-
 #gitalk-container .gt-container .gt-popup {
   background: var(--poster-panel);
   border: 1px solid var(--poster-line);
   border-radius: 0;
   color: var(--poster-text-bright);
-}
-
-#gitalk-container .gt-container .gt-avatar img {
-  border-radius: 0;
 }

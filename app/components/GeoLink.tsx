@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { AuthorLocation } from "@/lib/siteConfig";
+import { InteractiveGeoGlobe } from "./InteractiveGeoGlobe";
 
 type Coords = { lat: number; lng: number };
 
@@ -105,15 +106,7 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     city: string | null;
     updatedAt: number;
   } | null>(null);
-  // Why: 实时上报只含经纬度，这里把作者坐标换算成 城市·国家 + IANA 时区。
-  const [authorResolved, setAuthorResolved] = useState<{
-    place: string;
-    timezone: string;
-  } | null>(null);
   const sourceRef = useRef<"gps" | "ip" | null>(null);
-  // Why: 超过 10s 仍未换算出实时地名就放弃，改用 config.yml，且此后不再切换，
-  // 避免作者卡出现中途的裸坐标或迟到的跳变。
-  const gaveUpRef = useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -130,11 +123,6 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         setLiveAuthor(data);
       })
       .catch(() => {});
-
-    // How: 10s 兜底计时器——到点后标记放弃，之后即便换算成功也不再切到实时。
-    const giveUpTimer = window.setTimeout(() => {
-      gaveUpRef.current = true;
-    }, 10000);
 
     // Why: 先用 IP(Vercel 头)做基线定位，页面即刻有数据；用户再点按钮升级到 GPS。
     fetch("/api/geo")
@@ -156,36 +144,8 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     return () => {
       cancelled = true;
       window.clearInterval(timer);
-      window.clearTimeout(giveUpTimer);
     };
   }, []);
-
-  // Why: 拿到作者实时坐标后，异步换算城市·国家(反向地理编码)与时区(tz-lookup)。
-  // 只有在 10s 兜底期内、且成功拿到"具名地点"时才提交为实时值；否则保持 config。
-  useEffect(() => {
-    if (!liveAuthor) return;
-    let cancelled = false;
-    (async () => {
-      const place = await reverseGeocode({
-        lat: liveAuthor.lat,
-        lng: liveAuthor.lng,
-      });
-      if (cancelled || gaveUpRef.current || !place) return;
-      let timezone = "";
-      try {
-        const tzlookup = (await import("tz-lookup")).default;
-        timezone = tzlookup(liveAuthor.lat, liveAuthor.lng);
-      } catch {
-        /* 时区换算失败则回退 config 时区 */
-      }
-      if (!cancelled && !gaveUpRef.current) {
-        setAuthorResolved({ place, timezone });
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [liveAuthor]);
 
   const requestGps = () => {
     if (!navigator.geolocation) {
@@ -210,19 +170,16 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
   };
 
   const visitorTz = tz || "UTC";
-  // Why: 只有成功提交了实时地名(authorResolved)才用实时，否则一律 config.yml，
-  // 不显示中途的裸坐标。
-  const useLive = authorResolved !== null;
+  const useLive = liveAuthor !== null;
   const authorCoords = useLive
     ? { lat: liveAuthor!.lat, lng: liveAuthor!.lng }
     : author.lat !== null && author.lng !== null
       ? { lat: author.lat, lng: author.lng }
       : null;
-  const authorPlace = useLive
-    ? authorResolved!.place
+  const authorPlace = useLive && liveAuthor.city
+    ? liveAuthor.city
     : [author.city, author.country].filter(Boolean).join(" · ") || "—";
-  const authorTimezone =
-    (useLive && authorResolved!.timezone) || author.timezone;
+  const authorTimezone = author.timezone;
   const distanceKm =
     authorCoords && coords ? haversineKm(authorCoords, coords) : null;
 
@@ -242,6 +199,8 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
           clock={timeInZone(now, visitorTz)}
         />
       </div>
+
+      <InteractiveGeoGlobe author={authorCoords} visitor={coords} />
 
       <div
         className="grid grid-cols-1 gap-4 border-t border-poster-line pt-4
@@ -263,11 +222,10 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         <button
           type="button"
           onClick={requestGps}
-          className="border-2 border-poster-line bg-poster-panel px-4 py-2
-            text-[11px] font-extrabold uppercase tracking-widest text-poster-ice
-            transition-all hover:border-poster-ice hover:bg-poster-ice
-            hover:text-poster-bg shadow-[3px_3px_0px_var(--poster-shadow)]
-            active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          className="border border-poster-line bg-poster-panel px-4 py-2 text-[11px]
+            font-extrabold uppercase tracking-widest text-poster-ice transition-colors
+            hover:border-poster-ice hover:bg-poster-ice hover:text-poster-bg
+            active:translate-x-px active:translate-y-px"
         >
           [ 使用精确定位 GPS ]
         </button>
@@ -300,12 +258,11 @@ function LocationCard({
   label: string;
   place: string;
   timezone: string;
-  clock: string;
+  clock?: string;
 }) {
   return (
     <div
-      className="border-2 border-poster-line bg-poster-panel/40 p-4
-        shadow-[4px_4px_0px_var(--poster-shadow)]"
+      className="border-t border-poster-line pt-4"
     >
       <div className="text-[10px] font-bold tracking-widest text-poster-ice">
         {label}
@@ -314,9 +271,11 @@ function LocationCard({
         {place}
       </div>
       <div className="mt-1 text-[11px] text-poster-text-muted">{timezone}</div>
-      <div className="mt-2 text-2xl font-extrabold tabular-nums text-poster-ice">
-        {clock}
-      </div>
+      {clock && (
+        <div className="mt-2 text-2xl font-extrabold tabular-nums text-poster-ice">
+          {clock}
+        </div>
+      )}
     </div>
   );
 }
@@ -335,15 +294,14 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-// How: 用 Intl 取两地在当前时刻的 UTC 偏移(小时)，作差得出时差。
 function tzOffsetLabel(now: number, tzA: string, tzB: string): string {
   const offset = (tz: string) => {
     try {
-      const s = new Date(now).toLocaleString("en-US", {
+      const value = new Date(now).toLocaleString("en-US", {
         timeZone: tz,
         timeZoneName: "shortOffset",
       });
-      const match = s.match(/GMT([+-]\d+)(?::(\d+))?/);
+      const match = value.match(/GMT([+-]\d+)(?::(\d+))?/);
       if (!match) return 0;
       return Number(match[1]) + (match[2] ? Number(match[2]) / 60 : 0);
     } catch {

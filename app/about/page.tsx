@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { renderMarkdown } from "@/lib/markdown";
 import { aboutContent, siteConfig } from "@/lib/siteConfig";
-import { SectionLabel } from "../components/SectionLabel";
 import { ImageLightbox } from "../components/ImageLightbox";
 import { HeadingAnchors } from "../components/HeadingAnchors";
 import "katex/dist/katex.min.css";
@@ -12,46 +11,48 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
 };
 
-// Why: 关于文案改从 config.yml 的 about 字段读取，维护时无需碰代码文件。
+// Why: 关于页(v7 编辑流)——标题 + 正文窄栏 + 纯文本社交链接。
 export default function AboutPage() {
   const aboutHtml = renderMarkdown(aboutContent).html;
 
   return (
-    <section className="relative pt-8">
-      <SectionLabel>[SEC // OPERATOR_PROFILE]</SectionLabel>
-      <div className="mb-8 border-b border-poster-line pb-4">
-        <span className="block text-[10px] tracking-widest text-poster-text-muted">
-          {"// WHO_AM_I"}
-        </span>
-        <h1 className="text-xl font-extrabold uppercase text-poster-title">
-          关于
-        </h1>
+    <div className="system-page system-subpage mx-auto w-full max-w-3xl px-4">
+      <h1
+        className="pt-10 text-3xl font-extrabold uppercase text-poster-title
+          md:text-4xl"
+      >
+        关于
+      </h1>
+      <div className="mt-2 text-[10px] uppercase tracking-widest
+        text-poster-text-muted">
+        {"// OPERATOR"}
       </div>
 
-      <ImageLightbox>
-        <div
-          className="post-content"
-          dangerouslySetInnerHTML={{ __html: aboutHtml }}
-        />
-      </ImageLightbox>
-      <HeadingAnchors />
+      <div className="mt-8 border-t border-poster-line pt-8">
+        <ImageLightbox>
+          <div
+            className="post-content"
+            dangerouslySetInnerHTML={{ __html: aboutHtml }}
+          />
+        </ImageLightbox>
+        <HeadingAnchors />
+      </div>
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t
+        border-poster-line pt-6">
         {siteConfig.socialLinks.map((link) => (
           <a
             key={link.url}
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="border border-poster-line bg-poster-panel/40 px-2.5 py-1
-              text-[10px] font-bold tracking-widest text-poster-text-bright
-              transition-all hover:border-poster-ice hover:bg-poster-ice
-              hover:text-poster-bg"
+            className="text-[11px] font-bold tracking-widest
+              text-poster-ice transition-colors hover:text-poster-title"
           >
-            [ {link.label} ]
+            {link.label} ↗
           </a>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

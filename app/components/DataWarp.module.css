@@ -1,0 +1,182 @@
+.field {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  perspective: 700px;
+  contain: layout paint;
+}
+
+.packet {
+  position: absolute;
+  top: 46%;
+  left: 43%;
+  width: var(--size);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--poster-ice) 65%, transparent);
+  background: color-mix(in srgb, var(--poster-ice) var(--fill), transparent);
+  opacity: 0;
+  animation: packetWarp var(--duration) cubic-bezier(0.16, 0.64, 0.3, 1) infinite;
+  animation-delay: var(--delay);
+  will-change: transform, opacity;
+}
+
+.packet::after {
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  width: calc(var(--size) * 3.5);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, var(--poster-ice));
+  opacity: 0.28;
+  transform: translateY(-50%);
+}
+.packet:not(:nth-child(3n))::after { display: none; }
+
+.crashLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.crashLayer::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  opacity: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 18px, var(--poster-ice) 18px 20px, transparent 20px 61px),
+    color-mix(in srgb, var(--poster-bg) 72%, transparent);
+  will-change: transform, opacity;
+  animation: frameCollapse 9.4s steps(1) infinite;
+}
+
+.crashLayer::after {
+  position: absolute;
+  top: 46%;
+  left: 43%;
+  width: 180px;
+  aspect-ratio: 1;
+  content: "";
+  opacity: 0;
+  background:
+    linear-gradient(90deg, transparent 47%, var(--poster-ice) 47% 53%, transparent 53%),
+    linear-gradient(transparent 47%, var(--poster-ice) 47% 53%, transparent 53%);
+  background-size: 18px 18px;
+  transform: translate(-50%, -50%) scale(2.6) rotate(9deg);
+  animation: coreImplosion 9.4s steps(1) infinite;
+  will-change: transform, opacity;
+}
+
+.crashLayer > i {
+  position: absolute;
+  right: -8%;
+  left: -8%;
+  height: 16px;
+  border-block: 1px solid color-mix(in srgb, var(--poster-ice) 52%, transparent);
+  background:
+    repeating-linear-gradient(90deg, var(--poster-ice) 0 9px, transparent 9px 17px),
+    var(--poster-bg);
+  opacity: 0;
+  animation: signalCollapse 9.4s steps(1) infinite;
+  will-change: transform, opacity;
+}
+
+.sliceA { top: 24%; }
+.sliceB { top: 51%; animation-delay: -0.08s !important; }
+.sliceC { top: 73%; animation-delay: -0.16s !important; }
+
+.fault {
+  position: absolute;
+  top: 17%;
+  right: 7%;
+  display: grid;
+  gap: 3px;
+  min-width: 220px;
+  border: 1px solid var(--poster-ice);
+  border-left-width: 7px;
+  padding: 9px 12px;
+  color: var(--poster-text-muted);
+  background: color-mix(in srgb, var(--poster-bg) 92%, transparent);
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  opacity: 0;
+  transform: translateX(20px);
+  animation: faultReport 9.4s steps(1) infinite;
+  will-change: transform, opacity;
+}
+
+.fault b { color: var(--poster-ice); }
+
+@keyframes packetWarp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.06) rotate(0deg);
+  }
+  10% { opacity: 0.18; }
+  46% { opacity: 0.72; }
+  82% { opacity: 0.34; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y)))
+      scale(var(--scale)) rotate(var(--rotation));
+  }
+}
+
+@keyframes frameCollapse {
+  0%, 69%, 79%, 100% { opacity: 0; transform: translateX(0) scaleX(1); }
+  70% { opacity: 0.12; transform: translateX(-4%) scaleX(0.72); }
+  72% { opacity: 0.2; transform: translateX(8%) scaleX(1.2); }
+  74% { opacity: 0.08; transform: translateX(-11%) scaleX(0.56); }
+  76% { opacity: 0.16; transform: translateX(3%) scaleX(0.88); }
+}
+
+@keyframes signalCollapse {
+  0%, 68%, 80%, 100% { opacity: 0; transform: translateX(0) scaleX(1); }
+  69% { opacity: 0.52; transform: translateX(-18%) scaleX(0.64); }
+  71% { opacity: 0.2; transform: translateX(13%) scaleX(1.18); }
+  73% { opacity: 0.62; transform: translateX(-5%) scaleX(0.82); }
+  76% { opacity: 0.16; transform: translateX(22%) scaleX(0.4); }
+  78% { opacity: 0.38; transform: translateX(-2%) scaleX(1.04); }
+}
+
+@keyframes faultReport {
+  0%, 68%, 80%, 100% { opacity: 0; transform: translateX(20px); }
+  69% { opacity: 0.74; transform: translateX(-9px); }
+  71% { opacity: 0.22; transform: translateX(14px); }
+  73%, 77% { opacity: 0.66; transform: translateX(0); }
+  78% { opacity: 0.14; transform: translateX(-20px); }
+}
+
+@keyframes coreImplosion {
+  0%, 69%, 79%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.6) rotate(9deg); }
+  70% { opacity: 0.16; transform: translate(-50%, -50%) scale(2.1) rotate(9deg); }
+  72% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.35) rotate(-4deg); }
+  74% { opacity: 0.48; transform: translate(-50%, -50%) scale(0.62) rotate(7deg); }
+  76% { opacity: 0.68; transform: translate(-50%, -50%) scale(0.08) rotate(0); }
+  78% { opacity: 0.12; transform: translate(-50%, -50%) scale(1.8) rotate(-2deg); }
+}
+
+@media (max-width: 767px) {
+  .field { opacity: 0.58; }
+  .packet:nth-child(2n) { display: none; }
+  .fault { right: 3%; min-width: 180px; scale: 0.82; transform-origin: right top; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .packet,
+  .crashLayer::before,
+  .crashLayer::after,
+  .crashLayer > i,
+  .fault { animation: none; }
+}
+
+:global(html[data-scrolling="true"]) .packet,
+:global(html[data-scrolling="true"]) .crashLayer::before,
+:global(html[data-scrolling="true"]) .crashLayer::after,
+:global(html[data-scrolling="true"]) .crashLayer > i,
+:global(html[data-scrolling="true"]) .fault {
+  animation-play-state: paused;
+}

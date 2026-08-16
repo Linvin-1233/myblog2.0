@@ -34,9 +34,9 @@ social:
 location:
   city: "Greenwich"
   country: "UK"
-  lat: -0.00139
-  lng: 51.47783
-  timezone: "GMT+0"
+  lat: 51.47783
+  lng: -0.00139
+  timezone: "Europe/London"
 
 # 关于页内容(markdown 语法)
 about: |

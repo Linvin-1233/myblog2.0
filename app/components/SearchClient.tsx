@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/format";
 
 // Why: 静态站点无服务端搜索，改为在浏览器内用 Fuse.js 做模糊匹配；标题权重最高，
 // 依次是标签、简介、正文，让最相关的命中排在前面。
+// v3 系统风：`> ` 提示符输入框、`>> N MATCHES` 计数、`> NO_MATCH` 空态。
 const MAX_RESULTS = 20;
 const CONTENT_PREVIEW_LENGTH = 140;
 
@@ -45,6 +46,7 @@ export function SearchClient({
   return (
     <div className="space-y-6">
       <div className="relative">
+        {/* 终端提示符 */}
         <span
           className="pointer-events-none absolute left-3 top-1/2
             -translate-y-1/2 text-poster-ice"
@@ -57,30 +59,32 @@ export function SearchClient({
           onChange={(event) => setQuery(event.target.value)}
           placeholder="搜索标题 / 简介 / 标签 / 正文…"
           autoFocus
-          className="w-full border-2 border-poster-line bg-poster-panel/40 py-3
-            pl-8 pr-4 text-sm text-poster-text-bright outline-none transition-colors
-            placeholder:text-poster-text-muted focus:border-poster-ice
-            shadow-[4px_4px_0px_var(--poster-shadow)]"
+          className="w-full border border-poster-line bg-poster-panel py-3
+            pl-8 pr-4 text-sm text-poster-text-bright outline-none
+            transition-colors placeholder:text-poster-text-muted
+            focus:border-poster-ice"
         />
       </div>
 
       {query.trim() && (
-        <div className="text-[11px] font-bold tracking-widest text-poster-text-muted">
-          {"// "}
-          {results.length.toString().padStart(2, "0")} MATCH
-          {results.length === 1 ? "" : "ES"}
+        <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-poster-ice">
+          {`>> ${results.length.toString().padStart(2, "0")} MATCH${
+            results.length === 1 ? "" : "ES"
+          }`}
         </div>
       )}
 
       {query.trim() && results.length === 0 ? (
-        <div
-          className="border border-poster-line bg-poster-panel py-16 text-center
-            text-xs tracking-widest text-poster-ice"
-        >
-          &gt; NO_MATCH // 未找到相关内容
+        <div className="py-16 text-center">
+          <span className="text-xs tracking-widest text-poster-title">
+            &gt; NO_MATCH
+          </span>
+          <span className="ml-2 text-xs text-poster-text-muted">
+            未找到相关内容，换个关键词试试
+          </span>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="border-t border-poster-line">
           {results.map(({ item, matches }) => (
             <SearchResult key={item.slug} item={item} matches={matches} />
           ))}
@@ -119,40 +123,38 @@ function SearchResult({
   return (
     <Link
       href={`/posts/${item.slug}`}
-      className="group block border-2 border-poster-line bg-poster-panel/40 p-4
-        transition-all shadow-[4px_4px_0px_var(--poster-shadow)]
-        hover:border-poster-ice hover:bg-poster-panel"
+      className="group grid grid-cols-[auto_1fr] items-baseline gap-3
+        border-b border-poster-line py-3 md:grid-cols-[96px_1fr_auto]
+        md:gap-4"
     >
-      <div className="flex items-baseline justify-between gap-4">
-        <h3
-          className="text-sm font-extrabold uppercase tracking-wide
-            text-poster-title transition-colors group-hover:text-poster-ice"
+      <time
+        dateTime={item.date}
+        className="text-[11px] font-bold text-poster-text-muted"
+      >
+        {formatDate(item.date)}
+      </time>
+      <span className="min-w-0">
+        <span
+          className="block truncate text-sm font-extrabold uppercase
+            tracking-wide text-poster-title transition-colors
+            group-hover:text-poster-ice"
         >
           {item.title}
-        </h3>
-        <time
-          dateTime={item.date}
-          className="shrink-0 text-[10px] font-bold text-poster-ice"
-        >
-          {formatDate(item.date)}
-        </time>
-      </div>
-      <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-poster-text-bright">
-        {buildPreview(item, matches)}
-      </p>
-      {item.tags.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1">
-          {item.tags.map((tag) => (
-            <span
-              key={tag}
-              className="border border-poster-line bg-poster-bg px-1.5 py-0.5
-                text-[9px] uppercase text-poster-text"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
+        </span>
+        <span className="mt-1 block truncate text-xs text-poster-text-muted">
+          {buildPreview(item, matches)}
+        </span>
+      </span>
+      <span className="hidden gap-2 md:flex">
+        {item.tags.slice(0, 3).map((tag) => (
+          <span
+            key={tag}
+            className="text-[10px] uppercase text-poster-text-muted"
+          >
+            #{tag}
+          </span>
+        ))}
+      </span>
     </Link>
   );
 }

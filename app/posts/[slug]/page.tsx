@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getAllSlugs, getPostBySlug, getAdjacentPosts, tagToSlug } from "@/lib/posts";
 import { siteConfig, gitalkConfig, postLicense } from "@/lib/siteConfig";
 import { formatDate } from "@/lib/format";
-import { SectionLabel } from "../../components/SectionLabel";
 import { JsonLd } from "../../components/JsonLd";
 import { Comments } from "../../components/Comments";
 import { ImageLightbox } from "../../components/ImageLightbox";
@@ -82,40 +81,36 @@ export default async function PostPage({ params }: PageProps) {
   const adjacentPosts = getAdjacentPosts(post.slug);
 
   return (
-    <article className="relative pt-8">
+    <article className="system-page system-document mx-auto w-full max-w-3xl px-4">
       <JsonLd data={articleSchema} />
-      <SectionLabel>[DOC // {post.slug.toUpperCase()}]</SectionLabel>
 
-      <header className="mb-8 border-b border-poster-line pb-6">
+      {/* 头部：一行元信息 + 大标题(编辑流，无面板无侧栏) */}
+      <header className="pt-10">
         <div
-          className="mb-3 flex flex-wrap items-center gap-3 text-[10px]
-            font-bold uppercase tracking-widest text-poster-text-muted"
+          className="text-[10px] uppercase tracking-widest
+            text-poster-text-muted"
         >
-          <time dateTime={post.date} className="text-poster-ice">
-            {formatDate(post.date)}
-          </time>
-          <span>{"// "}{post.readingMinutes} MIN_READ</span>
+          {"// DOC"} · [{formatDate(post.date)}] · {post.readingMinutes} MIN
         </div>
         <h1
-          className="text-2xl font-extrabold uppercase leading-tight
-            tracking-tight text-poster-title md:text-4xl"
+          className="mt-4 text-4xl font-extrabold uppercase leading-tight
+            tracking-tight text-poster-title md:text-5xl"
         >
           {post.title}
         </h1>
         {post.description && (
-          <p className="mt-3 text-sm text-poster-text-bright">
+          <p className="mt-4 text-sm text-poster-text-bright">
             {post.description}
           </p>
         )}
         {post.tags.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
             {post.tags.map((tag) => (
               <Link
                 key={tag}
                 href={`/tags/${encodeURIComponent(tagToSlug(tag))}`}
-                className="border border-poster-line bg-poster-panel/40 px-2
-                  py-0.5 text-[10px] uppercase text-poster-text-bright
-                  transition-colors hover:border-poster-ice hover:text-poster-ice"
+                className="text-[10px] font-bold uppercase text-poster-ice
+                  transition-colors hover:text-poster-title"
               >
                 #{tag}
               </Link>
@@ -124,99 +119,96 @@ export default async function PostPage({ params }: PageProps) {
         )}
       </header>
 
-      {/* How: 正文由 markdown 在构建期渲染为可信 HTML，注入后由 .post-content
-          统一套用海报风排版。ImageLightbox 用事件委派捕获所有 <img> 点击
-          并弹出灯箱。 */}
-      <ImageLightbox>
-        <div
-          className="post-content"
-          dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-        />
-      </ImageLightbox>
-      <HeadingAnchors />
+      {/* 正文使用不透明阅读面板隔离动态背景，长文阅读不受环境层干扰。 */}
+      <div className="relative mt-10 border border-poster-line bg-poster-bg
+        px-5 py-8 shadow-[0_24px_80px_rgba(0,0,0,0.28)]
+        before:absolute before:inset-x-0 before:top-0 before:h-px
+        before:bg-poster-ice/40 sm:px-8 md:px-10 md:py-10">
+        {/* How: 正文由 markdown 在构建期渲染为可信 HTML，注入后由
+            .post-content 统一套用文档排版。ImageLightbox 用事件委派捕获
+            所有 <img> 点击并弹出灯箱。 */}
+        <ImageLightbox>
+          <div
+            className="post-content"
+            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
+          />
+        </ImageLightbox>
+        <HeadingAnchors />
 
-      {/* Why: 文章结尾版权卡片，内容全局配置(config.yml)；更新时间取 updated，
-          缺失则回退发布日期。 */}
-      {postLicense.enable && (
-        <LicenseCard
-          license={postLicense}
-          author={siteConfig.author}
-          updated={post.updated ?? post.date}
-        />
-      )}
-
-      <footer className="mt-12 border-t border-poster-line pt-6">
-        <Link
-          href="/posts"
-          className="text-[11px] font-extrabold uppercase tracking-widest
-            text-poster-ice transition-all hover:tracking-[0.2em]"
-        >
-          [◄ BACK_TO_MANIFEST]
-        </Link>
-
-        {/* Why: 上/下篇导航——按日期序，方便连续阅读。 */}
-        {(adjacentPosts.prev || adjacentPosts.next) && (
-          <nav className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {adjacentPosts.prev ? (
-              <Link
-                href={`/posts/${adjacentPosts.prev.slug}`}
-                className="group border border-poster-line bg-poster-panel/40
-                  p-4 transition-all hover:border-poster-ice"
-              >
-                <div className="text-[10px] tracking-widest text-poster-text-muted">
-                  {"◄ PREV // 上一篇"}
-                </div>
-                <div
-                  className="mt-1 text-sm font-bold text-poster-text-bright
-                    transition-colors group-hover:text-poster-ice"
-                >
-                  {adjacentPosts.prev.title}
-                </div>
-              </Link>
-            ) : (
-              <span />
-            )}
-
-            {adjacentPosts.next && (
-              <Link
-                href={`/posts/${adjacentPosts.next.slug}`}
-                className="group border border-poster-line bg-poster-panel/40
-                  p-4 text-right transition-all hover:border-poster-ice"
-              >
-                <div className="text-[10px] tracking-widest text-poster-text-muted">
-                  {"下一篇 // NEXT ►"}
-                </div>
-                <div
-                  className="mt-1 text-sm font-bold text-poster-text-bright
-                    transition-colors group-hover:text-poster-ice"
-                >
-                  {adjacentPosts.next.title}
-                </div>
-              </Link>
-            )}
-          </nav>
+        {/* Why: 文章结尾版权行，内容全局配置(config.yml)；
+            更新时间取 updated，缺失则回退发布日期。 */}
+        {postLicense.enable && (
+          <LicenseCard
+            license={postLicense}
+            author={siteConfig.author}
+            updated={post.updated ?? post.date}
+          />
         )}
-      </footer>
+      </div>
+
+      {/* 上/下篇导航——按日期序，纯文本链接 */}
+      {(adjacentPosts.prev || adjacentPosts.next) && (
+        <nav
+          className="mt-12 flex items-center justify-between border-t
+            border-poster-line pt-6 text-[11px] font-extrabold uppercase
+            tracking-widest"
+        >
+          {adjacentPosts.prev ? (
+            <Link
+              href={`/posts/${adjacentPosts.prev.slug}`}
+              className="group max-w-[45%] text-poster-ice
+                transition-colors hover:text-poster-title"
+            >
+              <span className="text-poster-text-muted">◄ PREV</span>
+              <span className="mt-1 block truncate">
+                {adjacentPosts.prev.title}
+              </span>
+            </Link>
+          ) : (
+            <span />
+          )}
+
+          {adjacentPosts.next && (
+            <Link
+              href={`/posts/${adjacentPosts.next.slug}`}
+              className="group max-w-[45%] text-right text-poster-ice
+                transition-colors hover:text-poster-title"
+            >
+              <span className="text-poster-text-muted">NEXT ►</span>
+              <span className="mt-1 block truncate">
+                {adjacentPosts.next.title}
+              </span>
+            </Link>
+          )}
+        </nav>
+      )}
 
       {/* Why: 仅在 config.yml 配好 Gitalk(启用且必填项齐全)时渲染评论区。 */}
       {gitalkConfig.enable &&
         gitalkConfig.clientID &&
         gitalkConfig.repo &&
         gitalkConfig.owner && (
-          <section className="relative mt-12 pt-8">
-            <SectionLabel>[SEC // COMMENTS]</SectionLabel>
-            <Comments
-              options={{
-                clientID: gitalkConfig.clientID,
-                clientSecret: gitalkConfig.clientSecret,
-                repo: gitalkConfig.repo,
-                owner: gitalkConfig.owner,
-                admin: gitalkConfig.admin,
-              }}
-              id={post.slug}
-              title={post.title}
-              proxy={gitalkConfig.proxy}
-            />
+          <section className="mt-12 border-t border-poster-line pt-8">
+            <h2
+              className="text-xs font-extrabold uppercase tracking-widest
+                text-poster-ice"
+            >
+              {"// COMMENTS"}
+            </h2>
+            <div className="mt-4">
+              <Comments
+                options={{
+                  clientID: gitalkConfig.clientID,
+                  clientSecret: gitalkConfig.clientSecret,
+                  repo: gitalkConfig.repo,
+                  owner: gitalkConfig.owner,
+                  admin: gitalkConfig.admin,
+                }}
+                id={post.slug}
+                title={post.title}
+                proxy={gitalkConfig.proxy}
+              />
+            </div>
           </section>
         )}
     </article>

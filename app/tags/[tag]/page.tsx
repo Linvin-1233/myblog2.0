@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllTags, getPostsByTag } from "@/lib/posts";
 import { siteConfig } from "@/lib/siteConfig";
-import { SectionLabel } from "../../components/SectionLabel";
 import { PostList } from "../../components/PostList";
 
 type PageProps = { params: Promise<{ tag: string }> };
@@ -53,26 +52,22 @@ export default async function TagPage({ params }: PageProps) {
   const name = displayName(slug);
 
   return (
-    <section className="relative pt-8">
-      <SectionLabel>[TAG // {name.toUpperCase()}]</SectionLabel>
-      <div
-        className="mb-8 flex items-end justify-between border-b border-poster-line
-          pb-4"
+    <div className="system-page system-subpage mx-auto w-full max-w-4xl px-4">
+      <h1
+        className="pt-10 text-3xl font-extrabold uppercase text-poster-title
+          md:text-4xl"
       >
-        <div>
-          <span className="block text-[10px] tracking-widest text-poster-text-muted">
-            {"// FILTERED_BY_TAG"}
-          </span>
-          <h1 className="text-xl font-extrabold uppercase text-poster-title">
-            #{name}
-          </h1>
-        </div>
-        <span className="text-xs font-bold text-poster-ice">
-          MATCH: {posts.length.toString().padStart(2, "0")}
-        </span>
+        #{name}
+      </h1>
+      <div className="mt-2 text-[10px] uppercase tracking-widest
+        text-poster-text-muted">
+        {"// TAG · "}
+        {posts.length.toString().padStart(2, "0")} RECORDS
       </div>
 
-      <PostList posts={posts} perPage={siteConfig.postsPerPage} />
-    </section>
+      <div className="mt-8">
+        <PostList posts={posts} perPage={siteConfig.postsPerPage} />
+      </div>
+    </div>
   );
 }

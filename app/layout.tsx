@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import localFont from "next/font/local";
 import "./globals.css";
 import { siteConfig } from "@/lib/siteConfig";
 import { ThemeScript } from "./components/ThemeScript";
 import { PosterBackground } from "./components/PosterBackground";
-import { SiteHeader } from "./components/SiteHeader";
-import { SiteFooter } from "./components/SiteFooter";
+import { NavDrawer } from "./components/NavDrawer";
+import { StatusFooter } from "./components/StatusFooter";
 
-// Why: 拉丁字符用本地 JetBrains Mono 强化终端/海报质感；仓库仅提供 Bold 一档，
+// Why: 拉丁字符用本地 JetBrains Mono 强化系统/图纸质感；仓库仅提供 Bold 一档，
 // 而该风格文字普遍偏粗，故直接以 700 注册。中文不在此字体内，会经字体栈回退到
 // sans-serif(见 globals.css 的 --font-mono)，从而实现“中文 sans-serif / 英文等宽”。
 const jetbrainsMono = localFont({
@@ -69,12 +70,12 @@ export default function RootLayout({
       >
         <ThemeScript />
         <PosterBackground />
+        <NavDrawer siteName={siteConfig.name} />
         <div className="relative z-10 flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-12 md:px-8">
-            {children}
-          </main>
-          <SiteFooter />
+          <ViewTransition name="route-signal" default="data-route">
+            <main className="system-main flex-1">{children}</main>
+          </ViewTransition>
+          <StatusFooter />
         </div>
       </body>
     </html>
