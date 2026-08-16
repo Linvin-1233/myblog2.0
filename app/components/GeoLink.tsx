@@ -106,6 +106,10 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     city: string | null;
     updatedAt: number;
   } | null>(null);
+  const [liveAuthorDetails, setLiveAuthorDetails] = useState<{
+    place: string;
+    timezone: string;
+  } | null>(null);
   const sourceRef = useRef<"gps" | "ip" | null>(null);
 
   useEffect(() => {
@@ -147,6 +151,29 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!liveAuthor) return;
+    let cancelled = false;
+
+    Promise.all([
+      reverseGeocode({ lat: liveAuthor.lat, lng: liveAuthor.lng }),
+      import("tz-lookup")
+        .then(({ default: timezoneAt }) => timezoneAt(liveAuthor.lat, liveAuthor.lng))
+        .catch(() => ""),
+    ]).then(([place, timezone]) => {
+      if (!cancelled) {
+        setLiveAuthorDetails({
+          place: place || liveAuthor.city || "实时位置",
+          timezone,
+        });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [liveAuthor]);
+
   const requestGps = () => {
     if (!navigator.geolocation) {
       setStatus("unsupported");
@@ -176,10 +203,12 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     : author.lat !== null && author.lng !== null
       ? { lat: author.lat, lng: author.lng }
       : null;
-  const authorPlace = useLive && liveAuthor.city
-    ? liveAuthor.city
+  const authorPlace = useLive
+    ? liveAuthorDetails?.place ?? "位置解析中…"
     : [author.city, author.country].filter(Boolean).join(" · ") || "—";
-  const authorTimezone = author.timezone;
+  const authorTimezone = useLive
+    ? liveAuthorDetails?.timezone ?? ""
+    : author.timezone;
   const distanceKm =
     authorCoords && coords ? haversineKm(authorCoords, coords) : null;
 
@@ -189,8 +218,8 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         <LocationCard
           label={`AUTHOR // 作者${useLive ? " (LIVE)" : ""}`}
           place={authorPlace}
-          timezone={tzLabel(now, authorTimezone)}
-          clock={timeInZone(now, authorTimezone)}
+          timezone={authorTimezone ? tzLabel(now, authorTimezone) : "时区解析中…"}
+          clock={authorTimezone ? timeInZone(now, authorTimezone) : undefined}
         />
         <LocationCard
           label={`VISITOR // 你${source ? ` (${source.toUpperCase()})` : ""}`}
@@ -214,7 +243,10 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
               : "—"
           }
         />
-        <Stat label="时差" value={tzOffsetLabel(now, authorTimezone, visitorTz)} />
+        <Stat
+          label="时差"
+          value={authorTimezone ? tzOffsetLabel(now, authorTimezone, visitorTz) : "解析中…"}
+        />
         <Stat label="你的设备" value={device || "检测中…"} />
       </div>
 
