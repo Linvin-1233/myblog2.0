@@ -512,6 +512,7 @@ html {
     margin-top: 1rem;
     padding-right: 0;
     padding-left: 0;
+    width: 90%;
   }
   .system-subpage > h1::after,
   .system-document > header h1::after {
