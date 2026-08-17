@@ -29,13 +29,13 @@ export default function TagsPage() {
       {tags.length === 0 ? (
         <p className="mt-8 text-xs text-poster-text-muted">暂无标签</p>
       ) : (
-        <div className="mt-8 flex flex-wrap gap-2 border border-poster-line
-          bg-poster-panel/50 p-3">
+        <div className="mt-8 flex flex-wrap gap-3 border-y border-poster-line
+          bg-poster-panel/25 py-5">
           {tags.map(({ tag, slug, count }) => (
             <Link
               key={slug}
               href={`/tags/${encodeURIComponent(slug)}`}
-              className="border border-poster-line px-3 py-2 text-xs font-bold
+              className="border-2 border-poster-line px-4 py-3 text-xs font-bold
                 uppercase tracking-wider text-poster-text-bright transition-colors
                 hover:border-poster-ice hover:bg-poster-ice hover:text-poster-bg"
             >

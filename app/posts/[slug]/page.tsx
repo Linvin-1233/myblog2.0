@@ -85,7 +85,8 @@ export default async function PostPage({ params }: PageProps) {
       <JsonLd data={articleSchema} />
 
       {/* 头部：一行元信息 + 大标题(编辑流，无面板无侧栏) */}
-      <header className="pt-10">
+      <header className="mt-6 border-l-4 border-poster-ice/70
+        bg-[var(--poster-content-wash)] py-4 pl-5 md:mt-10 md:py-6 md:pl-8">
         <div
           className="text-[10px] uppercase tracking-widest
             text-poster-text-muted"

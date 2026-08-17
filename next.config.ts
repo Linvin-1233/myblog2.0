@@ -5,12 +5,6 @@ import type { NextConfig } from "next";
 // Serverless Function 运行(Gitalk 代理需要活端点)。部署到纯静态服务器时
 // 再加回 output:'export'。
 const nextConfig: NextConfig = {
-  // Why: 路由内容用 React ViewTransition 做数据流式拆解/重组；不支持的浏览器
-  // 会自动退化为普通 App Router 导航。
-  experimental: {
-    viewTransition: true,
-  },
-
   // Why: 不用 Vercel 默认的图片优化，保持零后端依赖的静态兼容性。
   images: {
     unoptimized: true,

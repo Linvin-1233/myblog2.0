@@ -141,17 +141,6 @@ export function EarthGlobe({ className = "" }: { className?: string }) {
         <line x1="232" y1="108" x2="232" y2="132" />
         <line x1="108" y1="74" x2="132" y2="74" />
       </g>
-      {/* 轨道标注文字 */}
-      <text
-        x="148"
-        y="50"
-        fontSize="9"
-        letterSpacing="1.5"
-        fill="var(--color-poster-ice)"
-      >
-        ORBIT // R 112
-      </text>
-
       {/* 卫星本体：主体 + 太阳能板 + 天线(落在轨道右上) */}
       <g
         stroke="var(--color-poster-ice)"
@@ -233,6 +222,27 @@ export function EarthGlobe({ className = "" }: { className?: string }) {
         <line x1="30" y1="196" x2="30" y2="216" />
         <line x1="20" y1="206" x2="40" y2="206" />
         <circle cx="30" cy="206" r="14" fill="none" strokeDasharray="2 3" />
+      </g>
+
+      {/* Keep the orbit label above the dense globe artwork and give it a quiet backing. */}
+      <g aria-hidden="true">
+        <rect
+          x="124"
+          y="40"
+          width="102"
+          height="15"
+          fill="var(--color-poster-bg)"
+          fillOpacity="0.88"
+        />
+        <text
+          x="130"
+          y="50"
+          fontSize="9"
+          letterSpacing="1.5"
+          fill="var(--color-poster-ice)"
+        >
+          ORBIT // R 112
+        </text>
       </g>
     </svg>
   );

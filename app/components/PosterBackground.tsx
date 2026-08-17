@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { SystemBackdrop } from "./SystemBackdrop";
+import { GlitchField } from "./GlitchField";
 
 // Why: 固定环境层模拟受干扰的卫星操作系统：网格是坐标基准，扫描线、数据瀑布
 // 与随机像素块只在背景运动，主内容仍保持可读。滚动时暂停大面积动画。
@@ -62,6 +63,7 @@ export function PosterBackground() {
         <div className="blueprint-grid blueprint-grid-large opacity-15" />
       </div>
       <SystemBackdrop animated />
+      <GlitchField strong={isHome} />
       {isHome && (
         <>
           <div className="system-scanlines absolute inset-0" />

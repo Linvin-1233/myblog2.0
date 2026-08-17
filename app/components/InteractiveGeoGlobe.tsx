@@ -217,8 +217,7 @@ export function InteractiveGeoGlobe({
   }, []);
 
   return (
-    <section className="overflow-hidden border border-poster-line bg-poster-bg/95 p-4
-      shadow-[0_24px_80px_rgba(0,0,0,0.3)] sm:p-6">
+    <section className="overflow-hidden border-y border-poster-line bg-poster-bg/80 p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b
         border-poster-line pb-3 text-[9px] tracking-[0.18em] text-poster-text-muted">
         <span className="text-poster-ice">LIVE ORBITAL PROJECTION</span>

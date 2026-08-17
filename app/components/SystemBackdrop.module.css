@@ -20,6 +20,68 @@
   transform: translateY(calc(var(--bg-scroll, 0) * -0.35px));
 }
 
+.depthPlane {
+  position: absolute;
+  right: -18%;
+  bottom: -30%;
+  left: -18%;
+  height: 76%;
+  opacity: 0.22;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 7.8%, var(--poster-line) 7.8% 8%, transparent 8% 16%),
+    repeating-linear-gradient(0deg, transparent 0 47px, color-mix(in srgb, var(--poster-ice) 22%, transparent) 47px 48px);
+  clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%);
+  transform: perspective(520px) rotateX(54deg);
+  transform-origin: center top;
+}
+
+.axisSpine {
+  position: absolute;
+  top: -8%;
+  bottom: -8%;
+  left: 42.6%;
+  width: 13px;
+  opacity: 0.2;
+  background:
+    linear-gradient(90deg, var(--poster-ice) 0 2px, transparent 2px 9px, var(--poster-line) 9px 13px),
+    repeating-linear-gradient(0deg, transparent 0 31px, var(--poster-ice) 31px 35px, transparent 35px 78px);
+  transform: skewX(-7deg);
+}
+
+.echoType {
+  position: absolute;
+  top: 18%;
+  left: -0.08em;
+  display: grid;
+  color: var(--poster-title);
+  font-size: clamp(3.5rem, 10vw, 9rem);
+  font-weight: 900;
+  line-height: 0.72;
+  letter-spacing: -0.08em;
+  opacity: 0.018;
+}
+
+.echoType span:nth-child(2) { translate: 8vw; }
+.echoType span:nth-child(3) { translate: -3vw; }
+
+.depthSlabs {
+  position: absolute;
+  inset: 0;
+}
+
+.depthSlabs i {
+  position: absolute;
+  display: block;
+  border: 1px solid color-mix(in srgb, var(--poster-ice) 24%, transparent);
+  background: color-mix(in srgb, var(--poster-panel) 20%, transparent);
+  opacity: 0.22;
+  transform: skewX(-12deg);
+}
+
+.depthSlabs i:nth-child(1) { top: 27%; left: -4%; width: 27%; height: 17%; }
+.depthSlabs i:nth-child(2) { top: 54%; right: -7%; width: 36%; height: 21%; }
+.depthSlabs i:nth-child(3) { bottom: 4%; left: 24%; width: 18%; height: 12%; }
+
 .verticalCode {
   position: absolute;
   top: 13%;
@@ -98,6 +160,7 @@
 
 .animated .rail { animation: railFailure 12.8s steps(1) infinite; }
 .animated .modules i { animation: moduleFault 10.6s steps(1) infinite; }
+.animated .depthPlane { animation: depthBreath 14s ease-in-out infinite; }
 
 .modules i:nth-child(1) { top: 4%; left: 31%; --size: 11px; --fill: 18%; --alpha: .46; --delay: -1s; }
 .modules i:nth-child(2) { top: 19%; left: 2%; --size: 23px; --fill: 7%; --alpha: .3; --delay: -6s; }
@@ -164,8 +227,17 @@
   78% { transform: translate(1px, 0); }
 }
 
+@keyframes depthBreath {
+  0%, 100% { opacity: .16; translate: 0 0; }
+  50% { opacity: .26; translate: 0 -12px; }
+}
+
 @media (max-width: 767px) {
   .megaIndex { right: -.2em; font-size: 78vw; opacity: .02; }
+  .depthPlane { bottom: -16%; height: 52%; opacity: .14; }
+  .axisSpine { left: 63%; opacity: .12; }
+  .echoType { top: 27%; font-size: 18vw; opacity: .014; }
+  .depthSlabs i:nth-child(2) { display: none; }
   .sector { top: 13%; left: 19%; width: 56vw; opacity: .3; }
   .verticalCode { display: none; }
   .rail { right: 0; left: 0; opacity: .12; }
@@ -176,10 +248,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .rail,
-  .modules i { animation: none; }
+  .modules i,
+  .depthPlane { animation: none; }
 }
 
 :global(html[data-scrolling="true"]) .rail,
-:global(html[data-scrolling="true"]) .modules i {
+:global(html[data-scrolling="true"]) .modules i,
+:global(html[data-scrolling="true"]) .depthPlane {
   animation-play-state: paused;
 }

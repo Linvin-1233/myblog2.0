@@ -4,6 +4,16 @@ export function SystemBackdrop({ animated }: { animated: boolean }) {
   return (
     <div className={`${styles.layer} ${animated ? styles.animated : ""}`} aria-hidden="true">
       <div className={styles.megaIndex}>07</div>
+      <div className={styles.depthPlane} />
+      <div className={styles.axisSpine} />
+      <div className={styles.echoType}>
+        <span>COGNITIVE</span>
+        <span>TRANSFER</span>
+        <span>UNIVERSE</span>
+      </div>
+      <div className={styles.depthSlabs}>
+        <i /><i /><i />
+      </div>
       <div className={styles.verticalCode}>
         <b>SECTOR / MEMORY</b>
         <span>SUBSYSTEM 04 // FRAME 8192</span>

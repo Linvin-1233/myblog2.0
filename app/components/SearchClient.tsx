@@ -59,8 +59,8 @@ export function SearchClient({
           onChange={(event) => setQuery(event.target.value)}
           placeholder="搜索标题 / 简介 / 标签 / 正文…"
           autoFocus
-          className="w-full border border-poster-line bg-poster-panel py-3
-            pl-8 pr-4 text-sm text-poster-text-bright outline-none
+          className="w-full border-2 border-poster-line bg-poster-panel py-4
+            pl-8 pr-4 text-base font-bold text-poster-text-bright outline-none
             transition-colors placeholder:text-poster-text-muted
             focus:border-poster-ice"
         />

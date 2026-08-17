@@ -31,8 +31,9 @@ export default function ArchivePage() {
       ) : (
         <div className="mt-8 space-y-10">
           {groups.map(({ year, posts }) => (
-            <div key={year}>
-              <div className="text-3xl font-extrabold text-poster-ice/80">
+            <div key={year} className="border-l border-poster-line bg-poster-panel/20
+              p-4 md:p-6">
+              <div className="text-4xl font-extrabold text-poster-ice/80">
                 {year}
               </div>
               <div className="mt-3 border-t border-poster-line">
@@ -41,7 +42,7 @@ export default function ArchivePage() {
                     key={post.slug}
                     href={`/posts/${post.slug}`}
                     className="group grid grid-cols-[auto_1fr] items-baseline
-                      gap-4 border-b border-poster-line py-3"
+                      gap-4 border-b border-poster-line px-2 py-4"
                   >
                     <time
                       dateTime={post.date}

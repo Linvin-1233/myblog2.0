@@ -43,10 +43,11 @@ export function NavDrawer({ siteName }: { siteName: string }) {
         onClick={() => setOpen(true)}
         aria-label="打开导航"
         aria-expanded={open}
-        className="fixed left-4 top-4 z-50 grid h-11 w-11 place-items-center
+        className="fixed bottom-4 right-4 z-50 grid h-10 w-10 place-items-center
           border border-poster-line bg-poster-bg/90 text-poster-ice
-          backdrop-blur-md transition-[transform,border-color]
-          hover:border-poster-ice active:translate-x-px active:translate-y-px"
+          transition-[transform,border-color] hover:border-poster-ice
+          active:translate-x-px active:translate-y-px
+          md:bottom-auto md:left-4 md:right-auto md:top-4 md:h-11 md:w-11"
       >
         <span className="grid w-5 gap-1" aria-hidden="true">
           <i className="h-px w-full bg-current" />
@@ -68,8 +69,9 @@ export function NavDrawer({ siteName }: { siteName: string }) {
         aria-hidden={!open}
         className={`fixed inset-y-0 left-0 z-70 flex w-[min(88vw,380px)]
           flex-col border-r border-poster-ice/50 bg-poster-bg px-6 pb-7 pt-6
-          shadow-[24px_0_80px_rgba(0,0,0,0.48)] transition-transform
-          duration-300 ease-out ${open ? "translate-x-0" : "-translate-x-full"}`}
+          transition-[transform,box-shadow] duration-300 ease-out ${open
+            ? "translate-x-0 shadow-[24px_0_80px_rgba(0,0,0,0.38)]"
+            : "-translate-x-full shadow-none"}`}
       >
         <div className="flex items-start justify-between border-b border-poster-line pb-6">
           <div>

@@ -1,0 +1,91 @@
+.field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.field::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  opacity: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 17px,
+    color-mix(in srgb, var(--poster-ice) 16%, transparent) 17px 19px,
+    transparent 19px 41px
+  );
+  animation: frameDrop 11s steps(1) infinite;
+}
+
+.band {
+  position: absolute;
+  right: -8%;
+  left: -8%;
+  height: 3px;
+  opacity: 0;
+  background: var(--poster-ice);
+  box-shadow: 17vw 2px 0 var(--poster-text-muted), -23vw -2px 0 var(--poster-title);
+  animation: glitchBand 8.7s steps(1) infinite;
+}
+
+.bandA { top: 22%; }
+.bandB { top: 48%; animation-delay: -2.9s; }
+.bandC { top: 74%; animation-delay: -5.8s; }
+
+.block {
+  position: absolute;
+  width: 18px;
+  height: 7px;
+  border: 1px solid color-mix(in srgb, var(--poster-ice) 44%, transparent);
+  background: color-mix(in srgb, var(--poster-ice) 16%, transparent);
+  opacity: 0;
+  animation: glitchBlock 8.7s steps(1) infinite;
+}
+
+.blockA { top: 21%; left: 22%; }
+.blockB { top: 48%; right: 18%; animation-delay: -2.9s; }
+.blockC { top: 74%; left: 61%; animation-delay: -5.8s; }
+
+.strong .band { height: 5px; }
+.strong .block { width: 28px; height: 11px; }
+
+@keyframes frameDrop {
+  0%, 71%, 79%, 100% { opacity: 0; transform: translateX(0); }
+  72% { opacity: 0.08; transform: translateX(-2%); }
+  74% { opacity: 0.16; transform: translateX(3%); }
+  76% { opacity: 0.06; transform: translateX(-1%); }
+}
+
+@keyframes glitchBand {
+  0%, 69%, 80%, 100% { opacity: 0; transform: translateX(0) scaleX(0.2); }
+  70% { opacity: 0.28; transform: translateX(-14%) scaleX(0.62); }
+  72% { opacity: 0.13; transform: translateX(19%) scaleX(1.12); }
+  74% { opacity: 0.34; transform: translateX(-5%) scaleX(0.8); }
+  77% { opacity: 0.1; transform: translateX(11%) scaleX(0.42); }
+}
+
+@keyframes glitchBlock {
+  0%, 68%, 80%, 100% { opacity: 0; transform: translate(0); }
+  70% { opacity: 0.35; transform: translate(-18px, 4px); }
+  73% { opacity: 0.12; transform: translate(22px, -3px); }
+  76% { opacity: 0.3; transform: translate(-5px, 0); }
+}
+
+@media (max-width: 767px) {
+  .field { opacity: 0.7; }
+  .strong .block { width: 20px; height: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field::before,
+  .band,
+  .block { animation: none; }
+}
+
+:global(html[data-scrolling="true"]) .field::before,
+:global(html[data-scrolling="true"]) .band,
+:global(html[data-scrolling="true"]) .block {
+  animation-play-state: paused;
+}

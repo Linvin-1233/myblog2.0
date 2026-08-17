@@ -12,16 +12,17 @@ export default function HomePage() {
   const nameParts = siteConfig.name.split("_");
 
   return (
-    <div className="system-page mx-auto w-full max-w-6xl px-4 md:px-6">
-      <section className="relative grid min-h-[760px] items-center gap-14 py-24
-        lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:gap-20">
+    <div className="system-page mx-auto my-5 w-full max-w-6xl px-4 pb-14 md:my-10 md:px-8">
+      <section className="relative isolate grid min-h-[760px] items-center gap-20 py-24
+        lg:grid-cols-2 lg:gap-24">
         <DataWarp />
-        <div className="relative z-10 min-w-0">
+        <div className="relative z-10 mx-auto w-full min-w-0 max-w-[600px]
+          lg:mx-0 lg:justify-self-end">
           <EarthGlobe className="earth-system h-auto w-full" />
         </div>
 
-        <div className="relative z-10 min-w-0 bg-poster-bg/55 py-6 backdrop-blur-[2px]
-          lg:pr-8">
+        <div className="relative z-10 min-w-0 border-l-4 border-poster-ice/55
+          bg-[var(--poster-content-wash)] py-8 pl-6 pr-1 lg:py-10 lg:pl-12 lg:pr-4">
           <div className="mb-7 w-fit border border-poster-line px-3 py-1.5
             text-[8px] tracking-[0.2em] text-poster-ice">
             SYS.ART / SATELLITE ARCHIVE / CHANNEL 09
@@ -52,24 +53,11 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="consciousness-stream" aria-hidden="true">
-          {Array.from({ length: 16 }, (_, index) => (
-            <i
-              key={index}
-              className={`block bg-poster-ice ${
-                index % 4 === 0
-                  ? "h-3 w-3 opacity-30 [animation-delay:-1.6s]"
-                  : index % 3 === 0
-                    ? "h-1 w-1 opacity-60 [animation-delay:-.8s]"
-                    : "h-[7px] w-[7px] opacity-15"
-              }`}
-            />
-          ))}
-        </div>
       </section>
 
-      <section className="relative mt-16 md:mt-24 md:pl-12">
-        <div className="flex items-baseline justify-between border-l border-poster-ice/40 pl-4">
+      <section className="relative mt-16 border-y border-poster-line/70
+        bg-[var(--poster-content-wash)] py-6 md:mt-24 md:py-9">
+        <div className="flex items-baseline justify-between border-l-4 border-poster-ice/60 pl-4">
           <h2
             className="text-xs font-extrabold uppercase tracking-widest
               text-poster-ice"
@@ -103,8 +91,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="ml-auto mt-24 grid gap-10 border-l border-poster-line
-        pb-4 pl-5 md:w-4/5 md:grid-cols-[minmax(0,1fr)_auto] md:pl-10">
+      <section className="ml-auto mt-24 grid gap-10 border-l-4 border-poster-ice/60
+        bg-[var(--poster-content-wash)] p-6 md:w-4/5
+        md:grid-cols-[minmax(0,1fr)_auto] md:p-9">
         <div>
           <h2
             className="text-xs font-extrabold uppercase tracking-widest

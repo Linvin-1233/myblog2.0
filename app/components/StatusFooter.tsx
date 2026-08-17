@@ -6,7 +6,10 @@ export function StatusFooter() {
 
   return (
     <footer
-      className="system-footer mx-auto w-full max-w-6xl px-4 pb-6 pt-16"
+      className="system-footer relative mx-auto w-full max-w-6xl px-4 pb-6 pt-16
+        before:absolute before:left-4 before:top-12 before:h-8 before:w-1
+        before:bg-poster-ice/40 after:absolute after:left-4 after:right-4
+        after:top-12 after:h-px after:bg-poster-line"
     >
       <div
         className="flex flex-col gap-2 border-t border-poster-line pt-4

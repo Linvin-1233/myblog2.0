@@ -10,10 +10,10 @@ export function PostRow({ post }: { post: PostMeta }) {
     <Link
       href={`/posts/${post.slug}`}
       className="group relative grid grid-cols-[auto_1fr] items-baseline gap-3
-        overflow-hidden border-b border-poster-line px-2 py-4 transition-[background-color,transform,box-shadow]
+        overflow-hidden border-b border-poster-line px-3 py-5 transition-[background-color,transform,box-shadow]
         duration-150 hover:translate-x-1 hover:bg-poster-ice/5
         hover:shadow-[inset_2px_0_var(--poster-ice)]
-        md:grid-cols-[96px_1fr_auto] md:gap-4 md:pl-3 md:pr-12"
+        md:grid-cols-[96px_1fr_auto] md:gap-5 md:px-5 md:pr-12"
     >
       <time
         dateTime={post.date}
@@ -22,7 +22,7 @@ export function PostRow({ post }: { post: PostMeta }) {
         {formatDate(post.date)}
       </time>
       <span
-        className="truncate text-sm font-extrabold uppercase tracking-wide
+        className="truncate text-base font-extrabold uppercase tracking-wide
           text-poster-title transition-colors group-hover:text-poster-ice"
       >
         {post.title}
