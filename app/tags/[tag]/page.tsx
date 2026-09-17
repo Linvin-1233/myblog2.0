@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllTags, getPostsByTag } from "@/lib/posts";
 import { siteConfig } from "@/lib/siteConfig";
+import { padIndex } from "@/lib/format";
 import { PostList } from "../../components/PostList";
+import { PageHeader } from "../../components/PageHeader";
 
 type PageProps = { params: Promise<{ tag: string }> };
 
@@ -52,20 +54,21 @@ export default async function TagPage({ params }: PageProps) {
   const name = displayName(slug);
 
   return (
-    <div className="system-page system-subpage mx-auto w-full max-w-4xl px-4">
-      <h1
-        className="pt-10 text-3xl font-extrabold uppercase text-poster-title
-          md:text-4xl"
-      >
-        #{name}
-      </h1>
-      <div className="mt-2 text-[10px] uppercase tracking-widest
-        text-poster-text-muted">
-        {"// TAG · "}
-        {posts.length.toString().padStart(2, "0")} RECORDS
-      </div>
+    <div className="shell pb-20">
+      <PageHeader
+        index="02.1"
+        kicker={`TAG_FILTER // ${slug.toUpperCase()}`}
+        title={`#${name}`}
+        meta={[
+          { label: "RECORDS", value: padIndex(posts.length) },
+          {
+            label: "PER PAGE",
+            value: padIndex(siteConfig.postsPerPage),
+          },
+        ]}
+      />
 
-      <div className="mt-8">
+      <div className="mt-10">
         <PostList posts={posts} perPage={siteConfig.postsPerPage} />
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 // Why: 点击文章正文中的图片时全屏展示原图 + alt 文案；适合静态导出的博客
 // (无后端图片服务)，直接在客户端拦截点击即可。
-// v3 系统风：预览图套故障青描边 + 扫描线蒙层，图注 "FIG // alt"。
+// Marathon 风：硬边框画框 + 裸露图注，图注为等宽 "FIG // alt"。
 export function ImageLightbox({ children }: { children: React.ReactNode }) {
   const [target, setTarget] = useState<{ src: string; alt: string } | null>(
     null,
@@ -64,8 +64,8 @@ export function ImageLightbox({ children }: { children: React.ReactNode }) {
           aria-modal="true"
           aria-label={target.alt || "图片预览"}
           onClick={close}
-          className={`fixed inset-0 z-50 flex flex-col items-center
-            justify-center bg-black/80 p-4 backdrop-blur-sm ${
+          className={`fixed inset-0 z-60 flex flex-col items-center
+            justify-center bg-poster-bg p-4 ${
               closing
                 ? "animate-[fadeOut_0.2s_ease-in_forwards]"
                 : "animate-[fadeIn_0.2s_ease-out]"
@@ -74,26 +74,26 @@ export function ImageLightbox({ children }: { children: React.ReactNode }) {
           <div
             role="presentation"
             onClick={(event) => event.stopPropagation()}
-            className={`flex max-h-[90vh] max-w-[90vw] flex-col items-center
-              gap-3 ${
+            className={`relative flex max-h-[90vh] max-w-[92vw] flex-col
+              items-center gap-4 ${
                 closing
                   ? "animate-[lightboxOut_0.2s_ease-in_forwards]"
                   : "animate-[lightboxIn_0.25s_cubic-bezier(0.22,1,0.36,1)]"
               }`}
           >
-            {/* 预览图片(冰蓝描边，无蒙层装饰) */}
-            <div className="relative">
+            <div className="frame corner-frame p-1.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={target.src}
                 alt={target.alt}
-                className="max-h-[82vh] max-w-full border border-poster-ice
-                  bg-poster-panel object-contain p-1
-                  shadow-[0_0_40px_rgba(0,0,0,0.5)]"
+                className="max-h-[80vh] max-w-full bg-poster-panel object-contain"
               />
             </div>
             {target.alt && (
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-poster-ice">
+              <p
+                className="font-mono text-[10px] uppercase tracking-[0.24em]
+                  text-poster-ice"
+              >
                 {`FIG // ${target.alt}`}
               </p>
             )}
@@ -103,12 +103,12 @@ export function ImageLightbox({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={close}
             aria-label="关闭预览"
-            className="absolute right-4 top-4 border border-poster-line
-              bg-poster-panel px-3 py-1.5 text-[11px] font-extrabold
+            className="absolute top-4 right-4 border border-poster-line px-3
+              py-1.5 font-mono text-[10px] uppercase tracking-[0.2em]
               text-poster-ice transition-colors hover:border-poster-ice
               hover:bg-poster-ice hover:text-poster-bg"
           >
-            [X]
+            [ X ]
           </button>
         </div>
       )}

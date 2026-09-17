@@ -63,10 +63,36 @@ prerendered; `app/api/*` remains live as Vercel Serverless Functions.
 ## Styling
 - Tailwind v4 has no `tailwind.config.js`; theme tokens are CSS variables exposed
   through `@theme inline` in `app/globals.css`. Markdown uses `.post-content`.
+- Visual language is "Dadaism × Brutalism × Marathon UI typography × controlled
+  glitch": real image cutouts, rotated paper fragments, hard 2px borders with
+  offset shadows, strong whitespace, exposed grid rails, and dense mono metadata.
+  Glitch is reserved for `RouteGlitchTransition` during internal route changes;
+  it must not become ambient background noise or a permanent title animation.
+  Reusable pieces (`.hard-hover`, `.frame`, `.slab`, `.stamp`,
+  `.corner-frame`, `.cutout-a/b`, `.dada-collage`, `.hatch`, `.grid-field`,
+  `.route-glitch`, `.type-display`, `.type-condensed`) live in `app/globals.css`
+  and may only use the `--poster-*` palette; do not introduce new hues.
+- Any "random" rotation/offset must come from `lib/dada.ts`'s deterministic
+  `seedFrom`/`chanceInt`/`chanceTilt` helpers (never `Math.random`), otherwise
+  SSR output and hydration diverge.
+- `--poster-fault` is the second glitch channel and stays inside the blue
+  palette (light deep sea blue `#1d4e89`, dark sky blue `#7fc4f2`).
+- The palette is deliberately low-contrast for comfort: warm paper background,
+  soft gray structural lines (`--poster-line`), charcoal ink for text, and a
+  single blue accent — deep sea blue in light mode, sky blue in dark mode.
+  Avoid adding pure black rules or high-saturation accents.
+- Font roles: Anton (display), Bebas Neue (condensed), Chakra Petch (body/tech),
+  Instrument Serif (editorial), local JetBrains Mono Bold (code/labels), then the
+  `--font-cjk` system stack for CJK. `next/font/google` downloads at build time,
+  so builds need network access.
 - Theme state is `data-theme` on `<html>` and is set before paint by
   `ThemeScript`; preserve `suppressHydrationWarning` on the root element.
 - JSX text beginning with `//` violates `react/jsx-no-comment-textnodes`; render
   it as an expression such as `{"// DOC"}`.
+- `SiteHeader` lives inside `<main>` as a borderless, non-sticky row —
+  header/body/footer share one paper surface. Its mobile panel must stay a
+  sibling element (fixed-position inside a transformed/filtered ancestor can be
+  trapped by its containing block).
 
 ## Deploy
 - Deployment is Vercel native Git integration, not a repository workflow.

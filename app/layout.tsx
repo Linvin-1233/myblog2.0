@@ -1,24 +1,60 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import {
+  Anton,
+  Bebas_Neue,
+  Chakra_Petch,
+  Instrument_Serif,
+} from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/siteConfig";
 import { ThemeScript } from "./components/ThemeScript";
-import { PosterBackground } from "./components/PosterBackground";
-import { NavDrawer } from "./components/NavDrawer";
+import { RouteGlitchTransition } from "./components/RouteGlitchTransition";
+import { SiteHeader } from "./components/SiteHeader";
 import { StatusFooter } from "./components/StatusFooter";
-import { RouteParticleTransition } from "./components/RouteParticleTransition";
 
-// Why: 拉丁字符用本地 JetBrains Mono 强化系统/图纸质感；仓库仅提供 Bold 一档，
-// 而该风格文字普遍偏粗，故直接以 700 注册。中文不在此字体内，会经字体栈回退到
-// sans-serif(见 globals.css 的 --font-mono)，从而实现“中文 sans-serif / 英文等宽”。
+// Why: 等宽只用于代码与微文案，沿用仓库内已有的 JetBrains Mono Bold；
+// 中文不在此字体内，会经字体栈回退到系统中文黑体(见 globals.css 的 --font-cjk)。
 const jetbrainsMono = localFont({
   src: "../fonts/JetBrainsMono-Bold.woff2",
   variable: "--font-jetbrains",
   weight: "700",
   display: "swap",
-  // Why: 关闭自动度量回退，否则 --font-jetbrains 会内含一个衬线系回退字体，
-  // 抢在我们指定的 sans-serif 之前接管中文，导致中文字体不符预期。
+  // Why: 关闭自动度量回退，否则该变量会内含一个衬线系回退字体，
+  // 抢在 --font-cjk 之前接管中文，导致中文字形不符预期。
   adjustFontFallback: false,
+});
+
+// Why: Marathon 式排印需要多套字体分工——Anton 做巨型标题、Bebas Neue 做
+// 压缩标签、Chakra Petch 做技术正文、Instrument Serif 做编辑衬线引文。
+// next/font 在构建期自托管，浏览器不直连 Google。
+const anton = Anton({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-anton",
+  display: "swap",
+});
+
+const bebasNeue = Bebas_Neue({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-bebas",
+  display: "swap",
+});
+
+const chakraPetch = Chakra_Petch({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-chakra",
+  display: "swap",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
+  display: "swap",
 });
 
 // Why: metadataBase 让所有相对的 OG/canonical 链接自动补全为绝对地址，
@@ -62,18 +98,18 @@ export default function RootLayout({
     <html
       lang="zh-CN"
       suppressHydrationWarning
-      className={jetbrainsMono.variable}
+      className={`${jetbrainsMono.variable} ${anton.variable} ${bebasNeue.variable} ${chakraPetch.variable} ${instrumentSerif.variable}`}
     >
-      <body
-        className="min-h-screen bg-poster-bg font-mono text-poster-text
-          antialiased selection:bg-poster-ice selection:text-black"
-      >
+      <body className="min-h-screen bg-poster-bg font-tech text-poster-text antialiased selection:bg-poster-ice selection:text-poster-bg">
         <ThemeScript />
-        <PosterBackground />
-        <RouteParticleTransition />
-        <NavDrawer siteName={siteConfig.name} />
+        <RouteGlitchTransition />
         <div className="relative z-10 flex min-h-screen flex-col">
-          <main className="system-main flex-1">{children}</main>
+          <main className="flex-1">
+            {/* Why: 站点导航嵌在正文版心内，不做独立顶栏，
+                header/body/footer 之间不再有分割线。 */}
+            <SiteHeader siteName={siteConfig.name} />
+            {children}
+          </main>
           <StatusFooter />
         </div>
       </body>

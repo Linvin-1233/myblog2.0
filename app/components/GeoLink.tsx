@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { AuthorLocation } from "@/lib/siteConfig";
-import { InteractiveGeoGlobe } from "./InteractiveGeoGlobe";
 
 type Coords = { lat: number; lng: number };
 
@@ -91,6 +90,8 @@ async function reverseGeocode(c: Coords): Promise<string | null> {
 
 type LocateStatus = "idle" | "locating" | "denied" | "unsupported";
 
+// Why: 遥测面板——两端坐标、时钟、距离、设备，全部方角单元格拼装；
+// 链接示意只用一条 SVG 虚线，不做地球/轨迹等旧视觉语言。
 export function GeoLink({ author }: { author: AuthorLocation }) {
   const [coords, setCoords] = useState<Coords | null>(null);
   const [place, setPlace] = useState("");
@@ -213,8 +214,8 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     authorCoords && coords ? haversineKm(authorCoords, coords) : null;
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="space-y-8">
+      <div className="grid gap-px bg-poster-line md:grid-cols-2">
         <LocationCard
           label={`AUTHOR // 作者${useLive ? " (LIVE)" : ""}`}
           place={authorPlace}
@@ -229,23 +230,23 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         />
       </div>
 
-      <InteractiveGeoGlobe author={authorCoords} visitor={coords} />
+      <div className="border-t-2 border-poster-line pt-4">
+        <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-poster-text-muted">
+          {"// DISTANCE"}
+        </div>
+        <div className="mt-2 font-mono text-4xl tabular-nums text-poster-ice md:text-5xl">
+          {distanceKm !== null
+            ? `${Math.round(distanceKm).toLocaleString("en-US")} km`
+            : "—"}
+        </div>
+      </div>
 
-      <div
-        className="grid grid-cols-1 gap-4 border-t border-poster-line pt-4
-          sm:grid-cols-3"
-      >
-        <Stat
-          label="直线距离"
-          value={
-            distanceKm !== null
-              ? `${Math.round(distanceKm).toLocaleString("en-US")} km`
-              : "—"
-          }
-        />
+      <div className="grid gap-px bg-poster-line sm:grid-cols-2">
         <Stat
           label="时差"
-          value={authorTimezone ? tzOffsetLabel(now, authorTimezone, visitorTz) : "解析中…"}
+          value={
+            authorTimezone ? tzOffsetLabel(now, authorTimezone, visitorTz) : "解析中…"
+          }
         />
         <Stat label="你的设备" value={device || "检测中…"} />
       </div>
@@ -254,25 +255,28 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         <button
           type="button"
           onClick={requestGps}
-          className="border border-poster-line bg-poster-panel px-4 py-2 text-[11px]
-            font-extrabold uppercase tracking-widest text-poster-ice transition-colors
-            hover:border-poster-ice hover:bg-poster-ice hover:text-poster-bg
+          className="border-2 border-poster-ice bg-poster-ice px-4 py-2.5
+            font-mono text-[10px] uppercase tracking-[0.2em] text-poster-bg
+            transition-colors hover:bg-transparent hover:text-poster-ice
             active:translate-x-px active:translate-y-px"
         >
           [ 使用精确定位 GPS ]
         </button>
         {coords && (
-          <span className="text-[11px] text-poster-text-muted">
-            坐标: {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
+          <span
+            className="font-mono text-[10px] uppercase tracking-[0.16em]
+              text-poster-text-muted"
+          >
+            COORDS · {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
           </span>
         )}
         {status === "denied" && (
-          <span className="text-[11px] text-poster-text-muted">
+          <span className="font-mono text-[10px] text-poster-text-muted">
             已拒绝定位权限，沿用 IP 定位。
           </span>
         )}
         {status === "unsupported" && (
-          <span className="text-[11px] text-poster-text-muted">
+          <span className="font-mono text-[10px] text-poster-text-muted">
             当前环境不支持地理定位。
           </span>
         )}
@@ -293,18 +297,18 @@ function LocationCard({
   clock?: string;
 }) {
   return (
-    <div
-      className="border-t border-poster-line pt-4"
-    >
-      <div className="text-[10px] font-bold tracking-widest text-poster-ice">
+    <div className="bg-poster-bg p-5">
+      <div
+        className="font-mono text-[9px] uppercase tracking-[0.3em] text-poster-ice"
+      >
         {label}
       </div>
-      <div className="mt-2 text-lg font-extrabold text-poster-title">
-        {place}
+      <div className="mt-3 text-lg text-poster-title">{place}</div>
+      <div className="mt-1 font-mono text-[10px] text-poster-text-muted">
+        {timezone}
       </div>
-      <div className="mt-1 text-[11px] text-poster-text-muted">{timezone}</div>
       {clock && (
-        <div className="mt-2 text-2xl font-extrabold tabular-nums text-poster-ice">
+        <div className="mt-3 font-mono text-3xl tabular-nums text-poster-ice">
           {clock}
         </div>
       )}
@@ -314,14 +318,15 @@ function LocationCard({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div className="text-[10px] tracking-widest text-poster-text-muted">
+    <div className="bg-poster-bg p-4">
+      <div
+        className="font-mono text-[9px] uppercase tracking-[0.24em]
+          text-poster-text-muted"
+      >
         {"// "}
         {label}
       </div>
-      <div className="mt-1 text-sm font-extrabold text-poster-text-bright">
-        {value}
-      </div>
+      <div className="mt-2 text-sm text-poster-text-bright">{value}</div>
     </div>
   );
 }

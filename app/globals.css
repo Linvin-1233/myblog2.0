@@ -1,73 +1,82 @@
 @import "tailwindcss";
 
 /*
-  Why: 「SAT // 卫星观测站」主题(彻底重打 v6)。
-  只保留两项既定要素：卫星(点阵地球/轨道/卫星本体)与 v1 配色
-  (深黑蓝 #03050a + 冰蓝 #bfecff；浅色灰白 #f4f6f9 + 蓝绿 #00838f)。
-  设计语言：受干扰的轨道控制系统——像素故障、数据流、系统字符画和不对称
-  遥测层制造可控混乱；冰蓝仍是唯一强调色，不引入霓虹渐变。颜色集中在
-  :root / [data-theme] 定义，
-  经 @theme inline 暴露成 Tailwind 工具类，随 data-theme 整体切换。
+  Why: 「MARATHON // GLITCH」主题(视觉语言全部重打)。
+  配色：暖纸底 + 低饱和灰蓝主色 + 深炭灰墨色，避免高饱和钴蓝与纯黑带来的
+  视觉疲劳；结构线一律用软灰，墨色只留给文字与小面积色块。
+  故障语言只出现在内部路由切换的短暂整屏切片，
+  第二通道仍锁在灰蓝色系(--poster-fault)。
+  颜色集中在 :root / [data-theme] 定义，经 @theme inline 暴露为 Tailwind 工具类。
 */
 @theme inline {
   --color-poster-bg: var(--poster-bg);
   --color-poster-line: var(--poster-line);
   --color-poster-panel: var(--poster-panel);
   --color-poster-ice: var(--poster-ice);
+  --color-poster-deep: var(--poster-deep);
+  --color-poster-paper: var(--poster-paper);
+  --color-poster-fault: var(--poster-fault);
   --color-poster-text: var(--poster-text);
   --color-poster-text-bright: var(--poster-text-bright);
   --color-poster-text-muted: var(--poster-text-muted);
   --color-poster-title: var(--poster-title);
-  /* How: 英文命中 JetBrains Mono，中文因该字体无中文字形而回退 sans-serif。 */
-  --font-mono: var(--font-jetbrains), sans-serif;
-  --font-sans: var(--font-jetbrains), sans-serif;
+
+  /* 多字体分工：展示 / 压缩 / 技术正文 / 等宽 / 编辑衬线。 */
+  --font-display: var(--font-anton), var(--font-cjk);
+  --font-condensed: var(--font-bebas), var(--font-cjk);
+  --font-tech: var(--font-chakra), var(--font-cjk);
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  --font-editorial: var(--font-instrument), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-chakra), var(--font-cjk);
+  --font-serif: var(--font-instrument), Georgia, serif;
 }
 
 :root {
-  --poster-bg: #03050a;
-  --poster-line: #1e293b;
-  --poster-panel: #0f172a;
-  --poster-ice: #bfecff;
-  --poster-text: #94a3b8;
-  --poster-text-bright: #cbd5e1;
-  --poster-text-muted: #576f8a;
-  --poster-title: #ffffff;
-  --poster-shadow: rgba(0, 0, 0, 0.5);
-  --poster-content-wash: rgba(0, 0, 0, 0.2);
+  /* 柔和纸面配色：暖纸底、软灰线、深炭墨、低饱和灰蓝。 */
+  --poster-bg: #f3f2ee;
+  --poster-line: #c9c6bf;
+  --poster-panel: #fbfaf7;
+  --poster-paper: #fbfaf7;
+  --poster-ice: #1d4e89;
+  --poster-deep: #163a66;
+  --poster-text: #3f444d;
+  --poster-text-bright: #2e333b;
+  --poster-text-muted: #82878f;
+  --poster-title: #33383f;
+  --poster-shadow: rgba(51, 56, 63, 0.14);
+  --poster-fault: #1d4e89;
+  /* Why: 中文不在任何一款英文字体内，统一回退到系统中文黑体。 */
+  --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Source Han Sans SC", "Noto Sans CJK SC", sans-serif;
 
   --hljs-comment: var(--poster-text-muted);
   --hljs-keyword: var(--poster-ice);
-  --hljs-string: #7dd3fc;
-  --hljs-number: #f0abfc;
-  --hljs-title: #fde68a;
+  --hljs-string: #2f6db3;
+  --hljs-number: #1d4e89;
+  --hljs-title: #33383f;
   --hljs-meta: var(--poster-text-muted);
 }
 
-[data-theme="light"] {
-  --poster-bg: #f4f6f9;
-  --poster-line: #cbd5e1;
-  --poster-panel: #ffffff;
-  --poster-ice: #00838f;
-  /* Why: 浅色下字体仅 Bold 一档，正文用中性偏蓝灰 #778899 降低厚重感。 */
-  --poster-text: #778899;
-  --poster-text-bright: #778899;
-  --poster-text-muted: #a3aec0;
-  --poster-title: #778899;
-  --poster-shadow: rgba(148, 163, 184, 0.3);
-  --poster-content-wash: rgba(255, 255, 255, 0.72);
+[data-theme="dark"] {
+  --poster-bg: #17181d;
+  --poster-line: #33363f;
+  --poster-panel: #1f2128;
+  --poster-paper: #e9e9e4;
+  --poster-ice: #7fc4f2;
+  --poster-deep: #b8e0f7;
+  --poster-text: #b9bcc4;
+  --poster-text-bright: #d6d8de;
+  --poster-text-muted: #848892;
+  --poster-title: #e6e7ea;
+  --poster-shadow: rgba(0, 0, 0, 0.4);
+  --poster-fault: #7fc4f2;
 
-  --hljs-comment: #6e7781;
-  --hljs-keyword: #cf222e;
-  --hljs-string: #0a7d33;
-  --hljs-number: #0550ae;
-  --hljs-title: #6f42c1;
-  --hljs-meta: #6e7781;
-}
-
-body {
-  background: var(--poster-bg);
-  color: var(--poster-text);
-  overflow-x: hidden;
+  --hljs-comment: #848892;
+  --hljs-keyword: #7fc4f2;
+  --hljs-string: #c9e7fa;
+  --hljs-number: #a4d6f7;
+  --hljs-title: #e6e7ea;
+  --hljs-meta: #848892;
 }
 
 html {
@@ -77,496 +86,34 @@ html {
   scrollbar-width: thin;
 }
 
-/* System rail scrollbar. WebKit handles the segmented thumb; Firefox uses
-   the theme colors above and keeps its native compact geometry. */
+body {
+  background: var(--poster-bg);
+  color: var(--poster-text);
+  overflow-x: hidden;
+}
+
+/* 硬朗的系统滚动条：无圆角、冰蓝滑块、1px 刻度轨道。 */
 *::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
 }
 
 *::-webkit-scrollbar-track {
-  background:
-    repeating-linear-gradient(
-      0deg,
-      var(--poster-bg) 0 11px,
-      color-mix(in srgb, var(--poster-line) 72%, var(--poster-bg)) 11px 12px
-    );
   border-left: 1px solid var(--poster-line);
+  background: var(--poster-bg);
 }
 
 *::-webkit-scrollbar-thumb {
-  min-height: 48px;
   border: 3px solid var(--poster-bg);
-  background:
-    linear-gradient(
-      180deg,
-      var(--poster-ice) 0 18%,
-      color-mix(in srgb, var(--poster-ice) 42%, var(--poster-panel)) 18% 82%,
-      var(--poster-ice) 82% 100%
-    );
+  background: var(--poster-ice);
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--poster-ice);
-}
-
-*::-webkit-scrollbar:horizontal {
-  height: 12px;
-}
-
-*::-webkit-scrollbar-track:horizontal {
-  border-top: 1px solid var(--poster-line);
-  border-left: 0;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      var(--poster-bg) 0 11px,
-      color-mix(in srgb, var(--poster-line) 72%, var(--poster-bg)) 11px 12px
-    );
-}
-
-*::-webkit-scrollbar-thumb:horizontal {
-  min-width: 48px;
-  min-height: 0;
-  background:
-    linear-gradient(
-      90deg,
-      var(--poster-ice) 0 18%,
-      color-mix(in srgb, var(--poster-ice) 42%, var(--poster-panel)) 18% 82%,
-      var(--poster-ice) 82% 100%
-    );
-}
-
-*::-webkit-scrollbar-thumb:horizontal:hover {
-  background: var(--poster-ice);
+  background: var(--poster-title);
 }
 
 *::-webkit-scrollbar-corner {
-  border: 1px solid var(--poster-line);
   background: var(--poster-bg);
-}
-
-/* ============ 受干扰的卫星系统外壳 ============ */
-.system-main {
-  position: relative;
-  isolation: isolate;
-  min-width: 0;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 0 calc(50% - 0.5px),
-      color-mix(in srgb, var(--poster-ice) 10%, transparent) calc(50% - 0.5px) calc(50% + 0.5px),
-      transparent calc(50% + 0.5px)
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 calc(8.333% - 1px),
-      color-mix(in srgb, var(--poster-line) 18%, transparent) calc(8.333% - 1px) 8.333%
-    );
-}
-.system-main::before,
-.system-main::after {
-  position: fixed;
-  z-index: -1;
-  top: 112px;
-  bottom: 42px;
-  width: 18px;
-  content: "";
-  background:
-    linear-gradient(90deg, transparent 8px, var(--poster-ice) 8px 9px, transparent 9px),
-    repeating-linear-gradient(0deg, var(--poster-line) 0 1px, transparent 1px 48px);
-  opacity: 0.42;
-  mask-image: linear-gradient(transparent, #000 10% 90%, transparent);
-}
-.system-main::before { left: max(6px, calc(50vw - 610px)); }
-.system-main::after { right: max(6px, calc(50vw - 610px)); transform: scaleX(-1); }
-.system-scanlines {
-  opacity: 0.18;
-  background: repeating-linear-gradient(0deg, transparent 0 3px, color-mix(in srgb, var(--poster-title) 9%, transparent) 3px 4px);
-  animation: scanDrift 9s linear infinite;
-}
-.signal-tear {
-  position: absolute;
-  right: 0;
-  left: 0;
-  height: 2px;
-  opacity: 0;
-  background: var(--poster-ice);
-  box-shadow: 18vw 3px 0 var(--poster-text-muted), -27vw -2px 0 var(--poster-title);
-  animation: signalTear 7s steps(1) infinite;
-}
-.signal-tear-a { top: 23%; }
-.signal-tear-b { top: 57%; animation-delay: -2.7s; }
-.signal-tear-c { top: 81%; animation-delay: -5.1s; }
-.void-field {
-  position: absolute;
-  top: 42%;
-  left: 58%;
-  width: min(58vw, 720px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
-  opacity: 0.42;
-}
-.black-hole-core {
-  position: absolute;
-  inset: 36%;
-  border-radius: 50%;
-  background: #000;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--poster-ice) 28%, transparent),
-    0 0 42px 9px color-mix(in srgb, var(--poster-ice) 12%, transparent),
-    inset 12px 0 18px color-mix(in srgb, var(--poster-ice) 8%, transparent);
-}
-.black-hole-ring {
-  position: absolute;
-  inset: 25%;
-  border: 1px solid color-mix(in srgb, var(--poster-ice) 46%, transparent);
-  border-radius: 50%;
-  transform: rotate(-17deg) scaleY(0.32);
-}
-.black-hole-ring::before,
-.black-hole-ring::after {
-  position: absolute;
-  border-radius: 50%;
-  content: "";
-}
-.black-hole-ring::before {
-  inset: -14%;
-  border: 8px solid transparent;
-  border-top-color: color-mix(in srgb, var(--poster-ice) 24%, transparent);
-  border-right-color: color-mix(in srgb, var(--poster-title) 8%, transparent);
-}
-.black-hole-ring::after {
-  inset: 12%;
-  border: 2px dashed color-mix(in srgb, var(--poster-text-muted) 50%, transparent);
-}
-.black-hole-ring-a { animation: voidOrbit 18s linear infinite; }
-.black-hole-ring-b {
-  inset: 18%;
-  opacity: 0.45;
-  transform: rotate(21deg) scaleY(0.24);
-  animation: voidOrbitReverse 26s linear infinite;
-}
-.black-hole-slice {
-  position: absolute;
-  left: 16%;
-  width: 68%;
-  height: 4%;
-  background: var(--poster-bg);
-  border-block: 1px solid color-mix(in srgb, var(--poster-ice) 42%, transparent);
-  animation: voidSlice 4.7s steps(1) infinite;
-}
-.black-hole-slice-a { top: 43%; }
-.black-hole-slice-b { top: 56%; animation-delay: -2.1s; }
-.data-current {
-  position: absolute;
-  display: grid;
-  grid-auto-flow: column;
-  align-items: center;
-  perspective: 500px;
-  transform-origin: right center;
-}
-.data-current i {
-  display: block;
-  width: var(--block-size, 12px);
-  aspect-ratio: 1;
-  border: 1px solid color-mix(in srgb, var(--poster-ice) 58%, transparent);
-  background: color-mix(in srgb, var(--poster-ice) var(--fill, 14%), transparent);
-  opacity: var(--alpha, 0.45);
-  animation: thoughtPacket 2.8s steps(8) infinite;
-}
-.data-current i:nth-child(3n) { --block-size: 6px; --fill: 34%; --alpha: 0.72; animation-delay: -0.7s; }
-.data-current i:nth-child(4n) { --block-size: 18px; --fill: 7%; --alpha: 0.26; animation-delay: -1.4s; }
-.data-current i:nth-child(5n) { --block-size: 9px; --fill: 62%; --alpha: 0.56; animation-delay: -2.1s; }
-.data-current-a {
-  top: 29%;
-  right: 46%;
-  width: 47%;
-  justify-content: space-between;
-  transform: rotate(8deg);
-}
-.data-current-b {
-  top: 57%;
-  right: 39%;
-  width: 58%;
-  justify-content: space-between;
-  transform: rotate(-11deg) scale(0.82);
-}
-.data-current-c {
-  top: 76%;
-  right: 45%;
-  width: 38%;
-  justify-content: space-between;
-  transform: rotate(4deg) scale(0.65);
-}
-@keyframes thoughtPacket {
-  0% { translate: -34px 0; scale: 1.25; opacity: 0.2; }
-  50% { opacity: 0.7; }
-  100% { translate: 46px 0; scale: 0.25; opacity: 0; }
-}
-@keyframes voidOrbit {
-  to { rotate: 360deg; }
-}
-@keyframes voidOrbitReverse {
-  to { rotate: -360deg; }
-}
-@keyframes voidSlice {
-  0%, 78%, 100% { transform: translateX(0); opacity: 0.25; }
-  79% { transform: translateX(-9%); opacity: 0.72; }
-  83% { transform: translateX(13%); opacity: 0.4; }
-  87% { transform: translateX(-2%); opacity: 0.6; }
-}
-
-@keyframes scanDrift { to { transform: translateY(16px); } }
-@keyframes signalTear {
-  0%, 91%, 100% { opacity: 0; transform: translateX(0) scaleX(0.2); }
-  92% { opacity: 0.35; transform: translateX(-13%) scaleX(0.34); }
-  94% { opacity: 0.15; transform: translateX(22%) scaleX(0.18); }
-  96% { opacity: 0.3; transform: translateX(-4%) scaleX(0.62); }
-}
-
-/* ============ 内容系统：不对称排版 + 像素数据包 ============ */
-.system-page { position: relative; }
-.system-page {
-  background-image:
-    linear-gradient(90deg, transparent 0 24.8%, color-mix(in srgb, var(--poster-ice) 12%, transparent) 24.8% 25%, transparent 25%),
-    linear-gradient(90deg, transparent 0 74.9%, color-mix(in srgb, var(--poster-line) 32%, transparent) 74.9% 75%, transparent 75%);
-}
-.system-page::before {
-  position: absolute;
-  top: 24px;
-  right: 0;
-  width: 48px;
-  height: 9px;
-  content: "";
-  background: linear-gradient(90deg, var(--poster-ice) 0 5px, transparent 5px 8px) 0 0 / 8px 3px repeat-x;
-  opacity: 0.55;
-}
-.system-page::after {
-  position: absolute;
-  z-index: -1;
-  top: 96px;
-  right: -38px;
-  content: "SAT.07 / RX";
-  color: var(--poster-text-muted);
-  font-size: 8px;
-  letter-spacing: 0.25em;
-  opacity: 0.55;
-  transform: rotate(90deg);
-  transform-origin: left top;
-}
-.system-subpage {
-  min-height: 66vh;
-  margin-top: clamp(1.25rem, 4vw, 3.5rem);
-  margin-bottom: 2rem;
-  padding-right: clamp(0.5rem, 3vw, 2rem);
-  padding-bottom: clamp(3rem, 6vw, 5rem);
-  padding-left: clamp(0.5rem, 3vw, 2rem);
-  background: var(--poster-content-wash);
-}
-.system-subpage::before {
-  width: 86px;
-  height: 11px;
-  background:
-    linear-gradient(90deg, var(--poster-ice) 0 32%, transparent 32% 38%, var(--poster-text-muted) 38% 44%, transparent 44% 68%, var(--poster-ice) 68% 100%);
-}
-.system-subpage::after {
-  position: absolute;
-  top: auto;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 0;
-  height: 5px;
-  content: "";
-  background: repeating-linear-gradient(
-    90deg,
-    var(--poster-ice) 0 24px,
-    transparent 24px 31px,
-    var(--poster-line) 31px 52px,
-    transparent 52px 72px
-  );
-  opacity: 0.2;
-  transform: none;
-}
-.system-subpage > h1,
-.system-document > header h1 {
-  position: relative;
-  width: fit-content;
-  max-width: 100%;
-  text-shadow:
-    2px 0 var(--poster-bg),
-    4px 0 color-mix(in srgb, var(--poster-ice) 55%, transparent),
-    0 7px 0 color-mix(in srgb, var(--poster-line) 55%, transparent);
-}
-.system-subpage > h1::after,
-.system-document > header h1::after {
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 24px);
-  width: min(24vw, 220px);
-  height: 7px;
-  content: "";
-  border: 0;
-  background: linear-gradient(
-    90deg,
-    var(--poster-ice) 0 58%,
-    transparent 58% 63%,
-    var(--poster-line) 63% 100%
-  );
-  opacity: 0.62;
-}
-.system-subpage > h1::before,
-.system-document > header h1::before {
-  position: absolute;
-  top: 0.12em;
-  right: -18px;
-  width: 8px;
-  height: 55%;
-  content: "";
-  background: var(--poster-ice);
-  box-shadow: 5px 7px 0 var(--poster-text-muted);
-  opacity: 0.7;
-}
-.system-subpage > h1 + div {
-  position: relative;
-  display: inline-block;
-  padding: 4px 9px 4px 0;
-  background: color-mix(in srgb, var(--poster-panel) 70%, transparent);
-}
-.system-subpage > h1 + div::after {
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 8px);
-  width: min(22vw, 180px);
-  height: 3px;
-  content: "";
-  background: linear-gradient(90deg, var(--poster-ice), var(--poster-line) 72%, transparent);
-}
-.system-subpage > h1 + div::before {
-  position: absolute;
-  top: -38px;
-  left: min(48vw, 420px);
-  content: "[ FRAME / 08 ]";
-  color: var(--poster-text-muted);
-  font-size: 7px;
-  letter-spacing: 0.18em;
-  white-space: nowrap;
-}
-.system-subpage > h1 + div + div {
-  position: relative;
-  border-left: 4px solid color-mix(in srgb, var(--poster-ice) 52%, transparent);
-  padding-left: clamp(1rem, 2.5vw, 2rem);
-}
-.system-subpage > h1 + div + div::before {
-  position: absolute;
-  top: -1px;
-  left: -7px;
-  width: 10px;
-  height: 18px;
-  border: 0;
-  content: "";
-  background: var(--poster-ice);
-  opacity: 0.78;
-}
-.earth-system { filter: drop-shadow(8px 10px 0 color-mix(in srgb, var(--poster-line) 38%, transparent)); }
-.radar-sweep {
-  animation: radarSweep 12s ease-in-out infinite;
-  filter: drop-shadow(0 0 1px var(--poster-ice));
-  transform-box: view-box;
-  transform-origin: 120px 120px;
-}
-.consciousness-stream {
-  position: absolute;
-  z-index: 3;
-  right: 23%;
-  bottom: 22%;
-  display: flex;
-  width: 31%;
-  align-items: center;
-  justify-content: space-between;
-  transform: rotate(-7deg);
-}
-.consciousness-stream i {
-  animation: consciousFlow 2.4s steps(8) infinite;
-}
-@keyframes radarSweep {
-  0%, 12% { transform: rotate(0deg); opacity: 0; }
-  18% { opacity: 0.62; }
-  72% { transform: rotate(360deg); opacity: 0.62; }
-  78%, 100% { transform: rotate(360deg); opacity: 0; }
-}
-@keyframes consciousFlow {
-  0% { translate: -22px 8px; scale: 1.4; opacity: 0; }
-  24% { opacity: 0.5; }
-  100% { translate: 46px -4px; scale: 0.2; opacity: 0; }
-}
-@media (max-width: 767px) {
-  .system-main::before {
-    left: 2px;
-    width: 10px;
-    opacity: 0.32;
-  }
-  .system-main::after { display: none; }
-  .system-subpage {
-    margin-top: 1rem;
-    padding-right: 0;
-    padding-left: 0;
-    width: 90%;
-  }
-  .system-subpage > h1::after,
-  .system-document > header h1::after {
-    top: auto;
-    right: 0;
-    bottom: -9px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    opacity: 0.3;
-  }
-  .system-subpage > h1 + div + div {
-    padding-left: 0.75rem;
-  }
-  .consciousness-stream { right: 7%; bottom: 38%; width: 42%; opacity: 0.72; }
-  .data-current-b,
-  .data-current-c { display: none; }
-  .void-field { top: 36%; left: 68%; width: 104vw; opacity: 0.25; }
-  .data-current-a { top: 31%; right: 27%; width: 68%; opacity: 0.55; }
-}
-
-/* ============ 背景网格 ============ */
-.blueprint-grid {
-  background-image:
-    linear-gradient(var(--poster-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--poster-line) 1px, transparent 1px);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -100%;
-  height: 200%;
-}
-.blueprint-grid-large {
-  background-size: 420px 420px;
-}
-.blueprint-grid-small {
-  background-size: 370px 370px;
-}
-
-@keyframes gridUpLarge {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-420px); }
-}
-@keyframes gridUpSmall {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-370px); }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .blueprint-grid-large {
-    animation: gridUpLarge 26s linear infinite;
-  }
-  .blueprint-grid-small {
-    animation: gridUpSmall 9s linear infinite;
-  }
 }
 
 /* ============ 关键帧 ============ */
@@ -574,122 +121,428 @@ html {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+
 @keyframes fadeIn {
   from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes fadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-@keyframes lightboxIn {
-  from { opacity: 0; transform: scale(0.92) translateY(12px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-@keyframes lightboxOut {
-  from { opacity: 1; transform: scale(1) translateY(0); }
-  to   { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to { opacity: 1; }
 }
 
-/* How: 滚动时暂停网格/地球动画，减少滚动卡顿。 */
-[data-scrolling="true"] .blueprint-grid-large,
-[data-scrolling="true"] .blueprint-grid-small,
-[data-scrolling="true"] .system-scanlines,
-[data-scrolling="true"] .signal-tear,
-[data-scrolling="true"] .black-hole-ring,
-[data-scrolling="true"] .black-hole-slice,
-[data-scrolling="true"] .data-current i {
-  animation-play-state: paused;
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes lightboxIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes lightboxOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(6px) scale(0.98); }
+}
+
+@keyframes routeGlitch {
+  0% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(-8px); }
+  8% { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0); }
+  18% { opacity: 1; clip-path: inset(12% 0 60% 0); transform: translateX(-12px); }
+  30% { opacity: 1; clip-path: inset(56% 0 22% 0); transform: translateX(16px); }
+  44% { opacity: 1; clip-path: inset(22% 0 8% 0); transform: translateX(-5px); }
+  58% { opacity: 0.92; clip-path: inset(78% 0 0 0); transform: translateX(8px); }
+  74% { opacity: 0.62; clip-path: inset(0 0 0 0); transform: translateY(5px); }
+  100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(10px); }
+}
+
+@keyframes routeSlice {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  18% { opacity: 0.9; transform: translateX(-18vw); }
+  32% { opacity: 0.3; transform: translateX(42vw); }
+  48% { opacity: 0.8; transform: translateX(-8vw); }
+  64% { opacity: 0.1; transform: translateX(60vw); }
+}
+
+@keyframes pulseBlock {
+  0%, 100% { transform: scaleY(1); opacity: 0.85; }
+  50% { transform: scaleY(0.35); opacity: 0.35; }
+}
+
+/* ============ 编辑流工具类 ============ */
+/* Why: 放进 @layer components，让 Tailwind 工具类仍能覆盖(如 .frame + border-0)。 */
+@layer components {
+  /* Why: Anton/Bebas 只有 400 一档；关闭合成加粗，让拉丁字母保持设计字重，
+     而中文回退字体会照常选中 700(黑体)一档。 */
+  .type-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-synthesis-weight: none;
+    letter-spacing: -0.01em;
+    line-height: 0.9;
+  }
+
+  .type-condensed {
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-synthesis-weight: none;
+    letter-spacing: 0.02em;
+    line-height: 1.02;
+  }
+
+  /* 海报字：干净的蓝色大字，无挤压边、无落影。 */
+  .extrude-type {
+    position: relative;
+    display: inline-block;
+    color: var(--poster-ice);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-synthesis-weight: none;
+    letter-spacing: -0.045em;
+    line-height: 0.78;
+  }
+
+  .poster-rail {
+    position: absolute;
+    height: 0;
+    border-top: 1px dashed var(--poster-ice);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .poster-rail-a {
+    top: 31%;
+    left: -8%;
+    width: 72%;
+    transform: rotate(-16deg);
+  }
+
+  .poster-rail-b {
+    top: 63%;
+    right: -8%;
+    width: 64%;
+    transform: rotate(22deg);
+  }
+
+  .outline-type {
+    color: transparent;
+    -webkit-text-stroke: 1.5px color-mix(in srgb, var(--poster-ice) 78%, transparent);
+  }
+
+  @supports not (-webkit-text-stroke: 1px black) {
+    .outline-type { color: var(--poster-ice); }
+  }
+
+  /* 页面标题保持静态；glitch 只在路由切换层出现。 */
+  .glitch {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  /* 硬边链接只改变颜色/边框；glitch 只属于路由过渡。 */
+  .hard-hover {
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  /* 硬边框面板(Brutalism)：2px 实边 + 硬偏移，无模糊。 */
+  .frame {
+    position: relative;
+    border: 2px solid color-mix(in srgb, var(--poster-title) 42%, var(--poster-line));
+    background: color-mix(in srgb, var(--poster-panel) 84%, transparent);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--poster-ice) 16%, transparent);
+  }
+
+  /* 厚板：主视觉/宣言用的重度面板——实边 + 双通道套印偏移(Dada 拼贴 + 故障)。 */
+  .slab {
+    position: relative;
+    border: 2px solid var(--poster-title);
+    background: var(--poster-panel);
+    box-shadow:
+      6px 6px 0 color-mix(in srgb, var(--poster-ice) 30%, transparent),
+      12px 12px 0 color-mix(in srgb, var(--poster-fault) 16%, transparent);
+  }
+
+  /* 印章：旋转的方角标签，颜色取 currentColor(用 text-* 指定)。 */
+  .stamp {
+    display: inline-block;
+    transform: rotate(-5deg);
+    border: 2px solid currentColor;
+    padding: 0.3rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .stamp-b { transform: rotate(3deg); }
+
+  /* 剪贴碎片：只给色块使用，文字不裁切(可读性优先)。 */
+  .cutout-a { clip-path: polygon(0 8%, 100% 0, 97% 100%, 3% 94%); }
+  .cutout-b { clip-path: polygon(6% 0, 100% 4%, 94% 100%, 0 96%); }
+
+  /* ============ 达达剪贴画 ============ */
+  .dada-collage {
+    position: relative;
+    min-height: clamp(25rem, 52vw, 42rem);
+    isolation: isolate;
+  }
+
+  .dada-collage-photo {
+    position: absolute;
+    border: 2px solid var(--poster-line);
+    background: var(--poster-paper);
+    padding: 0.45rem;
+    box-shadow: 6px 6px 0 color-mix(in srgb, var(--poster-ice) 34%, transparent);
+  }
+
+  .dada-collage-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.12);
+  }
+
+  .dada-photo-a {
+    top: 9%;
+    left: 5%;
+    z-index: 2;
+    width: 62%;
+    aspect-ratio: 4 / 3;
+    transform: rotate(-5.5deg);
+  }
+
+  .dada-photo-b {
+    top: 38%;
+    right: 0;
+    z-index: 3;
+    width: 38%;
+    aspect-ratio: 1 / 1.1;
+    box-shadow: -7px 7px 0 var(--poster-fault);
+    transform: rotate(6deg);
+  }
+
+  .dada-paper {
+    position: absolute;
+    z-index: 5;
+    border: 2px solid var(--poster-ice);
+    background: var(--poster-ice);
+    color: var(--poster-bg);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .dada-paper-a {
+    top: 4%;
+    right: 12%;
+    padding: 0.55rem 0.7rem;
+    transform: rotate(4deg);
+  }
+
+  .dada-paper-b {
+    right: 2%;
+    bottom: 14%;
+    padding: 0.35rem 0.55rem;
+    transform: rotate(-8deg);
+  }
+
+  .dada-rag {
+    position: absolute;
+    top: 54%;
+    left: 0;
+    z-index: 4;
+    width: 42%;
+    height: 5rem;
+    background: var(--poster-ice);
+    clip-path: polygon(0 12%, 100% 0, 94% 86%, 8% 100%);
+    transform: rotate(-7deg);
+  }
+
+  .dada-collage-index {
+    position: absolute;
+    right: 0;
+    bottom: 1%;
+    z-index: 6;
+    color: var(--poster-text-muted);
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    transform: rotate(90deg) translateX(100%);
+    transform-origin: right bottom;
+  }
+
+  .dada-collage-compact {
+    min-height: 18rem;
+  }
+
+  .dada-collage-compact .dada-photo-a { width: 60%; }
+  .dada-collage-compact .dada-photo-b { width: 38%; }
+  .dada-collage-compact .dada-paper-a { font-size: 7px; }
+
+  /* Why: 首页 hero 专用——整体高度跟随视口，保证 16:9 下首屏装得下；
+     照片宽度同步收小，让碎片落在容器高度内，不再向下溢出。 */
+  .dada-collage-hero { min-height: clamp(17rem, 34vh, 21rem); }
+  .dada-collage-hero .dada-photo-a { width: 58%; }
+  .dada-collage-hero .dada-photo-b { width: 36%; top: 34%; }
+
+  /* ============ 路由切换 glitch ============ */
+  .route-glitch {
+    position: fixed;
+    z-index: 100;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+    background: var(--poster-bg);
+    color: var(--poster-title);
+    opacity: 0;
+  }
+
+  .route-glitch-active {
+    visibility: visible;
+    animation: routeGlitch 680ms steps(1, end) both;
+  }
+
+  .route-glitch-top,
+  .route-glitch-bottom {
+    position: absolute;
+    right: 1rem;
+    left: 1rem;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+
+  .route-glitch-top {
+    top: 1.25rem;
+    border-bottom: 2px solid var(--poster-title);
+    padding-bottom: 0.55rem;
+    color: var(--poster-ice);
+  }
+
+  .route-glitch-bottom {
+    bottom: 1.25rem;
+    border-top: 2px solid var(--poster-title);
+    padding-top: 0.55rem;
+    color: var(--poster-text-muted);
+    text-align: right;
+  }
+
+  .route-glitch-word {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max-content;
+    color: var(--poster-title);
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 10vw, 9rem);
+    line-height: 0.8;
+    text-transform: uppercase;
+    transform: translate(-50%, -50%) rotate(-2deg);
+  }
+
+  .route-glitch-slice {
+    position: absolute;
+    height: 4px;
+    background: var(--poster-ice);
+    opacity: 0;
+  }
+
+  .route-glitch-slice-a { top: 28%; left: 0; width: 72%; }
+  .route-glitch-slice-b { top: 52%; right: 0; width: 46%; background: var(--poster-fault); }
+  .route-glitch-slice-c { top: 74%; left: 18%; width: 64%; }
+
+  .route-glitch-active .route-glitch-slice {
+    animation: routeSlice 680ms steps(1, end) both;
+  }
+
+  /* 四角刻度：仅左上/右下，避免过度装饰。 */
+  .corner-frame::before,
+  .corner-frame::after {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    content: "";
+    pointer-events: none;
+  }
+
+  .corner-frame::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--poster-ice);
+    border-left: 2px solid var(--poster-ice);
+  }
+
+  .corner-frame::after {
+    right: -1px;
+    bottom: -1px;
+    border-right: 2px solid var(--poster-ice);
+    border-bottom: 2px solid var(--poster-ice);
+  }
+
+  /* 斜线纹理条/块，颜色取 currentColor。 */
+  .hatch {
+    background-image: repeating-linear-gradient(
+      45deg,
+      currentColor 0 1px,
+      transparent 1px 4px
+    );
+  }
+
+  .dot-field {
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--poster-line) 90%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 4px 4px;
+  }
+
+  /* 页面坐标网格。 */
+  .grid-field {
+    background-image:
+      linear-gradient(90deg, color-mix(in srgb, var(--poster-line) 70%, transparent) 1px, transparent 1px),
+      linear-gradient(0deg, color-mix(in srgb, var(--poster-line) 70%, transparent) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
+  .blink {
+    animation: blink 1.2s steps(2) infinite;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .shell { padding-inline: 2.5rem; }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .blueprint-grid-large,
-  .blueprint-grid-small,
-  .blink {
-    animation: none;
-  }
-  .glitch { text-shadow: none; }
-  .glitch::before,
-  .glitch::after {
-    animation: none;
-    opacity: 0;
-  }
-  .system-scanlines,
-  .signal-tear,
-  .black-hole-ring,
-  .black-hole-slice,
-  .data-current i,
-  .radar-sweep,
-  .consciousness-stream i,
-  .rgb-split {
+
+  .blink,
+  .route-glitch-active,
+  .route-glitch-active .route-glitch-slice {
     animation: none;
   }
 }
-
-/* ============ 编辑流工具类 ============ */
-/* Why: 放进 @layer components，让 Tailwind 工具类仍可覆盖(如 annot+text-poster-ice)。 */
-@layer components {
-
-
-/* RGB 分裂文字：冰蓝 + 灰蓝双通道(无霓虹)。 */
-.rgb-split {
-  text-shadow:
-    1.5px 0 var(--poster-ice),
-    -1.5px 0 var(--poster-text-muted);
-}
-
-/* 故障标题：仅一个叙事点——5s 周期内固定时间点短暂错位(规律可预期)，
-   其余时间完全静止。需 data-text 属性。 */
-.glitch {
-  position: relative;
-  text-shadow:
-    1.5px 0 var(--poster-ice),
-    -1.5px 0 var(--poster-text-muted);
-}
-.glitch::before,
-.glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-.glitch::before {
-  color: var(--poster-ice);
-  animation: glitchCycleA 5s linear infinite;
-}
-.glitch::after {
-  color: var(--poster-title);
-  animation: glitchCycleB 7s linear infinite;
-}
-@keyframes glitchCycleA {
-  0%, 86%, 100% { transform: translate(0); opacity: 0; }
-  88% { transform: translate(-3px, 1px); opacity: 0.75; }
-  92% { transform: translate(2px, -1px); opacity: 0.55; }
-  94% { transform: translate(-1px, 0); opacity: 0.75; }
-}
-@keyframes glitchCycleB {
-  0%, 88%, 100% { transform: translate(0); opacity: 0; }
-  90% { transform: translate(3px, -1px); opacity: 0.7; }
-  93% { transform: translate(-2px, 1px); opacity: 0.5; }
-  96% { transform: translate(1px, 0); opacity: 0.7; }
-}
-
-/* 闪烁光标/状态灯。 */
-.blink {
-  animation: blink 1.2s steps(2) infinite;
-}
-
-} /* @layer components */
 
 /* ============ 文章正文排版 ============ */
 /* Why: markdown 渲染为原始 HTML，Tailwind 类无法作用；用 .post-content
-   后代选择器统一排版——控制台文档风：等宽标题 + 冰蓝强调 + 面板代码块。 */
+   后代选择器统一排版——公告板文档风：编号大标题 + 硬边框代码面板。 */
 .post-content {
   color: var(--poster-text-bright);
-  line-height: 1.8;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  line-height: 1.85;
+  counter-reset: post-h2;
 }
 
 .post-content h1,
@@ -699,74 +552,106 @@ html {
 .post-content h5,
 .post-content h6 {
   position: relative;
-  color: var(--poster-title);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  line-height: 1.25;
-  scroll-margin-top: 6rem;
   width: fit-content;
   max-width: 100%;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--poster-line);
+  margin-inline: 0;
+  color: var(--poster-title);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-synthesis-weight: none;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-transform: uppercase;
+  scroll-margin-top: 6rem;
 }
 
 .post-content h1 {
-  font-size: 2.3rem;
-  margin: 2.5rem 0 1.2rem;
+  margin: 2.6rem 0 1.2rem;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
 }
+
 .post-content h2 {
-  font-size: 1.7rem;
-  margin: 2.2rem 0 1rem;
-}
-.post-content h3 {
-  font-size: 1.28rem;
-  margin: 1.8rem 0 0.8rem;
-}
-.post-content h4 {
-  font-size: 1.08rem;
-  margin: 1.5rem 0 0.6rem;
-}
-.post-content h5 {
-  font-size: 0.95rem;
-  letter-spacing: 0.08em;
-  margin: 1.3rem 0 0.5rem;
-}
-.post-content h6 {
-  font-size: 0.85rem;
-  letter-spacing: 0.12em;
-  margin: 1.3rem 0 0.5rem;
-  color: var(--poster-text-muted);
+  margin: 2.8rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid var(--poster-line);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  counter-increment: post-h2;
 }
 
 .post-content h2::before {
-  content: "// ";
+  margin-right: 0.6rem;
   color: var(--poster-ice);
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  letter-spacing: 0.04em;
+  content: "[" counter(post-h2, decimal-leading-zero) "]";
+}
+
+.post-content h3 {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.35rem;
+}
+
+.post-content h3::before {
+  margin-right: 0.5rem;
+  color: var(--poster-ice);
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  content: "//";
+}
+
+.post-content h4 {
+  margin: 1.6rem 0 0.6rem;
+  font-family: var(--font-condensed);
+  font-size: 1.12rem;
+  letter-spacing: 0.06em;
+}
+
+.post-content h5 {
+  margin: 1.4rem 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+}
+
+.post-content h6 {
+  margin: 1.4rem 0 0.5rem;
+  color: var(--poster-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
 }
 
 .post-content .heading-anchor {
   position: absolute;
   left: 100%;
-  bottom: 0.4rem;
-  margin-left: 0.4rem;
+  bottom: 0.15em;
+  margin-left: 0.5rem;
   color: var(--poster-ice);
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-weight: 700;
   text-decoration: none;
-  white-space: nowrap;
   opacity: 0;
   transition: opacity 0.2s;
 }
+
 .post-content h1:hover .heading-anchor,
 .post-content h2:hover .heading-anchor,
 .post-content h3:hover .heading-anchor,
 .post-content h4:hover .heading-anchor,
 .post-content h5:hover .heading-anchor,
 .post-content h6:hover .heading-anchor {
-  opacity: 0.55;
+  opacity: 0.6;
 }
-.post-content .heading-anchor:hover {
-  opacity: 1;
+
+.post-content .heading-anchor:hover { opacity: 1; }
+
+.post-content .heading-anchor.copied::after {
+  content: " COPIED";
+  font-size: 0.55em;
+  letter-spacing: 0.16em;
 }
+
 @media (hover: none) {
   .post-content h1,
   .post-content h2,
@@ -779,130 +664,199 @@ html {
     overflow-wrap: anywhere;
     padding-right: 1.75rem;
   }
+
   .post-content .heading-anchor {
     right: 0;
     left: auto;
     margin-left: 0;
     opacity: 0.5;
   }
+
   .post-content .heading-anchor.copied::after {
     position: absolute;
     top: calc(100% + 3px);
     right: 0;
   }
 }
-.post-content .heading-anchor.copied::after {
-  content: " COPIED";
-  font-size: 0.6em;
-  letter-spacing: 0.1em;
-}
 
-.post-content p { margin: 1rem 0; }
+.post-content p { margin: 1.05rem 0; }
+
+/* Why: 首字下沉是编辑排版的达达式手势——把普通正文的第一笔放大成图形，
+   同时保持段落其余部分完全可读。 */
+.post-content > p:first-of-type::first-letter {
+  float: left;
+  margin: 0.08em 0.14em 0 0;
+  color: var(--poster-ice);
+  font-family: var(--font-display);
+  font-size: 3.2em;
+  font-weight: 700;
+  line-height: 0.78;
+}
 
 .post-content a {
   color: var(--poster-ice);
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: underline;
-  text-underline-offset: 3px;
-  transition: color 0.2s ease;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-shadow 0.15s ease, color 0.15s ease;
 }
+
 .post-content a:hover {
   color: var(--poster-title);
+  text-shadow:
+    1.5px 0 color-mix(in srgb, var(--poster-ice) 80%, transparent),
+    -1.5px 0 color-mix(in srgb, var(--poster-fault) 70%, transparent);
 }
 
 .post-content ul,
 .post-content ol {
-  margin: 1rem 0;
-  padding-left: 1.5rem;
+  margin: 1.1rem 0;
+  padding-left: 1.4rem;
 }
+
 .post-content ul { list-style: none; }
+
 .post-content ul > li::before {
-  content: "▸ ";
+  margin-right: 0.5rem;
   color: var(--poster-ice);
-  font-weight: 700;
+  font-family: var(--font-mono);
+  content: "▪";
 }
-.post-content ul > li:has(> input[type="checkbox"]) {
-  list-style: none;
-}
-.post-content ul > li:has(> input[type="checkbox"])::before {
-  content: none;
-}
+
+.post-content ul > li:has(> input[type="checkbox"]) { list-style: none; }
+.post-content ul > li:has(> input[type="checkbox"])::before { content: none; }
+
 .post-content li > input[type="checkbox"] {
   margin-right: 0.45rem;
   accent-color: var(--poster-ice);
 }
+
 .post-content ol { list-style: decimal; }
-.post-content li { margin: 0.35rem 0; }
+.post-content li { margin: 0.4rem 0; }
+.post-content ol > li::marker {
+  color: var(--poster-ice);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
 
 .post-content blockquote {
-  border-left: 2px solid var(--poster-ice);
-  background: color-mix(in srgb, var(--poster-panel) 45%, transparent);
-  padding: 0.75rem 1rem;
-  margin: 1.25rem 0;
-  color: var(--poster-text-muted);
+  position: relative;
+  margin: 1.5rem 0;
+  border-left: 5px solid var(--poster-ice);
+  background: color-mix(in srgb, var(--poster-panel) 55%, transparent);
+  padding: 1rem 1.25rem 1rem 1.5rem;
+  color: var(--poster-text-bright);
+  font-family: var(--font-editorial);
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
+.post-content blockquote::before {
+  position: absolute;
+  top: 0.1rem;
+  left: 0.4rem;
+  color: color-mix(in srgb, var(--poster-ice) 45%, transparent);
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-style: normal;
+  content: "“";
 }
 
 .post-content code {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.85em;
-  background: var(--poster-panel);
   border: 1px solid var(--poster-line);
+  background: var(--poster-panel);
   padding: 0.1rem 0.35rem;
   color: var(--poster-ice);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
 }
 
 .post-content pre {
+  position: relative;
+  margin: 1.6rem 0;
+  border: 2px solid color-mix(in srgb, var(--poster-ice) 32%, var(--poster-line));
   background: var(--poster-panel);
-  border: 1px solid var(--poster-line);
-  padding: 1rem 1.25rem;
-  margin: 1.5rem 0;
+  padding: 1.4rem 1.25rem 1rem;
   overflow-x: auto;
+  box-shadow: 5px 5px 0 color-mix(in srgb, var(--poster-ice) 14%, transparent);
 }
+
+.post-content pre::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 42px;
+  height: 3px;
+  background: var(--poster-ice);
+  content: "";
+}
+
 .post-content pre code {
-  background: transparent;
   border: none;
+  background: transparent;
   padding: 0;
   color: inherit;
   font-size: 0.82rem;
 }
 
 .post-content img {
-  border: 1px solid var(--poster-line);
   max-width: 100%;
   height: auto;
+  border: 2px solid var(--poster-line);
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--poster-ice) 16%, transparent);
+  transition: box-shadow 0.2s ease;
+}
+
+.post-content img:hover {
+  box-shadow:
+    4px 0 0 color-mix(in srgb, var(--poster-ice) 55%, transparent),
+    -4px 0 0 color-mix(in srgb, var(--poster-fault) 45%, transparent),
+    8px 8px 0 color-mix(in srgb, var(--poster-ice) 16%, transparent);
 }
 
 .post-content table {
   width: 100%;
+  margin: 1.6rem 0;
   border-collapse: collapse;
-  margin: 1.5rem 0;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
 }
+
 .post-content th,
 .post-content td {
-  border: 1px solid var(--poster-line);
+  border: 2px solid var(--poster-line);
   padding: 0.5rem 0.75rem;
   text-align: left;
 }
+
 .post-content th {
   background: var(--poster-panel);
   color: var(--poster-title);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
+.post-content tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--poster-panel) 40%, transparent);
+}
+
 .post-content hr {
+  height: 0;
+  margin: 2.4rem 0;
   border: none;
-  border-top: 1px solid var(--poster-line);
-  margin: 2rem 0;
+  border-top: 1px dashed var(--poster-line);
 }
 
 .post-content .footnotes {
   margin-top: 2.5rem;
   border-top: 1px solid var(--poster-line);
   padding-top: 1rem;
-  font-size: 0.8rem;
   color: var(--poster-text-muted);
+  font-size: 0.8rem;
 }
+
 .post-content .sr-only {
   position: absolute;
   width: 1px;
@@ -914,6 +868,7 @@ html {
   white-space: nowrap;
   border: 0;
 }
+
 .post-content .katex-display {
   overflow-x: auto;
   overflow-y: hidden;
@@ -942,7 +897,7 @@ html {
 /* ============ Gitalk 覆盖 ============ */
 /* Why: 用 #gitalk-container(id 提升优先级)覆盖默认皮肤，套 --poster-* 变量。 */
 #gitalk-container .gt-container {
-  font-family: var(--font-mono);
+  font-family: var(--font-tech);
   color: var(--poster-text-bright);
 }
 #gitalk-container .gt-container .gt-meta {

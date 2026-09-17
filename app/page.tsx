@@ -1,132 +1,236 @@
 import Link from "next/link";
-import { getAllPostMeta } from "@/lib/posts";
+import { getAllPostMeta, getAllTags } from "@/lib/posts";
 import { siteConfig } from "@/lib/siteConfig";
-import { EarthGlobe } from "./components/EarthGlobe";
+import { chanceCode, chanceTilt } from "@/lib/dada";
+import { padIndex } from "@/lib/format";
+import { DadaCollage } from "./components/DadaCollage";
+import { ExtrudeType } from "./components/ExtrudeType";
 import { PostRow } from "./components/PostRow";
-import { DataWarp } from "./components/DataWarp";
+import { navItems } from "./components/nav";
 
-// Why: 首页是失序的轨道控制台：地球仍是主视觉，但标题、遥测和诊断块故意
-// 跨网格错位，形成 system-art 混乱感；文章流保持稳定，提供阅读锚点。
+// Why: 首页是一张整屏海报：字标在左上、遥测在右上、简介与入口在左下、
+// 剪贴画在右下，中间留出大片空白；斜向辅助线和角落的重复大字填满整个画面。
 export default function HomePage() {
-  const latestPosts = getAllPostMeta().slice(0, siteConfig.latestCountOnHome);
-  const nameParts = siteConfig.name.split("_");
+  const posts = getAllPostMeta();
+  const tags = getAllTags();
+  const latest = posts.slice(0, siteConfig.latestCountOnHome);
+  const [word, suffix] = siteConfig.name.split("_");
+  const main = word || siteConfig.name;
+  const since = posts.length > 0 ? posts[posts.length - 1].date.slice(0, 4) : "—";
 
   return (
-    <div className="system-page mx-auto my-5 w-full max-w-6xl px-4 pb-14 md:my-10 md:px-8">
-      <section className="relative isolate grid min-h-[760px] items-center gap-20 py-24
-        lg:grid-cols-2 lg:gap-24">
-        <DataWarp />
-        <div className="relative z-10 mx-auto w-full min-w-0 max-w-[600px]
-          lg:mx-0 lg:justify-self-end">
-          <EarthGlobe className="earth-system h-auto w-full" />
+    <div>
+      <section className="relative min-h-[100svh] overflow-hidden">
+        <span aria-hidden="true" className="poster-rail poster-rail-a" />
+        <span aria-hidden="true" className="poster-rail poster-rail-b" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[36%] -right-[3%]
+            hidden rotate-[18deg] xl:block"
+        >
+          <ExtrudeType
+            text={`${main} / NOTES`}
+            className="text-[clamp(2.4rem,5vw,5.5rem)]"
+          />
+        </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-[8%] left-[42%]
+            hidden -rotate-[14deg] lg:block"
+        >
+          <ExtrudeType
+            text="CUT / PASTE"
+            className="text-[clamp(1.8rem,3.5vw,3.6rem)]"
+          />
         </div>
 
-        <div className="relative z-10 min-w-0 border-l-4 border-poster-ice/55
-          bg-[var(--poster-content-wash)] py-8 pl-6 pr-1 lg:py-10 lg:pl-12 lg:pr-4">
-          <div className="mb-7 w-fit border border-poster-line px-3 py-1.5
-            text-[8px] tracking-[0.2em] text-poster-ice">
-            SYS.ART / SATELLITE ARCHIVE / CHANNEL 09
-          </div>
-          <h1
-            className="text-5xl font-extrabold uppercase leading-[0.82]
-              tracking-[-0.08em] text-poster-title sm:text-7xl md:text-8xl"
-          >
-            <span className="glitch" data-text={nameParts[0]}>
-              {nameParts[0]}
-            </span>
-            <span className="rgb-split block translate-x-[0.18em]">
-              _{nameParts[1] ?? ""}
-            </span>
-          </h1>
-          <p
-            className="mt-8 max-w-lg border-l border-poster-ice pl-5 text-[11px]
-              uppercase leading-6 tracking-[0.2em] text-poster-text-muted"
-          >
-            {siteConfig.description}
-          </p>
-          <div className="mt-10 flex w-fit items-center gap-2 border-t
-            border-poster-line pr-12 pt-3 text-[10px] tracking-[0.18em]
-            text-poster-text-muted">
-            <span className="text-poster-ice">&gt;</span>
-            <span>ORBIT_LOCKED_</span>
-            <span className="blink inline-block h-3 w-2 bg-poster-ice" />
-          </div>
+        {/* 左下角色块：L 形角标贴在纸张左下角 */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-0 z-0
+            hidden md:block"
+        >
+          <div className="h-40 w-10 bg-poster-ice" />
+          <div className="cutout-b h-10 w-64 bg-poster-ice" />
         </div>
 
-      </section>
-
-      <section className="relative mt-16 border-y border-poster-line/70
-        bg-[var(--poster-content-wash)] py-6 md:mt-24 md:py-9">
-        <div className="flex items-baseline justify-between border-l-4 border-poster-ice/60 pl-4">
-          <h2
-            className="text-xs font-extrabold uppercase tracking-widest
-              text-poster-ice"
-          >
-            {"// 01 · LATEST_TRANSMISSION"}
-          </h2>
-          <Link
-            href="/posts"
-            className="text-[11px] font-extrabold text-poster-ice
-              transition-colors hover:text-poster-title"
-          >
-            ALL →
-          </Link>
+        {/* 中间色块：填补版面中央的空白 */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[44%] left-1/2 z-0
+            hidden -translate-x-1/2 rotate-[-6deg] lg:block"
+        >
+          <div className="cutout-a h-24 w-36 bg-poster-ice" />
+          <div className="mt-3 ml-8 h-6 w-20 -rotate-3 bg-poster-title" />
         </div>
 
-        <div className="mt-4 border-y border-poster-line bg-poster-bg/75">
-          {latestPosts.length === 0 ? (
-            <div className="py-16 text-center">
-              <span className="text-xs tracking-widest text-poster-title">
-                &gt; NO_SIGNAL
-              </span>
-              <span className="ml-2 text-xs text-poster-text-muted">
-                暂无文章
-              </span>
-            </div>
-          ) : (
-            latestPosts.map((post) => (
-              <PostRow key={post.slug} post={post} />
-            ))
-          )}
-        </div>
-      </section>
-
-      <section className="ml-auto mt-24 grid gap-10 border-l-4 border-poster-ice/60
-        bg-[var(--poster-content-wash)] p-6 md:w-4/5
-        md:grid-cols-[minmax(0,1fr)_auto] md:p-9">
-        <div>
-          <h2
-            className="text-xs font-extrabold uppercase tracking-widest
-              text-poster-ice"
-          >
-            {"// 02 · STATION"}
-          </h2>
-          <p
-            className="mt-4 max-w-2xl text-sm leading-relaxed
-              text-poster-text-bright"
-          >
-            {siteConfig.description}
-          </p>
-          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
-            {siteConfig.socialLinks.map((link) => (
-              <a
-                key={link.url}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] font-bold tracking-widest
-                  text-poster-ice transition-colors hover:text-poster-title"
+        <div
+          className="shell relative z-10 flex min-h-[100svh] flex-col
+            justify-between py-10 pb-24 md:py-14 md:pb-32"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-12">
+            <div className="max-w-[46rem]">
+              <div
+                className="flex flex-wrap items-center gap-3 font-mono text-[9px]
+                  uppercase tracking-[0.3em] text-poster-text-muted"
               >
-                {link.label} ↗
-              </a>
+                <span className="bg-poster-ice px-1.5 py-0.5 text-poster-bg">
+                  01
+                </span>
+                <span>{siteConfig.title}</span>
+                <span className="h-0.5 w-10 bg-poster-title" />
+                <span>SINCE {since}</span>
+              </div>
+
+              <h1 className="relative mt-6">
+                <span
+                  className="absolute -top-7 right-0 hidden rotate-3 border-2
+                    border-poster-title bg-poster-title px-2 py-1 font-mono
+                    text-[9px] uppercase tracking-[0.24em] text-poster-bg
+                    md:block"
+                >
+                  merz / 1923
+                </span>
+                <ExtrudeType
+                  text={main}
+                  className="text-[clamp(4rem,9vw,9rem)] uppercase"
+                />
+                {suffix && (
+                  <span
+                    className="outline-type type-display -mt-[0.06em] ml-[8%] block
+                      -rotate-2 text-[clamp(2.2rem,5.5vw,5rem)] uppercase
+                      leading-[0.76]"
+                  >
+                    _{suffix}
+                  </span>
+                )}
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1/2 -right-3 hidden h-4 w-32
+                    bg-poster-ice md:block"
+                  style={{ transform: `rotate(${chanceTilt(siteConfig.name, 3)})` }}
+                />
+              </h1>
+            </div>
+
+            <dl
+              className="w-44 border-l-2 border-poster-line pl-4 font-mono
+                text-[9px] uppercase tracking-[0.2em] text-poster-text-muted"
+            >
+              <div className="pb-4">
+                <dt>RECORDS</dt>
+                <dd className="mt-1 text-poster-text-bright">
+                  {padIndex(posts.length)}
+                </dd>
+              </div>
+              <div className="py-4">
+                <dt>TOPICS</dt>
+                <dd className="mt-1 text-poster-text-bright">
+                  {padIndex(tags.length)}
+                </dd>
+              </div>
+              <div className="pt-4">
+                <dt>CHANCE</dt>
+                <dd className="mt-1 text-poster-text-bright">
+                  {chanceCode(main)}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="flex flex-wrap items-end justify-between gap-14">
+            <div className="max-w-md">
+              <p
+                className="border-l-4 border-poster-line pl-4 text-sm leading-relaxed
+                  text-poster-text-bright"
+              >
+                {siteConfig.description}
+              </p>
+              <div className="mt-10 flex flex-wrap gap-4">
+                <Link
+                  href="/posts"
+                  className="border-2 border-poster-ice bg-poster-ice px-5 py-3
+                    font-mono text-[10px] uppercase tracking-[0.24em]
+                    text-poster-bg shadow-[5px_5px_0_var(--poster-line)]
+                    transition-[transform,box-shadow] hover:translate-x-[3px]
+                    hover:translate-y-[3px]
+                    hover:shadow-[2px_2px_0_var(--poster-line)]"
+                >
+                  BROWSE POSTS →
+                </Link>
+                <Link
+                  href="/about"
+                  className="hard-hover border-2 border-poster-title px-5 py-3
+                    font-mono text-[10px] uppercase tracking-[0.24em]
+                    text-poster-text-muted transition-colors
+                    hover:bg-poster-title hover:text-poster-bg"
+                >
+                  ABOUT OPERATOR
+                </Link>
+              </div>
+            </div>
+
+            <div className="w-full md:w-[36%]">
+              <DadaCollage hero />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="shell grid gap-8 py-32 md:grid-cols-12 md:gap-0 md:py-44">
+        <div className="col-span-1 hidden border-r-2 border-poster-line md:block">
+          <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-poster-ice [writing-mode:vertical-rl]">
+            02 / TRANSMISSIONS
+          </span>
+        </div>
+        <div className="col-span-12 md:col-span-9 md:col-start-3">
+          <div className="flex items-end justify-between gap-5 border-b-4 border-poster-line pb-4">
+            <h2 className="type-display max-w-[8ch] text-[clamp(3rem,8vw,7rem)] uppercase leading-[0.78] text-poster-title">
+              最新文章
+            </h2>
+            <Link
+              href="/posts"
+              className="mb-1 border-2 border-poster-title px-3 py-2 font-mono
+                text-[10px] uppercase tracking-[0.2em] text-poster-ice
+                hover:bg-poster-title hover:text-poster-bg"
+            >
+              ALL →
+            </Link>
+          </div>
+          <div className="mt-8">
+            {latest.map((post, index) => (
+              <PostRow key={post.slug} post={post} index={index} />
             ))}
           </div>
         </div>
-        <div className="grid w-fit self-start whitespace-pre text-[9px]
-          leading-[1.45] text-poster-text-muted opacity-65" aria-hidden="true">
-          <span>┌─[ RX SIGNAL ]────────┐</span>
-          <span>│ ▓▓░▓ ░▓▓▓ ▓░░▓ 87% │</span>
-          <span>└────── SAT/07 ───────┘</span>
+      </section>
+
+      <section>
+        <div className="shell grid gap-8 py-28 md:grid-cols-12 md:gap-0 md:py-36">
+          <div className="col-span-1 hidden border-r-2 border-poster-line md:block">
+            <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-poster-ice [writing-mode:vertical-rl]">
+              03 / DIRECT ACCESS
+            </span>
+          </div>
+          <nav className="col-span-12 md:col-span-10 md:col-start-3">
+            {navItems.map((item, index) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`group flex items-baseline gap-4 border-t-4 border-poster-line py-4 transition-colors hover:bg-poster-ice hover:text-poster-bg ${index % 2 ? "md:ml-[11%]" : ""}`}
+              >
+                <span className="font-mono text-[10px] text-poster-ice group-hover:text-poster-bg/70">
+                  {padIndex(index + 1)}
+                </span>
+                <span className="type-condensed text-[clamp(2.4rem,6vw,5.5rem)] uppercase leading-none text-poster-title group-hover:text-poster-bg">
+                  {item.label}
+                </span>
+                <span className="ml-auto font-mono text-sm text-poster-ice group-hover:text-poster-bg">
+                  ↗
+                </span>
+              </Link>
+            ))}
+          </nav>
         </div>
       </section>
     </div>

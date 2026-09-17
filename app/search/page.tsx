@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getSearchDocuments } from "@/lib/posts";
 import { SearchClient } from "../components/SearchClient";
+import { PageHeader } from "../components/PageHeader";
 
 export const metadata: Metadata = {
   title: "搜索",
@@ -9,24 +10,24 @@ export const metadata: Metadata = {
 };
 
 // Why: 构建期把搜索索引直接烘焙进本页(仅访问 /search 时加载)，客户端组件
-// 拿到后即可离线模糊搜索，无需任何后端接口。v7 编辑流排版。
+// 拿到后即可离线模糊搜索，无需任何后端接口。
 export default function SearchPage() {
   const documents = getSearchDocuments();
 
   return (
-    <div className="system-page system-subpage mx-auto w-full max-w-4xl px-4">
-      <h1
-        className="pt-10 text-3xl font-extrabold uppercase text-poster-title
-          md:text-4xl"
-      >
-        搜索
-      </h1>
-      <div className="mt-2 text-[10px] uppercase tracking-widest
-        text-poster-text-muted">
-        {"// QUERY"}
-      </div>
+    <div className="shell pb-20">
+      <PageHeader
+        index="05"
+        kicker="QUERY // FULL-TEXT"
+        title="搜索"
+        meta={[
+          { label: "INDEXED", value: documents.length.toString().padStart(2, "0") },
+          { label: "ENGINE", value: "FUSE.JS" },
+          { label: "SCOPE", value: "TITLE/TAG/BODY" },
+        ]}
+      />
 
-      <div className="mt-8">
+      <div className="mt-10">
         <SearchClient documents={documents} />
       </div>
     </div>

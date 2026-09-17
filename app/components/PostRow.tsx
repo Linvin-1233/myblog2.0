@@ -1,44 +1,77 @@
 import Link from "next/link";
 import type { PostMeta } from "@/lib/posts";
-import { formatDate } from "@/lib/format";
+import { formatDate, padIndex } from "@/lib/format";
 
-// Why: 传输流行(v7 编辑流)——文章 = 一行式记录：日期 / 标题 / 标签，
-// 细线分隔，hover 标题转冰蓝(纯色变化)。纯展示组件，
-// 可被客户端 PostList 安全复用。
-export function PostRow({ post }: { post: PostMeta }) {
+// Why: 记录行(Brutalism)——2px 硬分隔、左侧编号、压缩体大标题，
+// hover 时整行反白(冰蓝底 + 暗字)，是最直接的粗野主义反馈。
+export function PostRow({ post, index }: { post: PostMeta; index: number }) {
+  const drift = index % 3 === 1 ? "md:ml-[4%]" : index % 3 === 2 ? "md:ml-[-2%]" : "";
+
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="group relative grid grid-cols-[auto_1fr] items-baseline gap-3
-        overflow-hidden border-b border-poster-line px-3 py-5 transition-[background-color,transform,box-shadow]
-        duration-150 hover:translate-x-1 hover:bg-poster-ice/5
-        hover:shadow-[inset_2px_0_var(--poster-ice)]
-        md:grid-cols-[96px_1fr_auto] md:gap-5 md:px-5 md:pr-12"
+      className={`group relative grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3
+        border-b-2 border-poster-line px-2 py-7 transition-colors
+        hover:bg-poster-ice md:grid-cols-[3rem_minmax(0,1fr)_12rem] md:gap-x-6
+        md:px-4 md:py-8 ${drift}`}
     >
-      <time
-        dateTime={post.date}
-        className="text-[11px] font-bold text-poster-text-muted"
-      >
-        {formatDate(post.date)}
-      </time>
       <span
-        className="truncate text-base font-extrabold uppercase tracking-wide
-          text-poster-title transition-colors group-hover:text-poster-ice"
+        className="pt-2 font-mono text-[10px] leading-none text-poster-ice/60
+          transition-colors group-hover:text-poster-bg/70"
+        style={{ transform: `rotate(${(index % 3) * 1.2 - 1.2}deg)` }}
       >
-        {post.title}
+        {padIndex(index + 1)}
       </span>
-      <span className="hidden gap-2 md:flex">
-        {post.tags.slice(0, 3).map((tag) => (
+
+      <span className="min-w-0">
+        <span
+          className="type-condensed block text-2xl uppercase text-poster-title
+            transition-colors group-hover:text-poster-bg md:text-[clamp(2rem,3vw,3.5rem)]"
+        >
+          {post.title}
+        </span>
+        {post.description && (
           <span
-            key={tag}
-            className="text-[10px] uppercase text-poster-text-muted"
+            className="mt-1.5 line-clamp-2 block max-w-3xl text-xs
+              leading-relaxed text-poster-text-muted transition-colors
+              group-hover:text-poster-bg/75"
           >
-            #{tag}
+            {post.description}
           </span>
-        ))}
+        )}
+        {post.tags.length > 0 && (
+          <span
+            className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px]
+              uppercase tracking-[0.18em] text-poster-text-muted
+              transition-colors group-hover:text-poster-bg/75"
+          >
+            {post.tags.slice(0, 4).map((tag) => (
+              <span key={tag}>#{tag}</span>
+            ))}
+          </span>
+        )}
       </span>
-      <span className="absolute right-3 translate-x-2 text-poster-ice opacity-0
-        transition-all group-hover:translate-x-0 group-hover:opacity-100" aria-hidden="true">→</span>
+
+      <span
+        className="col-start-2 flex items-center gap-3 font-mono text-[10px]
+          uppercase tracking-[0.16em] text-poster-text-muted transition-colors
+          group-hover:text-poster-bg/75 md:col-start-3 md:flex-col
+          md:items-end md:gap-1.5 md:pt-1.5"
+      >
+        <time dateTime={post.date}>{formatDate(post.date)}</time>
+        <span className="text-poster-line group-hover:text-poster-bg/40 md:hidden">
+          ·
+        </span>
+        <span>{padIndex(post.readingMinutes)} MIN</span>
+        <span
+          aria-hidden="true"
+          className="-translate-x-1 font-mono text-xs text-poster-ice
+            opacity-0 transition-all group-hover:translate-x-0
+            group-hover:text-poster-bg group-hover:opacity-100"
+        >
+          →
+        </span>
+      </span>
     </Link>
   );
 }
