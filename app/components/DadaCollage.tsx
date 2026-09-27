@@ -2,15 +2,9 @@ import Image from "next/image";
 
 // Why: 这是实际的剪贴画，不是抽象背景。仓库里的文章图片被当作照片碎片，
 // 以固定的错位/旋转/纸片遮挡重新编排；所有位置都是确定的，SSR 不会漂移。
-// hero 变体把整体压矮，保证首页首屏在 16:9 下装得下。
-export function DadaCollage({
-  compact = false,
-  hero = false,
-}: {
-  compact?: boolean;
-  hero?: boolean;
-}) {
-  const variant = hero ? " dada-collage-hero" : compact ? " dada-collage-compact" : "";
+// 只用于"关于"页——首页已改成纯排印的悬浮版面，不再放图片。
+export function DadaCollage({ compact = false }: { compact?: boolean }) {
+  const variant = compact ? " dada-collage-compact" : "";
   return (
     <div className={`dada-collage${variant}`}>
       <div className="dada-collage-photo dada-photo-a">

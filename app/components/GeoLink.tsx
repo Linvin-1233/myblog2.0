@@ -99,7 +99,9 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
   const [status, setStatus] = useState<LocateStatus>("idle");
   const [tz, setTz] = useState("");
   const [device, setDevice] = useState("");
-  const [now, setNow] = useState(() => Date.now());
+  // Why: 时钟不能在初始 state 里取 Date.now()——客户端组件也会被静态预渲染，
+  // 服务端与客户端取到的时间必然不同，时钟文本会水合不一致。挂载后再开始走秒。
+  const [now, setNow] = useState<number | null>(null);
   // Why: 作者"准实时"位置(来自 /api/location，由 iOS 快捷指令上报)，无则回退 config。
   const [liveAuthor, setLiveAuthor] = useState<{
     lat: number;
@@ -117,6 +119,7 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setTz(Intl.DateTimeFormat().resolvedOptions().timeZone);
     setDevice(detectDevice(navigator.userAgent));
+    setNow(Date.now());
 
     let cancelled = false;
 
@@ -212,6 +215,8 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     : author.timezone;
   const distanceKm =
     authorCoords && coords ? haversineKm(authorCoords, coords) : null;
+  // Why: now 为 null 表示尚未挂载；时钟/时差在挂载前不渲染，避免水合不一致。
+  const clockReady = now !== null;
 
   return (
     <div className="space-y-8">
@@ -219,22 +224,32 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         <LocationCard
           label={`AUTHOR // 作者${useLive ? " (LIVE)" : ""}`}
           place={authorPlace}
-          timezone={authorTimezone ? tzLabel(now, authorTimezone) : "时区解析中…"}
-          clock={authorTimezone ? timeInZone(now, authorTimezone) : undefined}
+          timezone={
+            authorTimezone && clockReady
+              ? tzLabel(now, authorTimezone)
+              : "时区解析中…"
+          }
+          clock={
+            authorTimezone && clockReady
+              ? timeInZone(now, authorTimezone)
+              : undefined
+          }
         />
         <LocationCard
           label={`VISITOR // 你${source ? ` (${source.toUpperCase()})` : ""}`}
           place={place || (status === "locating" ? "定位中…" : "待定位")}
-          timezone={tzLabel(now, visitorTz)}
-          clock={timeInZone(now, visitorTz)}
+          timezone={clockReady ? tzLabel(now, visitorTz) : "时区解析中…"}
+          clock={clockReady ? timeInZone(now, visitorTz) : undefined}
         />
       </div>
 
-      <div className="border-t-2 border-poster-line pt-4">
-        <div className="font-mono text-[9px] uppercase tracking-[0.3em] text-poster-text-muted">
+      {/* Why: 距离是这一页的主对象，所以它是整块实色场，
+          数字直接当图形用——不描边、不加面板。 */}
+      <div className="block-ice p-8 md:p-10">
+        <div className="font-mono text-[9px] uppercase tracking-[0.3em] opacity-70">
           {"// DISTANCE"}
         </div>
-        <div className="mt-2 font-mono text-4xl tabular-nums text-poster-ice md:text-5xl">
+        <div className="mt-3 font-mono text-[clamp(2.5rem,8vw,4.5rem)] leading-none tabular-nums">
           {distanceKm !== null
             ? `${Math.round(distanceKm).toLocaleString("en-US")} km`
             : "—"}
@@ -245,7 +260,9 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
         <Stat
           label="时差"
           value={
-            authorTimezone ? tzOffsetLabel(now, authorTimezone, visitorTz) : "解析中…"
+            authorTimezone && clockReady
+              ? tzOffsetLabel(now, authorTimezone, visitorTz)
+              : "解析中…"
           }
         />
         <Stat label="你的设备" value={device || "检测中…"} />

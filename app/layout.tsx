@@ -8,8 +8,11 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/lib/siteConfig";
+import { DeviceScript } from "./components/DeviceScript";
 import { ThemeScript } from "./components/ThemeScript";
-import { RouteGlitchTransition } from "./components/RouteGlitchTransition";
+import { RouteSwapTransition } from "./components/RouteSwapTransition";
+import { ScrollReveal } from "./components/ScrollReveal";
+import { SideNav } from "./components/SideNav";
 import { SiteHeader } from "./components/SiteHeader";
 import { StatusFooter } from "./components/StatusFooter";
 
@@ -97,17 +100,21 @@ export default function RootLayout({
     // 首帧写入，与服务端渲染的初始值可能不同，抑制这一预期内的告警。
     <html
       lang="zh-CN"
+      data-device="desktop"
       suppressHydrationWarning
       className={`${jetbrainsMono.variable} ${anton.variable} ${bebasNeue.variable} ${chakraPetch.variable} ${instrumentSerif.variable}`}
     >
       <body className="min-h-screen bg-poster-bg font-tech text-poster-text antialiased selection:bg-poster-ice selection:text-poster-bg">
         <ThemeScript />
-        <RouteGlitchTransition />
+        <DeviceScript />
+        <RouteSwapTransition />
+        <ScrollReveal />
         <div className="relative z-10 flex min-h-screen flex-col">
+          <SideNav />
           <main className="flex-1">
             {/* Why: 站点导航嵌在正文版心内，不做独立顶栏，
                 header/body/footer 之间不再有分割线。 */}
-            <SiteHeader siteName={siteConfig.name} />
+            <SiteHeader />
             {children}
           </main>
           <StatusFooter />

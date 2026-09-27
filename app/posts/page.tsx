@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { getAllPostMeta } from "@/lib/posts";
 import { siteConfig } from "@/lib/siteConfig";
+import { pageMetadata } from "@/lib/seo";
 import { formatDate, padIndex } from "@/lib/format";
 import { PostList } from "../components/PostList";
 import { PageHeader } from "../components/PageHeader";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "全部文章",
   description: `${siteConfig.name} 的全部文章归档与分页浏览。`,
-  alternates: { canonical: "/posts" },
-};
+  path: "/posts",
+});
 
 // Why: 文章总列表——文件抬头 + 记录表 + 等宽分页条。
 export default function PostsPage() {

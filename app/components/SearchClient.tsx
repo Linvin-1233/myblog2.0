@@ -47,13 +47,11 @@ export function SearchClient({
 
   return (
     <div className="space-y-6">
-      <label
-        className="flex items-stretch border-2 border-poster-line bg-poster-panel
-          transition-colors focus-within:border-poster-ice"
-      >
+      {/* Why: 查询框本身就是这一页的主对象，所以它是实色场而不是描边输入框。 */}
+      <label className="block-ice flex items-stretch">
         <span
-          className="grid place-items-center border-r border-poster-line px-3
-            font-mono text-[9px] uppercase tracking-[0.24em] text-poster-ice"
+          className="grid place-items-center border-r-2 border-current px-3
+            font-mono text-[9px] uppercase tracking-[0.24em]"
         >
           QUERY
         </span>
@@ -63,13 +61,12 @@ export function SearchClient({
           onChange={(event) => setQuery(event.target.value)}
           placeholder="搜索标题 / 简介 / 标签 / 正文…"
           autoFocus
-          className="w-full bg-transparent px-4 py-3.5 font-tech text-sm
-            text-poster-text-bright outline-none placeholder:text-poster-text-muted"
+          className="w-full bg-transparent px-4 py-4 font-tech text-base
+            text-current outline-none placeholder:opacity-60"
         />
         <span
           aria-hidden="true"
-          className="grid place-items-center px-3 font-mono text-xs
-            text-poster-text-muted"
+          className="grid place-items-center px-3 font-mono text-xs"
         >
           <span className="blink">▍</span>
         </span>

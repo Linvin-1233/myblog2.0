@@ -3,6 +3,7 @@ import Link from "next/link";
 import { renderMarkdown } from "@/lib/markdown";
 import { getAllPostMeta, getAllTags } from "@/lib/posts";
 import { aboutContent, authorLocation, siteConfig } from "@/lib/siteConfig";
+import { pageMetadata } from "@/lib/seo";
 import { chanceCode, chanceTilt } from "@/lib/dada";
 import { padIndex } from "@/lib/format";
 import { DadaCollage } from "../components/DadaCollage";
@@ -11,11 +12,11 @@ import { HeadingAnchors } from "../components/HeadingAnchors";
 import { PageHeader } from "../components/PageHeader";
 import "katex/dist/katex.min.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "关于",
   description: `关于 ${siteConfig.name} 与本站。`,
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 // Why: About 是档案页，不再把正文塞进居中卡片；左侧露出规格和照片碎片，
 // 右侧正文被推远，留白本身成为版面的一部分。
@@ -91,6 +92,26 @@ export default function AboutPage() {
               DISTANCE
               <span>→</span>
             </Link>
+          </div>
+
+          <div className="mt-12 font-mono text-[9px] uppercase tracking-[0.3em] text-poster-ice">
+            {"// FEED"}
+          </div>
+          <div className="mt-4 flex flex-col gap-2">
+            <a
+              href="/feed.xml"
+              className="flex items-center justify-between border-2 border-poster-line px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-poster-text-muted hover:border-poster-title hover:text-poster-title"
+            >
+              RSS
+              <span>↗</span>
+            </a>
+            <a
+              href="/sitemap.xml"
+              className="flex items-center justify-between border-2 border-poster-line px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-poster-text-muted hover:border-poster-title hover:text-poster-title"
+            >
+              SITEMAP
+              <span>↗</span>
+            </a>
           </div>
         </aside>
 

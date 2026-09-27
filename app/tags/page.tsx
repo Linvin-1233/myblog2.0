@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllPostMeta, getAllTags } from "@/lib/posts";
+import { pageMetadata } from "@/lib/seo";
 import { padIndex } from "@/lib/format";
 import { PageHeader } from "../components/PageHeader";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "标签",
   description: "按标签浏览全部文章主题。",
-  alternates: { canonical: "/tags" },
-};
+  path: "/tags",
+});
 
 // Why: 标签总览——1px 网格切分的方角标签块，hover 整块反白。
 export default function TagsPage() {
@@ -36,14 +37,16 @@ export default function TagsPage() {
             lg:grid-cols-3"
         >
           {tags.map(({ tag, slug, count }, index) => (
+            /* Why: 每格是实色场(panel)，hover 时整格翻成冰蓝。
+               标签页是色块密度最高的页面——它就是一块色场的矩阵。 */
             <Link
               key={slug}
               href={`/tags/${encodeURIComponent(slug)}`}
-              className="group flex items-baseline gap-3 bg-poster-bg px-5 py-6
+              className="group block-panel flex items-baseline gap-3 px-5 py-8
                 transition-colors hover:bg-poster-ice"
             >
               <span
-                className="font-mono text-[10px] text-poster-ice/60
+                className="font-mono text-[10px] text-poster-ice
                   group-hover:text-poster-bg/60"
               >
                 {padIndex(index + 1)}

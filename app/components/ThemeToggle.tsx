@@ -45,16 +45,23 @@ export function ThemeToggle() {
       aria-label="切换深浅色主题"
       className="group flex h-8 items-center gap-2 border-2 border-poster-line px-2.5
         font-mono text-[9px] uppercase tracking-[0.2em] text-poster-text-muted
-        transition-colors hover:border-poster-ice hover:text-poster-ice"
+        transition-[color,border-color,transform] duration-300
+        hover:border-poster-ice hover:text-poster-ice active:scale-95"
     >
       <span
         aria-hidden="true"
-        className={`h-1.5 w-1.5 ${isDark ? "bg-poster-ice" : "bg-poster-fault"}`}
+        className={`h-1.5 w-1.5 transition-colors duration-500 ${
+          isDark ? "bg-poster-ice" : "bg-poster-fault"
+        }`}
       />
       <span aria-hidden="true" className="hidden sm:inline">
         {mounted ? (isDark ? "DARK" : "LIGHT") : "····"}
       </span>
-      <span aria-hidden="true" className="text-poster-ice/60 group-hover:text-poster-ice">
+      <span
+        aria-hidden="true"
+        className={`inline-block text-poster-ice/60 transition-transform duration-500
+          group-hover:text-poster-ice ${isDark ? "rotate-180" : "rotate-0"}`}
+      >
         ◐
       </span>
     </button>

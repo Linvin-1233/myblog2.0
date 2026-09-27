@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllTags, getPostsByTag } from "@/lib/posts";
 import { siteConfig } from "@/lib/siteConfig";
+import { pageMetadata } from "@/lib/seo";
 import { padIndex } from "@/lib/format";
 import { PostList } from "../../components/PostList";
 import { PageHeader } from "../../components/PageHeader";
@@ -34,11 +35,11 @@ export async function generateMetadata({
   const { tag } = await params;
   const slug = safeDecode(tag);
   const name = displayName(slug);
-  return {
+  return pageMetadata({
     title: `标签: ${name}`,
     description: `与「${name}」相关的全部文章。`,
-    alternates: { canonical: `/tags/${encodeURIComponent(slug)}` },
-  };
+    path: `/tags/${encodeURIComponent(slug)}`,
+  });
 }
 
 export default async function TagPage({ params }: PageProps) {

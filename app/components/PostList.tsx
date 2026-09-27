@@ -6,7 +6,8 @@ import { padIndex } from "@/lib/format";
 import { PostRow } from "./PostRow";
 
 // Why: 客户端分页(Marathon 记录表)：编号行列表 + 等宽分页条。
-// 因是客户端组件，Next 构建期把首屏 + 全部链接预渲染进 HTML，SEO 不受影响。
+// How: 静态 HTML 只含当前页的真实 <a>；其余页数据经 RSC payload 下发，不构成
+// 可抓取链接。全量文章由 /archive、sitemap、RSS 负责被爬虫发现，分页控件不承担该职责。
 export function PostList({
   posts,
   perPage,

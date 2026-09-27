@@ -5,6 +5,17 @@
 // How: 读取请求头即为动态数据，强制动态渲染(不被静态缓存)。
 export const dynamic = "force-dynamic";
 
+// How: 请求头来自外部且可能含非法百分号编码，decodeURIComponent 会抛 URIError；
+// 这里失败时回退原始值，避免整条路由 500。
+function safeDecode(value: string | null): string | null {
+  if (!value) return null;
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export function GET(request: Request) {
   const h = request.headers;
   const city = h.get("x-vercel-ip-city");
@@ -12,8 +23,8 @@ export function GET(request: Request) {
   const lng = h.get("x-vercel-ip-longitude");
 
   return Response.json({
-    // How: Vercel 的 city 头是 URL 编码的(可能含 %20)，解码后返回。
-    city: city ? decodeURIComponent(city) : null,
+    // How: Vercel 的 city 头是 URL 编码的(可能含 %20)，安全解码后返回。
+    city: safeDecode(city),
     country: h.get("x-vercel-ip-country"),
     region: h.get("x-vercel-ip-country-region"),
     latitude: lat ? Number(lat) : null,

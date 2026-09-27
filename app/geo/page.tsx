@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { authorLocation } from "@/lib/siteConfig";
+import { pageMetadata } from "@/lib/seo";
 import { GeoLink } from "../components/GeoLink";
 import { PageHeader } from "../components/PageHeader";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "坐标",
   description: "作者与你的所在地、直线距离与时差；可用 GPS 精确定位。",
-  alternates: { canonical: "/geo" },
-};
+  path: "/geo",
+});
 
 // Why: 把"你我之间"做成独立页面。访客定位/设备检测均为客户端能力，
 // 页面本身仍是静态预渲染，只有 GeoLink 内部按需请求 /api/geo 与浏览器定位。

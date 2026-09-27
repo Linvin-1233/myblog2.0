@@ -2,6 +2,7 @@
 export default function Loading() {
   return (
     <div
+      data-route-loading
       className="shell grid min-h-[60vh] place-content-center gap-4"
       role="status"
       aria-label="正在接收页面数据"

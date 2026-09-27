@@ -26,27 +26,22 @@ export default function NotFound() {
           </span>
         </div>
 
-        <h1 className="relative mt-6">
-          <span
-            className="type-display block text-[clamp(4.5rem,22vw,15rem)]
-              uppercase leading-[0.8] text-poster-title"
-          >
-            404
-          </span>
-          <span
-            aria-hidden="true"
-            className="type-condensed absolute -top-2 right-4 hidden -rotate-6
-              border-2 border-poster-ice bg-poster-ice px-2 text-2xl
-              text-poster-bg md:block"
-          >
-            LOST
-          </span>
-          <span
-            aria-hidden="true"
-            className="cutout-a absolute bottom-6 left-1/3 hidden h-3 w-40
-              bg-poster-fault/70 md:block"
-          />
-        </h1>
+        {/* Why: 404 这个数字本身是排印元素，压在一整块冰蓝色场上。
+            大色块的基本处理：让版面最重的那一格是实色，而不是描边。 */}
+        <div className="block-ice relative mt-6 px-6 py-10 md:px-10 md:py-14">
+          <h1 className="relative m-0">
+            <span className="type-display block text-[clamp(4.5rem,22vw,15rem)] uppercase leading-[0.8]">
+              404
+            </span>
+            <span
+              aria-hidden="true"
+              className="type-condensed absolute -top-2 right-4 hidden -rotate-6
+                border-2 border-current px-2 text-2xl md:block"
+            >
+              LOST
+            </span>
+          </h1>
+        </div>
 
         <p
           className="mt-6 max-w-xl font-mono text-xs uppercase leading-relaxed

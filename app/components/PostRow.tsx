@@ -4,12 +4,18 @@ import { formatDate, padIndex } from "@/lib/format";
 
 // Why: 记录行(Brutalism)——2px 硬分隔、左侧编号、压缩体大标题，
 // hover 时整行反白(冰蓝底 + 暗字)，是最直接的粗野主义反馈。
+// How: 每行按序号错开出场(最多 5 档)。行本身靠 margin 做水平错位，
+// 与进入动效用的 transform 互不冲突。
 export function PostRow({ post, index }: { post: PostMeta; index: number }) {
   const drift = index % 3 === 1 ? "md:ml-[4%]" : index % 3 === 2 ? "md:ml-[-2%]" : "";
+  const delay = index % 5;
 
   return (
     <Link
       href={`/posts/${post.slug}`}
+      data-reveal=""
+      data-reveal-delay={delay > 0 ? String(delay) : undefined}
+      suppressHydrationWarning
       className={`group relative grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3
         border-b-2 border-poster-line px-2 py-7 transition-colors
         hover:bg-poster-ice md:grid-cols-[3rem_minmax(0,1fr)_12rem] md:gap-x-6

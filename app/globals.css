@@ -43,7 +43,6 @@
   --poster-text-bright: #2e333b;
   --poster-text-muted: #82878f;
   --poster-title: #33383f;
-  --poster-shadow: rgba(51, 56, 63, 0.14);
   --poster-fault: #1d4e89;
   /* Why: 中文不在任何一款英文字体内，统一回退到系统中文黑体。 */
   --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
@@ -68,7 +67,6 @@
   --poster-text-bright: #d6d8de;
   --poster-text-muted: #848892;
   --poster-title: #e6e7ea;
-  --poster-shadow: rgba(0, 0, 0, 0.4);
   --poster-fault: #7fc4f2;
 
   --hljs-comment: #848892;
@@ -81,13 +79,33 @@
 
 html {
   scroll-behavior: smooth;
-  background: var(--poster-bg);
+  /* Why 这里不写 background：把背景完全交给 body。
+     根元素没有背景时，body 的背景会"传播"到画布(canvas)，
+     覆盖整个可滚动区域——这是唯一不可能被层叠上下文或 z-index
+     意外盖掉的放法。之前用一个 z-index:-10 的定位层来铺底纹，
+     它要依赖"父级正好是层叠上下文"才压得住，太脆。 */
   scrollbar-color: var(--poster-ice) var(--poster-bg);
   scrollbar-width: thin;
 }
 
 body {
-  background: var(--poster-bg);
+  background-color: var(--poster-bg);
+  /* 垂直细线：单一粗细(1px)、单一间距(宽 400px)、黑灰色。
+     How 混的是"背景色"而不是 transparent——这样写等于把"与背景的对比度"
+     直接写进颜色：离背景 13.5% 的位置，就是把对比度砍掉 70%(剩 30%)。
+     用 transparent 做 alpha 合成视觉结果一样，但意图看不出来。
+     How 13.5% 的算法：上一版是 45%，要求对比度减去 70% → 45% × 0.30 = 13.5%。
+     实测(浅色主题)：线 rgb(217,217,214) 对纸 rgb(243,242,238)，
+     每通道差 26/25/24；45% 那版是 86/86/81 → 26/86 ≈ 0.30，正好剩三成。
+     黑灰取 --poster-title：调色板里唯一的炭黑灰，浅色主题 #33383f，
+     深色主题翻成近白，两种主题都成立，不引新颜色。
+     间距必须宽：竖线一密就变成栅格，密栅格是坐标纸；宽间距的少量竖线
+     只给出版面的纵向分栏感，不构成网格。 */
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--poster-title) 13.5%, var(--poster-bg)) 0 1px,
+    transparent 1px 400px
+  );
   color: var(--poster-text);
   overflow-x: hidden;
 }
@@ -142,30 +160,6 @@ body {
   to { opacity: 0; transform: translateY(6px) scale(0.98); }
 }
 
-@keyframes routeGlitch {
-  0% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(-8px); }
-  8% { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0); }
-  18% { opacity: 1; clip-path: inset(12% 0 60% 0); transform: translateX(-12px); }
-  30% { opacity: 1; clip-path: inset(56% 0 22% 0); transform: translateX(16px); }
-  44% { opacity: 1; clip-path: inset(22% 0 8% 0); transform: translateX(-5px); }
-  58% { opacity: 0.92; clip-path: inset(78% 0 0 0); transform: translateX(8px); }
-  74% { opacity: 0.62; clip-path: inset(0 0 0 0); transform: translateY(5px); }
-  100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateY(10px); }
-}
-
-@keyframes routeSlice {
-  0%, 100% { opacity: 0; transform: translateX(0); }
-  18% { opacity: 0.9; transform: translateX(-18vw); }
-  32% { opacity: 0.3; transform: translateX(42vw); }
-  48% { opacity: 0.8; transform: translateX(-8vw); }
-  64% { opacity: 0.1; transform: translateX(60vw); }
-}
-
-@keyframes pulseBlock {
-  0%, 100% { transform: scaleY(1); opacity: 0.85; }
-  50% { transform: scaleY(0.35); opacity: 0.35; }
-}
-
 /* ============ 编辑流工具类 ============ */
 /* Why: 放进 @layer components，让 Tailwind 工具类仍能覆盖(如 .frame + border-0)。 */
 @layer components {
@@ -199,28 +193,6 @@ body {
     line-height: 0.78;
   }
 
-  .poster-rail {
-    position: absolute;
-    height: 0;
-    border-top: 1px dashed var(--poster-ice);
-    opacity: 0.5;
-    pointer-events: none;
-  }
-
-  .poster-rail-a {
-    top: 31%;
-    left: -8%;
-    width: 72%;
-    transform: rotate(-16deg);
-  }
-
-  .poster-rail-b {
-    top: 63%;
-    right: -8%;
-    width: 64%;
-    transform: rotate(22deg);
-  }
-
   .outline-type {
     color: transparent;
     -webkit-text-stroke: 1.5px color-mix(in srgb, var(--poster-ice) 78%, transparent);
@@ -230,14 +202,7 @@ body {
     .outline-type { color: var(--poster-ice); }
   }
 
-  /* 页面标题保持静态；glitch 只在路由切换层出现。 */
-  .glitch {
-    position: relative;
-    display: inline-block;
-    max-width: 100%;
-  }
-
-  /* 硬边链接只改变颜色/边框；glitch 只属于路由过渡。 */
+  /* 硬边链接只改变颜色/边框。 */
   .hard-hover {
     transition: color 0.15s ease, border-color 0.15s ease;
   }
@@ -272,12 +237,6 @@ body {
     line-height: 1;
     text-transform: uppercase;
   }
-
-  .stamp-b { transform: rotate(3deg); }
-
-  /* 剪贴碎片：只给色块使用，文字不裁切(可读性优先)。 */
-  .cutout-a { clip-path: polygon(0 8%, 100% 0, 97% 100%, 3% 94%); }
-  .cutout-b { clip-path: polygon(6% 0, 100% 4%, 94% 100%, 0 96%); }
 
   /* ============ 达达剪贴画 ============ */
   .dada-collage {
@@ -382,82 +341,37 @@ body {
   .dada-collage-compact .dada-photo-b { width: 38%; }
   .dada-collage-compact .dada-paper-a { font-size: 7px; }
 
-  /* Why: 首页 hero 专用——整体高度跟随视口，保证 16:9 下首屏装得下；
-     照片宽度同步收小，让碎片落在容器高度内，不再向下溢出。 */
-  .dada-collage-hero { min-height: clamp(17rem, 34vh, 21rem); }
-  .dada-collage-hero .dada-photo-a { width: 58%; }
-  .dada-collage-hero .dada-photo-b { width: 36%; top: 34%; }
-
-  /* ============ 路由切换 glitch ============ */
-  .route-glitch {
+  /* ============ 路由切换：两块半屏色块 ============ */
+  /* Why: 只有两个实色场，各占半屏，不描边、不投影、无文字——层级来自
+     面积与两种蓝(--poster-ice / --poster-deep)。从左右两侧各自擦入
+     盖住整屏，页面在盖住的一瞬完成替换，再擦出。 */
+  .route-swap {
     position: fixed;
     z-index: 100;
     inset: 0;
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     pointer-events: none;
-    visibility: hidden;
-    background: var(--poster-bg);
-    color: var(--poster-title);
-    opacity: 0;
   }
 
-  .route-glitch-active {
-    visibility: visible;
-    animation: routeGlitch 680ms steps(1, end) both;
+  .route-swap-block {
+    display: block;
+    transform: scaleX(0);
+    transition: transform 360ms cubic-bezier(0.7, 0, 0.2, 1);
   }
 
-  .route-glitch-top,
-  .route-glitch-bottom {
-    position: absolute;
-    right: 1rem;
-    left: 1rem;
-    font-family: var(--font-mono);
-    font-size: 9px;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-  }
-
-  .route-glitch-top {
-    top: 1.25rem;
-    border-bottom: 2px solid var(--poster-title);
-    padding-bottom: 0.55rem;
-    color: var(--poster-ice);
-  }
-
-  .route-glitch-bottom {
-    bottom: 1.25rem;
-    border-top: 2px solid var(--poster-title);
-    padding-top: 0.55rem;
-    color: var(--poster-text-muted);
-    text-align: right;
-  }
-
-  .route-glitch-word {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: max-content;
-    color: var(--poster-title);
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 10vw, 9rem);
-    line-height: 0.8;
-    text-transform: uppercase;
-    transform: translate(-50%, -50%) rotate(-2deg);
-  }
-
-  .route-glitch-slice {
-    position: absolute;
-    height: 4px;
+  .route-swap-block:first-child {
+    transform-origin: left center;
     background: var(--poster-ice);
-    opacity: 0;
   }
 
-  .route-glitch-slice-a { top: 28%; left: 0; width: 72%; }
-  .route-glitch-slice-b { top: 52%; right: 0; width: 46%; background: var(--poster-fault); }
-  .route-glitch-slice-c { top: 74%; left: 18%; width: 64%; }
+  .route-swap-block:last-child {
+    transform-origin: right center;
+    background: var(--poster-deep);
+  }
 
-  .route-glitch-active .route-glitch-slice {
-    animation: routeSlice 680ms steps(1, end) both;
+  .route-swap-active .route-swap-block {
+    transform: scaleX(1);
   }
 
   /* 四角刻度：仅左上/右下，避免过度装饰。 */
@@ -493,14 +407,6 @@ body {
     );
   }
 
-  .dot-field {
-    background-image: radial-gradient(
-      color-mix(in srgb, var(--poster-line) 90%, transparent) 1px,
-      transparent 1px
-    );
-    background-size: 4px 4px;
-  }
-
   /* 页面坐标网格。 */
   .grid-field {
     background-image:
@@ -513,6 +419,192 @@ body {
     animation: blink 1.2s steps(2) infinite;
   }
 
+  /* ============ 滚动进入 / 离出 ============ */
+  /* Why 默认态必须是"可见"：位移只是增强，不能成为内容能否读到的前提。
+     所以初始隐藏只挂在 [data-js="on"] 之下——那段标记由 ThemeScript
+     在首帧前写入，脚本没跑就完全不动，脚本跑了也不会先闪再动。
+     How 双向：IntersectionObserver 离出视口时把状态改回 out，
+     所以上下滚动都有反向动效，而不是只播一次就结束。 */
+  [data-js="on"] [data-reveal] {
+    opacity: 0;
+    transform: translateY(1.75rem);
+    transition:
+      opacity 360ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  [data-js="on"] [data-reveal][data-reveal-state="in"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* 同组元素错开出场，避免整块一起跳。 */
+  [data-js="on"] [data-reveal][data-reveal-delay="1"] { transition-delay: 60ms; }
+  [data-js="on"] [data-reveal][data-reveal-delay="2"] { transition-delay: 120ms; }
+  [data-js="on"] [data-reveal][data-reveal-delay="3"] { transition-delay: 180ms; }
+  [data-js="on"] [data-reveal][data-reveal-delay="4"] { transition-delay: 240ms; }
+  [data-js="on"] [data-reveal][data-reveal-delay="5"] { transition-delay: 300ms; }
+
+  /* 色块用擦除而不是位移：块是"印上去"的，不该像卡片一样浮起来。
+     擦除挂在容器外层，避免与元素自身的 clip-path 互相覆盖。 */
+  [data-js="on"] [data-reveal="wipe"] {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  [data-js="on"] [data-reveal="wipe"][data-reveal-state="in"] {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /* 方向变体。
+     Why 需要不同方向：大色块与文字若同向进出，整屏像一块板一起平移；
+     分开方向后，色块横向擦除、文字纵向滑入，两者在方位与时间上都错开。
+     Why 必须排在上面的默认规则之后：同样特异度(0,2,0)，靠源码顺序决胜。 */
+  [data-js="on"] [data-reveal="from-left"] { transform: translateX(-2.5rem); }
+  [data-js="on"] [data-reveal="from-right"] { transform: translateX(2.5rem); }
+
+  [data-js="on"] [data-reveal="from-left"][data-reveal-state="in"],
+  [data-js="on"] [data-reveal="from-right"][data-reveal-state="in"] {
+    transform: none;
+  }
+
+  /* 自右向左的擦除，与 "wipe" 方向相反，用于成对出现的色块。 */
+  [data-js="on"] [data-reveal="wipe-right"] {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 0 100%);
+    transition: clip-path 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  [data-js="on"] [data-reveal="wipe"][data-reveal-state="in"],
+  [data-js="on"] [data-reveal="wipe-right"][data-reveal-state="in"] {
+    clip-path: inset(0 0 0 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-js="on"] [data-reveal],
+    [data-js="on"] [data-reveal="wipe"],
+    [data-js="on"] [data-reveal="wipe-right"] {
+      opacity: 1;
+      transform: none;
+      clip-path: none;
+      transition: none;
+    }
+  }
+
+  /* ============ 大色块(swiss basic treatment) ============ */
+  /* Why: 色块不是装饰，是版面结构。基本处理只有一条：
+     整块网格单元(整栏 / 整格)成为实色场，与栅格齐平，不描边、不投影，
+     层级由色块的**面积**决定，而不是由边框粗细或阴影。
+     这套语言里色块分两种角色：
+       1) 结构性(punctual→structural)——长期在场，划分版面，例：抬头左轨、页首遥测；
+       2) 反应性——交互时才翻白，例：PostRow 整行 hover 反白、按钮填充。
+     两者共用同一组类；区别只在它是常驻还是被触发。
+     Why 块内文字一律 --poster-bg：浅色主题下它近白、深色主题下近黑，
+     压在蓝色块上两种情况都有对比，不必为块内文字再开一个墨色。 */
+  .block-ice {
+    background: var(--poster-ice);
+    color: var(--poster-bg);
+  }
+
+  .block-deep {
+    background: var(--poster-deep);
+    color: var(--poster-bg);
+  }
+
+  .block-panel {
+    background: var(--poster-panel);
+    color: var(--poster-text-bright);
+  }
+
+  /* Why 固定深墨：--poster-paper 在两个主题里都是浅色，而 --poster-text*
+     会随主题翻成浅色，压在浅块上读不出来。所以浅色块上的墨不能跟主题。 */
+  .block-paper {
+    background: var(--poster-paper);
+    color: #33383f;
+  }
+
+  .block-paper a { color: #1d4e89; }
+
+  /* Why: 色块上的展示字与空心字必须取块内的墨色。
+     .extrude-type 与 .outline-type 默认都用 --poster-ice，压在同样是
+     --poster-ice 的色块上就是冰蓝叠冰蓝——浅色与深色主题下都完全看不见。
+     让色块自己决定内部文字的墨色，调用处就不必每次都记得覆盖。 */
+  .block-ice :is(.extrude-type, .outline-type),
+  .block-deep :is(.extrude-type, .outline-type) {
+    color: var(--poster-bg);
+  }
+
+  .block-ice .outline-type,
+  .block-deep .outline-type {
+    /* 不支持 text-stroke 的浏览器：直接给实心墨色，至少读得出来。 */
+    color: var(--poster-bg);
+  }
+
+  @supports (-webkit-text-stroke: 1px currentColor) {
+    .block-ice .outline-type,
+    .block-deep .outline-type {
+      color: transparent;
+      -webkit-text-stroke-color: var(--poster-bg);
+    }
+  }
+
+  /* Why: 把"色块上的墨色"从色块的后代关系里解耦出来。
+     色块与文字要各自走不同的进入方向，就没法让文字住在色块里面
+     (clip-path 会把子元素一起裁掉)。文字一旦搬到块外，
+     .block-ice 的后代选择器就失效了，所以这里给一个显式的类。 */
+  .on-field { color: var(--poster-bg); }
+
+  .on-field :is(.extrude-type, .outline-type) { color: var(--poster-bg); }
+
+  .on-field .outline-type {
+    color: transparent;
+    -webkit-text-stroke-color: var(--poster-bg);
+  }
+
+  @supports not (-webkit-text-stroke: 1px currentColor) {
+    .on-field .outline-type { color: var(--poster-bg); }
+  }
+
+  /* ============ 首页字标：相对色块右移出块 ============ */
+  /* Why 尺寸：字标要接近色块宽、又留一点边。Anton 拉丁子集里 "LINVIN"
+     宽 2.046em、"_1233" 宽 1.953em(实测)，主字 33cqw + 副字 14.5cqw
+     排成一行后合计 ≈ 0.958 色块宽，两端各留约 2% 才不会被裁。用 cqw
+     而不是 vw/rem：容器宽上限 60rem 且随 shell 内边距收缩，只有容器查询
+     单位能在两段里都等比缩放。 */
+  .hero-stage {
+    container-type: inline-size;
+  }
+
+  .hero-wordmark { font-size: 33cqw; }
+  .hero-suffix { font-size: 14.5cqw; }
+
+  /* Why 墨色分段：色块 xl 左移 8%、字标 xl 右移 10.1%，两者相对错开
+     18.1%（占容器宽），字标右端就落在纸面上。整段若都用 --poster-bg
+     会和纸面同色而"凭空消失"，所以在 xl 断点给 h1 铺一道横向渐变、用
+     background-clip:text 裁进字里：色块内取 --poster-bg，出块后取
+     --poster-title。边界放在 h1 宽的 100%−18.1%——色块右缘在 h1 局部
+     坐标里正好是这个位置（18.1% = 8% + 10.1%；background-origin 设成
+     border-box，避免被 px-6 的 padding 把参照宽度缩短），与字宽无关，
+     所以不会被切偏。渐变挂在 h1 上，副字(透明描边)也吃到同一道墨色。 */
+  @media (min-width: 1280px) {
+    .on-field.hero-field {
+      color: transparent;
+      background-origin: border-box;
+      background-image: linear-gradient(
+        to right,
+        var(--poster-bg) calc(100% - 18.1%),
+        var(--poster-title) calc(100% - 18.1%)
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .on-field .hero-wordmark { color: transparent; }
+  }
+
   .shell {
     width: 100%;
     max-width: 1440px;
@@ -523,15 +615,24 @@ body {
   @media (min-width: 768px) {
     .shell { padding-inline: 2.5rem; }
   }
+
+  /* ============ 设备分流 ============ */
+  /* Why: 由 DeviceScript 在首帧前把 data-device 写到 <html>（服务端默认
+     desktop）。移动/桌面形态的 UI——菜单、左轨导航、引导线——靠它分流，
+     不靠断点：窄的桌面窗口仍是桌面 UI，平板即使窗口宽也仍是移动 UI。 */
+  [data-device="mobile"] .device-desktop { display: none !important; }
+  [data-device="desktop"] .device-mobile { display: none !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
-  .blink,
-  .route-glitch-active,
-  .route-glitch-active .route-glitch-slice {
+  .blink {
     animation: none;
+  }
+
+  .route-swap-block {
+    transition: none;
   }
 }
 

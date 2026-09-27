@@ -134,13 +134,9 @@ export default async function PostPage({ params }: PageProps) {
         </div>
 
         <aside className="absolute top-10 right-0 hidden w-40 md:block">
-          <span
-            className="stamp text-poster-fault"
-            style={{ transform: `rotate(${chanceTilt(post.slug, 5)})` }}
-          >
-            {`DOC №${padIndex(position)}`}
-          </span>
-          <div className="mt-12 border-l-4 border-poster-line pl-3 font-mono text-[9px] uppercase tracking-[0.18em] text-poster-text-muted">
+          {/* 与抬头右上的元数据同一处理：实色场。抬头两角各一块，
+              文章正文以下的档案栏再来一块，页面就形成固定的色块节奏。 */}
+          <div className="block-panel mt-12 p-3 font-mono text-[9px] uppercase tracking-[0.18em]">
             <div>INDEX {padIndex(position)} / {padIndex(total)}</div>
             <div className="mt-2">CHANCE {chanceCode(post.slug)}</div>
             <div className="mt-2">MODE READ_ONLY</div>

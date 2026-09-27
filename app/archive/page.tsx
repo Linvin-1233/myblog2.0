@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getPostsGroupedByYear } from "@/lib/posts";
+import { pageMetadata } from "@/lib/seo";
 import { formatDate, padIndex } from "@/lib/format";
 import { PageHeader } from "../components/PageHeader";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "归档",
   description: "按年份浏览全部文章的时间线归档。",
-  alternates: { canonical: "/archive" },
-};
+  path: "/archive",
+});
 
 // Why: 归档页——年份巨型数字 + 编号时间线，每行等宽日期与压缩体标题。
 export default function ArchivePage() {

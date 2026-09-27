@@ -17,11 +17,6 @@ export function chanceInt(seed: number, min: number, max: number): number {
   return min + (seed % (max - min + 1));
 }
 
-// How: 从种子稳定挑选一项。
-export function pickOne<T>(seed: number, items: readonly T[]): T {
-  return items[seed % items.length];
-}
-
 // How: 稳定的"偶得编号"，用于抬头/侧栏的等宽微文案。
 export function chanceCode(value: string): string {
   return `0x${seedFrom(value)

@@ -66,12 +66,33 @@ prerendered; `app/api/*` remains live as Vercel Serverless Functions.
 - Visual language is "Dadaism × Brutalism × Marathon UI typography × controlled
   glitch": real image cutouts, rotated paper fragments, hard 2px borders with
   offset shadows, strong whitespace, exposed grid rails, and dense mono metadata.
-  Glitch is reserved for `RouteGlitchTransition` during internal route changes;
-  it must not become ambient background noise or a permanent title animation.
+  Route changes use `RouteSwapTransition`: two flush half-screen fields
+  (`--poster-ice` / `--poster-deep`) that wipe in and out, with no text and no
+  glitch; keep glitch out of ambient backgrounds and off permanent titles.
   Reusable pieces (`.hard-hover`, `.frame`, `.slab`, `.stamp`,
   `.corner-frame`, `.cutout-a/b`, `.dada-collage`, `.hatch`, `.grid-field`,
-  `.route-glitch`, `.type-display`, `.type-condensed`) live in `app/globals.css`
+  `.route-swap`, `.type-display`, `.type-condensed`) live in `app/globals.css`
   and may only use the `--poster-*` palette; do not introduce new hues.
+- Large colour blocks follow the Swiss basic treatment, and that is the
+  benchmark for every block in the system: **a whole grid cell (column or grid
+  unit) becomes a solid field, flush to the grid, with no border and no shadow;
+  hierarchy comes from the field's area, not from stroke weight or depth.**
+  Four classes carry it: `.block-ice`, `.block-deep`, `.block-panel`,
+  `.block-paper`. A block's ink is `var(--poster-bg)`, which is near-white in
+  light mode and near-black in dark mode, so it holds contrast on the blue
+  fields in both — never introduce a third ink for block interiors.
+  `.block-paper` is the one exception and hard-codes `#33383f`, because
+  `--poster-paper` is a light field in *both* themes while `--poster-text*`
+  flips light in dark mode; keep that literal if you touch the class.
+- Blocks have two roles, and both are legitimate. **Structural** blocks are
+  resident and carry the layout: the `PageHeader` left rail, its meta panel,
+  the homepage telemetry corner and its two section spines, the post dossier,
+  the distance field, the search input, the 404 numeral. **Reactive** blocks
+  fire on interaction: the `PostRow` full-row inversion, tag cells, buttons.
+  Marathon already did the reactive kind; the structural kind is what the Swiss
+  reference adds. When a page reads as unanchored, add a structural block
+  rather than another border — but do not add so many that the page becomes a
+  checkerboard, and leave the site header and footer on hairlines only.
 - Any "random" rotation/offset must come from `lib/dada.ts`'s deterministic
   `seedFrom`/`chanceInt`/`chanceTilt` helpers (never `Math.random`), otherwise
   SSR output and hydration diverge.
