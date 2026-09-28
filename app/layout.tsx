@@ -15,6 +15,7 @@ import { ScrollReveal } from "./components/ScrollReveal";
 import { SideNav } from "./components/SideNav";
 import { SiteHeader } from "./components/SiteHeader";
 import { StatusFooter } from "./components/StatusFooter";
+import { Analytics } from "@vercel/analytics/next";
 
 // Why: 等宽只用于代码与微文案，沿用仓库内已有的 JetBrains Mono Bold；
 // 中文不在此字体内，会经字体栈回退到系统中文黑体(见 globals.css 的 --font-cjk)。
@@ -119,6 +120,7 @@ export default function RootLayout({
           </main>
           <StatusFooter />
         </div>
+        <Analytics />
       </body>
     </html>
   );
