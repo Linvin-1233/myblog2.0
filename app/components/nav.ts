@@ -5,7 +5,6 @@ export const navItems = [
   { href: "/tags", label: "TAGS" },
   { href: "/archive", label: "ARCHIVE" },
   { href: "/search", label: "SEARCH" },
-  { href: "/geo", label: "GEO" },
   { href: "/about", label: "ABOUT" },
 ] as const;
 

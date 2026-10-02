@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { renderMarkdown } from "@/lib/markdown";
 import { getAllPostMeta, getAllTags } from "@/lib/posts";
-import { aboutContent, authorLocation, siteConfig } from "@/lib/siteConfig";
 import { pageMetadata } from "@/lib/seo";
 import { chanceCode, chanceTilt } from "@/lib/dada";
 import { padIndex } from "@/lib/format";
@@ -73,25 +72,6 @@ export default function AboutPage() {
 
           <div className="mt-16">
             <DadaCollage compact />
-          </div>
-
-          <div className="mt-12 flex flex-col gap-2">
-            {siteConfig.socialLinks.map((link) => (
-              <a
-                key={link.url}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between border-2 border-poster-line px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-poster-text-muted hover:border-poster-title hover:text-poster-title"
-              >
-                {link.label}
-                <span>↗</span>
-              </a>
-            ))}
-            <Link href="/geo" className="flex items-center justify-between border-2 border-poster-line px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-poster-text-muted hover:border-poster-title hover:text-poster-title">
-              DISTANCE
-              <span>→</span>
-            </Link>
           </div>
 
           <div className="mt-12 font-mono text-[9px] uppercase tracking-[0.3em] text-poster-ice">
