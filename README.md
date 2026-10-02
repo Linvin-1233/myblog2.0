@@ -180,7 +180,8 @@ Copy `.env.example` to `.env.local` (see that file for the full list):
 | --- | --- |
 | `GET /api/geo` | Visitor city/country/coords from Vercel edge headers. |
 | `POST /api/gitalk` | Gitalk OAuth token-exchange proxy. |
-| `GET/POST /api/location` | Read / write the author's live GPS location. |
+| `POST /api/location` | Write the author's live GPS location (secret-gated). |
+| `POST /api/distance` | Distance from visitor coords; never returns author coords. |
 
 ## Deployment
 

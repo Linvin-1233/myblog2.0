@@ -2,19 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { AuthorLocation } from "@/lib/siteConfig";
-
-type Coords = { lat: number; lng: number };
-
-// How: 大圆(haversine)距离，单位公里；地球平均半径 6371km。
-function haversineKm(a: Coords, b: Coords): number {
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLon = toRad(b.lng - a.lng);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLon / 2) ** 2;
-  return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
+import { reverseGeocode, type Coords } from "@/lib/geo";
 
 // How: 从 UA 粗略识别设备类型/系统(含版本)/浏览器，满足"检测我的手机"。
 function detectDevice(ua: string): string {
@@ -70,24 +58,6 @@ function tzLabel(now: number, timeZone: string): string {
   return offset ? `${long} · ${offset}` : long;
 }
 
-// How: 免密钥的客户端反向地理编码(BigDataCloud)，把经纬度转成城市·国家名；
-// 拿不到具名地点或失败则返回 null(调用方自行决定回退，避免显示裸坐标)。
-async function reverseGeocode(c: Coords): Promise<string | null> {
-  try {
-    const url =
-      "https://api.bigdatacloud.net/data/reverse-geocode-client" +
-      `?latitude=${c.lat}&longitude=${c.lng}&localityLanguage=zh`;
-    const res = await fetch(url);
-    const data = await res.json();
-    const place = [data.city || data.locality, data.countryName]
-      .filter(Boolean)
-      .join(" · ");
-    return place || null;
-  } catch {
-    return null;
-  }
-}
-
 type LocateStatus = "idle" | "locating" | "denied" | "unsupported";
 
 // Why: 遥测面板——两端坐标、时钟、距离、设备，全部方角单元格拼装；
@@ -102,17 +72,14 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
   // Why: 时钟不能在初始 state 里取 Date.now()——客户端组件也会被静态预渲染，
   // 服务端与客户端取到的时间必然不同，时钟文本会水合不一致。挂载后再开始走秒。
   const [now, setNow] = useState<number | null>(null);
-  // Why: 作者"准实时"位置(来自 /api/location，由 iOS 快捷指令上报)，无则回退 config。
-  const [liveAuthor, setLiveAuthor] = useState<{
-    lat: number;
-    lng: number;
-    city: string | null;
-    updatedAt: number;
-  } | null>(null);
-  const [liveAuthorDetails, setLiveAuthorDetails] = useState<{
+  // Why: 作者地点/时区与距离由 /api/distance 在服务端算好后返回；作者的精确 GPS
+  // 坐标只存在服务端，绝不下发到浏览器。
+  const [authorInfo, setAuthorInfo] = useState<{
+    live: boolean;
     place: string;
     timezone: string;
   } | null>(null);
+  const [distanceKm, setDistanceKm] = useState<number | null>(null);
   const sourceRef = useRef<"gps" | "ip" | null>(null);
 
   useEffect(() => {
@@ -122,15 +89,6 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     setNow(Date.now());
 
     let cancelled = false;
-
-    // Why: 拉取作者实时位置(可选功能，未配置存储时返回 null)。
-    fetch("/api/location")
-      .then((res) => res.json())
-      .then((data) => {
-        if (cancelled || !data || typeof data.lat !== "number") return;
-        setLiveAuthor(data);
-      })
-      .catch(() => {});
 
     // Why: 先用 IP(Vercel 头)做基线定位，页面即刻有数据；用户再点按钮升级到 GPS。
     fetch("/api/geo")
@@ -155,28 +113,33 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
     };
   }, []);
 
+  // Why: 距离需要访客坐标，而访客坐标由 IP/GPS 异步获得；coords 一变就重新请求
+  // 服务端，由服务端读取作者坐标并只返回距离——坐标本身不出服务端。
   useEffect(() => {
-    if (!liveAuthor) return;
     let cancelled = false;
-
-    Promise.all([
-      reverseGeocode({ lat: liveAuthor.lat, lng: liveAuthor.lng }),
-      import("tz-lookup")
-        .then(({ default: timezoneAt }) => timezoneAt(liveAuthor.lat, liveAuthor.lng))
-        .catch(() => ""),
-    ]).then(([place, timezone]) => {
-      if (!cancelled) {
-        setLiveAuthorDetails({
-          place: place || liveAuthor.city || "实时位置",
-          timezone,
+    fetch("/api/distance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(coords ? { lat: coords.lat, lng: coords.lng } : {}),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled || !data) return;
+        setAuthorInfo({
+          live: Boolean(data.live),
+          place: typeof data.place === "string" ? data.place : "",
+          timezone: typeof data.timezone === "string" ? data.timezone : "",
         });
-      }
-    });
+        setDistanceKm(
+          typeof data.distanceKm === "number" ? data.distanceKm : null,
+        );
+      })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
     };
-  }, [liveAuthor]);
+  }, [coords]);
 
   const requestGps = () => {
     if (!navigator.geolocation) {
@@ -201,20 +164,11 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
   };
 
   const visitorTz = tz || "UTC";
-  const useLive = liveAuthor !== null;
-  const authorCoords = useLive
-    ? { lat: liveAuthor!.lat, lng: liveAuthor!.lng }
-    : author.lat !== null && author.lng !== null
-      ? { lat: author.lat, lng: author.lng }
-      : null;
-  const authorPlace = useLive
-    ? liveAuthorDetails?.place ?? "位置解析中…"
-    : [author.city, author.country].filter(Boolean).join(" · ") || "—";
-  const authorTimezone = useLive
-    ? liveAuthorDetails?.timezone ?? ""
-    : author.timezone;
-  const distanceKm =
-    authorCoords && coords ? haversineKm(authorCoords, coords) : null;
+  const useLive = authorInfo?.live ?? false;
+  const authorPlace =
+    authorInfo?.place ||
+    ([author.city, author.country].filter(Boolean).join(" · ") || "—");
+  const authorTimezone = authorInfo?.timezone || author.timezone;
   // Why: now 为 null 表示尚未挂载；时钟/时差在挂载前不渲染，避免水合不一致。
   const clockReady = now !== null;
 

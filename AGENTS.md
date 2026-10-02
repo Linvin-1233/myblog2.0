@@ -56,8 +56,10 @@ prerendered; `app/api/*` remains live as Vercel Serverless Functions.
   `config.yml`; Gitalk's `NEXT_PUBLIC_*` OAuth values are intentionally bundled
   client-side and are not secrets at runtime.
 - `/api/geo` depends on Vercel geo headers and returns null fields locally.
-- `/api/location` needs Upstash `KV_REST_API_URL`/`KV_REST_API_TOKEN` and
-  `LOCATION_WRITE_SECRET`; without storage, the UI falls back to `config.yml`.
+- `/api/location` is write-only and needs Upstash `KV_REST_API_URL`/
+  `KV_REST_API_TOKEN` and `LOCATION_WRITE_SECRET`. `/api/distance` reads the same
+  store server-side and returns only distance/place/timezone — never the raw
+  author coordinates. Without storage, the UI falls back to `config.yml`.
 - Gitalk JS and CSS must remain browser-only dynamic imports in `Comments.tsx`.
 
 ## Styling
