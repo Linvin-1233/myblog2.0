@@ -201,7 +201,7 @@ export default function HomePage() {
         </div>
         <div className="md:col-span-9 md:col-start-3">
           <div className="flex items-end justify-between gap-5 border-b-4 border-poster-line pb-4" data-reveal="" data-reveal-delay="1" suppressHydrationWarning>
-            <h2 className="type-display max-w-[8ch] text-[clamp(3rem,8vw,7rem)] uppercase leading-[0.78] text-poster-title">
+            <h2 className="type-display max-w-[8ch] text-[clamp(3rem,8vw,7rem)] uppercase leading-none text-poster-title">
               最新文章
             </h2>
             <Link
@@ -229,22 +229,24 @@ export default function HomePage() {
             </span>
           </div>
           <nav className="md:col-span-10 md:col-start-3" data-reveal="" data-reveal-delay="2" suppressHydrationWarning>
-            {navItems.map((item, index) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`group flex items-baseline gap-4 border-t-4 border-poster-line py-4 transition-colors hover:bg-poster-ice hover:text-poster-bg ${index % 2 ? "md:ml-[11%]" : ""}`}
-              >
-                <span className="font-mono text-[10px] text-poster-ice group-hover:text-poster-bg/70">
-                  {padIndex(index + 1)}
-                </span>
-                <span className="type-condensed text-[clamp(2.4rem,6vw,5.5rem)] uppercase leading-none text-poster-title group-hover:text-poster-bg">
-                  {item.label}
-                </span>
-                <span className="ml-auto font-mono text-sm text-poster-ice group-hover:text-poster-bg">
-                  ↗
-                </span>
-              </Link>
+            {navItems
+              .filter((item) => item.href !== "/")
+              .map((item, index) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`group flex items-baseline gap-4 border-t-4 border-poster-line py-4 transition-colors hover:bg-poster-ice hover:text-poster-bg ${index % 2 ? "md:ml-[11%]" : ""}`}
+                >
+                  <span className="font-mono text-[10px] text-poster-ice group-hover:text-poster-bg/70">
+                    {padIndex(index + 1)}
+                  </span>
+                  <span className="type-condensed text-[clamp(2.4rem,6vw,5.5rem)] uppercase leading-none text-poster-title group-hover:text-poster-bg">
+                    {item.label}
+                  </span>
+                  <span className="ml-auto font-mono text-sm text-poster-ice group-hover:text-poster-bg">
+                    ↗
+                  </span>
+                </Link>
             ))}
           </nav>
         </div>

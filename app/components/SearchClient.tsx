@@ -60,7 +60,6 @@ export function SearchClient({
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="搜索标题 / 简介 / 标签 / 正文…"
-          autoFocus
           className="w-full bg-transparent px-4 py-4 font-tech text-base
             text-current outline-none placeholder:opacity-60"
         />

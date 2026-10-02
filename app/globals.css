@@ -170,7 +170,9 @@ body {
     font-weight: 700;
     font-synthesis-weight: none;
     letter-spacing: -0.01em;
-    line-height: 0.9;
+    /* Why: 行高 <1 时，换行文字的字符会溢出所在行盒与下一行叠在一起(CJK
+       尤其明显)。默认给足 1，仅当使用方显式写 leading-* 时才收紧。 */
+    line-height: 1;
   }
 
   .type-condensed {
@@ -178,7 +180,8 @@ body {
     font-weight: 700;
     font-synthesis-weight: none;
     letter-spacing: 0.02em;
-    line-height: 1.02;
+    /* Why: 换行/中英混排时避免字符上下相叠；拉丁单行视觉几乎无差。 */
+    line-height: 1.15;
   }
 
   /* 海报字：干净的蓝色大字，无挤压边、无落影。 */
@@ -190,7 +193,8 @@ body {
     font-weight: 700;
     font-synthesis-weight: none;
     letter-spacing: -0.045em;
-    line-height: 0.78;
+    /* Why: 与 type-display 同理，防止长标题/CJK 换行时行间字符重叠。 */
+    line-height: 1;
   }
 
   .outline-type {

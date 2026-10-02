@@ -137,15 +137,15 @@ export default function AboutPage() {
             <dl className="mt-8 grid gap-8 sm:grid-cols-3 font-mono text-[10px] uppercase tracking-[0.16em]">
               <div className="border-t-2 border-poster-line pt-2">
                 <dt className="text-poster-text-muted">DISPLAY</dt>
-                <dd className="mt-1 text-poster-text-bright">ANTON / BEBAS NEUE</dd>
+                <dd className="mt-1 text-poster-text-bright">RANDOM</dd>
               </div>
               <div className="border-t-2 border-poster-line pt-2">
                 <dt className="text-poster-text-muted">TEXT</dt>
-                <dd className="mt-1 text-poster-text-bright">CHAKRA PETCH / INSTRUMENT SERIF</dd>
+                <dd className="mt-1 text-poster-text-bright">NO TEXT!</dd>
               </div>
               <div className="border-t-2 border-poster-line pt-2">
                 <dt className="text-poster-text-muted">CODE</dt>
-                <dd className="mt-1 text-poster-text-bright">JETBRAINS MONO / MARKED + KATEX</dd>
+                <dd className="mt-1 text-poster-text-bright">FUCK MY CODE</dd>
               </div>
             </dl>
           </section>

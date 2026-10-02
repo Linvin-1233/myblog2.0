@@ -31,8 +31,9 @@ export function PostRow({ post, index }: { post: PostMeta; index: number }) {
 
       <span className="min-w-0">
         <span
-          className="type-condensed block text-2xl uppercase text-poster-title
-            transition-colors group-hover:text-poster-bg md:text-[clamp(2rem,3vw,3.5rem)]"
+          className="type-condensed block text-[1.5rem] uppercase
+            text-poster-title transition-colors group-hover:text-poster-bg
+            md:text-[clamp(2rem,3vw,3.5rem)]"
         >
           {post.title}
         </span>

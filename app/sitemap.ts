@@ -19,9 +19,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticEntries: MetadataRoute.Sitemap = [
     { url: toUrl("/"), changeFrequency: "weekly", priority: 1 },
     { url: toUrl("/posts"), changeFrequency: "weekly", priority: 0.9 },
-    { url: toUrl("/search"), changeFrequency: "monthly", priority: 0.4 },
-    { url: toUrl("/tags"), changeFrequency: "monthly", priority: 0.5 },
-    { url: toUrl("/archive"), changeFrequency: "monthly", priority: 0.5 },
     { url: toUrl("/geo"), changeFrequency: "yearly", priority: 0.3 },
     { url: toUrl("/about"), changeFrequency: "yearly", priority: 0.3 },
   ];

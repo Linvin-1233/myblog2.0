@@ -7,7 +7,7 @@ import { PostRow } from "./PostRow";
 
 // Why: 客户端分页(Marathon 记录表)：编号行列表 + 等宽分页条。
 // How: 静态 HTML 只含当前页的真实 <a>；其余页数据经 RSC payload 下发，不构成
-// 可抓取链接。全量文章由 /archive、sitemap、RSS 负责被爬虫发现，分页控件不承担该职责。
+// 可抓取链接。全量文章由 /posts、sitemap、RSS 负责被爬虫发现，分页控件不承担该职责。
 export function PostList({
   posts,
   perPage,
