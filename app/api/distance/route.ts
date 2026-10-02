@@ -1,5 +1,6 @@
 // Why: 作者实时 GPS 坐标只存服务端。浏览器无法得知作者坐标，本路由在服务端读取
-// 存储并计算与访客的距离，只返回距离、地点名与时区——作者的精确坐标绝不下发。
+// 存储并计算与访客的距离，只返回距离、地点名与时区——双方坐标都不下发。
+// 访客坐标优先取请求体(GPS)，缺省时取 Vercel 边缘注入的 IP 坐标。
 // 未配置存储或未上报时回退到 config.yml 的静态坐标(同样只在服务端参与计算)。
 
 import timezoneAt from "tz-lookup";
@@ -31,12 +32,23 @@ async function cachedReverseGeocode(lat: number, lng: number): Promise<string | 
   return place;
 }
 
+function finiteOrNull(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
-  const vLat = Number(body?.lat);
-  const vLng = Number(body?.lng);
-  const hasVisitor = Number.isFinite(vLat) && Number.isFinite(vLng);
 
+  // How: 优先用请求体里的访客坐标(GPS)；没有则回退到 Vercel 边缘注入的 IP 坐标，
+  // 全程只在服务端参与距离计算。任何一个都不回传。
+  let vLat = finiteOrNull(body?.lat);
+  let vLng = finiteOrNull(body?.lng);
+  if (vLat === null || vLng === null) {
+    vLat = finiteOrNull(request.headers.get("x-vercel-ip-latitude"));
+    vLng = finiteOrNull(request.headers.get("x-vercel-ip-longitude"));
+  }
   const stored = await getStoredAuthorLocation();
 
   let live = false;
@@ -59,7 +71,7 @@ export async function POST(request: Request) {
   }
 
   const distanceKm =
-    hasVisitor && aLat !== null && aLng !== null
+    aLat !== null && aLng !== null && vLat !== null && vLng !== null
       ? haversineKm({ lat: aLat, lng: aLng }, { lat: vLat, lng: vLng })
       : null;
 

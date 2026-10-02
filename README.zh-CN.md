@@ -172,7 +172,7 @@ gitalk:
 
 | 路由 | 用途 |
 | --- | --- |
-| `GET /api/geo` | 从 Vercel 边缘头取访客城市/国家/坐标。 |
+| `GET /api/geo` | 从 Vercel 边缘头取访客城市/国家/时区（不含坐标）。 |
 | `POST /api/gitalk` | Gitalk OAuth token 交换代理。 |
 | `POST /api/location` | 写入作者实时 GPS 位置（口令鉴权，只写不读）。 |
 | `POST /api/distance` | 由访客坐标计算距离，绝不返回作者坐标。 |

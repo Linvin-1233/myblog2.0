@@ -90,19 +90,17 @@ export function GeoLink({ author }: { author: AuthorLocation }) {
 
     let cancelled = false;
 
-    // Why: 先用 IP(Vercel 头)做基线定位，页面即刻有数据；用户再点按钮升级到 GPS。
+    // Why: 先用 IP(Vercel 头)展示访客城市；/api/geo 只回地点文本，不含经纬度，
+    // 距离由 /api/distance 用同一批边缘头在服务端算。用户再点按钮升级到 GPS。
     fetch("/api/geo")
       .then((res) => res.json())
       .then((data) => {
-        if (cancelled || sourceRef.current === "gps") return;
-        if (typeof data.latitude === "number") {
-          setCoords({ lat: data.latitude, lng: data.longitude });
-          setPlace(
-            [data.city, data.country].filter(Boolean).join(" · ") || "IP 定位",
-          );
-          setSource("ip");
-          sourceRef.current = "ip";
-        }
+        if (cancelled || sourceRef.current === "gps" || !data) return;
+        const label = [data.city, data.country].filter(Boolean).join(" · ");
+        if (!label && !data.timezone) return;
+        setPlace(label || "IP 定位");
+        setSource("ip");
+        sourceRef.current = "ip";
       })
       .catch(() => {});
 
